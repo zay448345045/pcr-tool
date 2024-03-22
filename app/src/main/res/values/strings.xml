@@ -96,6 +96,7 @@
     <string name="pcrdfans_tip">竞技场查询数据来源</string>
     <string name="pcrdfans_url">https://pcrdfans.com</string>
     <string name="pcrdfans_upload_url">https://pcrdfans.com/battle/upload</string>
+    <string name="pcrdfans_search_url">https://pcrdfans.com/battle</string>
     <string name="leader_source">GameWith</string>
     <string name="leader_tip">角色排行数据来源</string>
     <string name="leader_source_url">https://gamewith.jp/pricone-re/article/show/93068</string>
@@ -257,6 +258,7 @@
     <string name="pvp_upload">上传记录</string>
     <string name="pvp_no_data">未查询到进攻队伍信息</string>
     <string name="pvp_research">重新查询</string>
+    <string name="pvp_search_on_web">去网站查询</string>
     <string name="team_no">进攻队伍 %s</string>
     <string name="team_win">进攻</string>
     <string name="team_lose">防守</string>
