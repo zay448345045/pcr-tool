@@ -375,7 +375,7 @@ enum class SkillActionType(val type: Int, val descId: Int) {
     HIT_COUNT(75,  R.string.skill_type_75),
 
     /**
-     * 76：HP 回复量减少
+     * 76：HP 回复量变化
      */
     HEAL_DOWN(76,  R.string.skill_type_76),
 
@@ -479,6 +479,8 @@ enum class SkillActionType(val type: Int, val descId: Int) {
      * 107：暴击率合计
      */
     SUM_CRITICAL(107, R.string.none),
+
+    //fixme 110 技能描述
 }
 
 /**

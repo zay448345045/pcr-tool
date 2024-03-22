@@ -1540,7 +1540,7 @@ data class SkillActionDetail(
                     else -> UNKNOWN
                 }
             }
-            // 76：HP 回复量减少
+            // 76：HP 回复量变化
             SkillActionType.HEAL_DOWN -> {
                 val value =
                     getValueText(1, actionValue1, actionValue2, percent = getPercent())
@@ -1567,6 +1567,33 @@ data class SkillActionDetail(
                     limit
                 )
             }
+            // 78：被击伤害上升
+            SkillActionType.DMG_TAKEN_UP -> {
+                val time = getTimeText(3, actionValue3, actionValue4)
+                val limit = getString(R.string.skill_action_limit_int, actionValue2.toInt())
+                //数量类型
+                val countType = when (actionDetail1) {
+                    1 -> getString(R.string.skill_action_type_desc_78_1)
+                    else -> getString(R.string.unknown)
+                }
+                //增加或减少
+                val effectType = when (actionDetail2) {
+                    1 -> getString(R.string.skill_action_type_desc_additive)
+                    2 -> getString(R.string.skill_action_type_desc_subtract)
+                    else -> getString(R.string.unknown)
+                }
+                //倍数计算公式
+                val valueText = "<${actionValue1} * ${countType}>"
+                getString(
+                    R.string.skill_action_type_desc_78,
+                    getTarget(),
+                    effectType,
+                    valueText,
+                    time,
+                    limit
+                )
+            }
+
             // 79：行动时，造成伤害
             SkillActionType.ACTION_DOT -> {
                 val value = getValueText(1, actionValue1, actionValue2, percent = getPercent())
@@ -2088,7 +2115,14 @@ data class SkillActionDetail(
             1400 -> R.string.skill_status_1400
             1600 -> R.string.skill_status_1600
             1601 -> R.string.skill_status_1601
-            1700 -> R.string.skill_status_1700
+            //防御减少
+            1700 -> {
+                when (actionValue3.toInt()) {
+                    21 -> R.string.skill_status_1700_21
+                    41 -> R.string.skill_status_1700_41
+                    else -> R.string.unknown
+                }
+            }
             721, 6107 -> R.string.skill_status_721_6107
             1513 -> R.string.skill_ailment_13
             1800 -> R.string.skill_status_1800
