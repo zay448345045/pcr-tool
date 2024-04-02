@@ -16,7 +16,7 @@ data class PvpCharacterData(
 /**
  * 用 - 拼接角色id
  */
-fun List<PvpCharacterData>.getIdStr(): String {
+fun ArrayList<PvpCharacterData>.getIdStr(): String {
     var ids = ""
     for (character in this) {
         ids += "${character.unitId}-"

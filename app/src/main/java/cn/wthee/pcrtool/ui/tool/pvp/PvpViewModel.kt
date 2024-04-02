@@ -57,6 +57,7 @@ data class PvpUiState(
 /**
  * 竞技场 ViewModel
  *
+ * fixme 角色查询时偶现排序错乱问题
  * @param pvpRepository
  * @param apiRepository
  */
@@ -186,7 +187,7 @@ class PvpViewModel @Inject constructor(
                 //处理最近使用角色的站位信息
                 list.forEach {
                     it.position =
-                        characterDataList.find { d -> d.unitId == it.unitId }?.position ?: 0
+                        characterDataList.find { d -> d.unitId == it.unitId }!!.position
                 }
                 _uiState.update {
                     it.copy(
@@ -264,9 +265,8 @@ class PvpViewModel @Inject constructor(
     fun searchByDefs(defs: List<Int>) {
         viewModelScope.launch {
             resetResult()
-            val selectedData = getPvpCharacterByIds(defs)
+            val selectedData = unitRepository.getCharacterByIds(defs).filter { it.position > 0 }
             val selectedIds = selectedData as ArrayList<PvpCharacterData>
-            selectedIds.sortWith(comparePvpCharacterData())
             MainActivity.navViewModel.selectedPvpData.postValue(selectedIds)
             searchByCharacterList(selectedIds)
         }
@@ -275,7 +275,7 @@ class PvpViewModel @Inject constructor(
     /**
      * 处理数据后搜索
      */
-    fun searchByCharacterList(characterDataList: List<PvpCharacterData>? = null) {
+    fun searchByCharacterList(characterDataList: ArrayList<PvpCharacterData>? = null) {
         viewModelScope.launch {
             val list = characterDataList ?: MainActivity.navViewModel.selectedPvpData.value
             if (list == null || list.contains(PvpCharacterData())) {
@@ -284,14 +284,14 @@ class PvpViewModel @Inject constructor(
             }
             resetResult()
             //加载数据
-            val defIds = list.subList(0, 5).getIdStr()
+            val defIds = list.getIdStr()
 
             var unSplitDefIds = ""
             var isError = false
 
             val idArray = buildJsonArray {
-                for (sel in list.subList(0, 5)) {
-                    if (sel.unitId == 0) {
+                for (sel in list) {
+                    if (sel.unitId == -1) {
                         isError = true
                         return@buildJsonArray
                     }
@@ -319,6 +319,7 @@ class PvpViewModel @Inject constructor(
             }
         }
     }
+
     /**
      * 竞技场角色信息
      */
@@ -334,16 +335,6 @@ class PvpViewModel @Inject constructor(
             getRecentlyUsedUnitList(data)
         }
     }
-
-    /**
-     * 角色站位
-     */
-    private suspend fun getPvpCharacterByIds(ids: List<Int>) =
-        try {
-            unitRepository.getCharacterByIds(ids).filter { it.position > 0 }
-        } catch (e: Exception) {
-            arrayListOf()
-        }
 
     /**
      * 改变请求状态
