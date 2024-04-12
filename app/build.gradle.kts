@@ -12,8 +12,8 @@ hilt {
     enableAggregatingTask = true
 }
 
-val composeBom = "2024.02.02"
-val composeCompilerVersion = "1.5.10"
+val composeBom = "2024.04.00"
+val composeCompilerVersion = "1.5.11"
 val appVersionCode = 384
 val appVersionName = "3.8.4"
 val appId = "cn.wthee.pcrtool"
@@ -30,7 +30,7 @@ android {
 
     namespace = appId
     compileSdk = 34
-    buildToolsVersion = "34.0.0"
+    buildToolsVersion = "35.0.0-rc02"
     flavorDimensions += listOf("version")
 
     defaultConfig {
@@ -124,8 +124,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.runtime:runtime-livedata")
-    implementation("androidx.compose.material:material:1.7.0-alpha04")
-    implementation("androidx.compose.material:material-navigation:1.7.0-alpha04")
+    implementation("androidx.compose.material:material:1.7.0-alpha06")
+    implementation("androidx.compose.material:material-navigation:1.7.0-alpha06")
     implementation("androidx.compose.material3:material3")
 
     //Browser
@@ -140,7 +140,7 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-network-ktor:$coilVersion")
 
     //datastore
-    implementation("androidx.datastore:datastore-preferences:1.1.0-beta02")
+    implementation("androidx.datastore:datastore-preferences:1.1.0-rc01")
 
     //Hilt
     implementation("com.google.dagger:hilt-android:${rootProject.extra["hiltVersion"]}")
