@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,11 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -215,50 +216,50 @@ private fun TweetItem(data: TweetData) {
 
             //文本
             if (data.tweet.contains("http")) {
-                val annotatedLinkString: AnnotatedString = buildAnnotatedString {
-                    val str = data.getFormatTweet()
-                    val urlIndexList = clickableLink(str)
-
-                    urlIndexList.forEachIndexed { i, it ->
-                        val startIndex = it.first
-                        val endIndex = it.second
-                        //多个url时 只添加一次
-                        if (i == 0) {
-                            append(str)
-                        }
-                        addStyle(
-                            style = SpanStyle(
-                                color = MaterialTheme.colorScheme.primary,
-                                fontSize = 16.sp,
-                                textDecoration = TextDecoration.Underline
-                            ),
-                            start = startIndex,
-                            end = endIndex
-                        )
-
-                        addStringAnnotation(
-                            tag = "URL",
-                            annotation = str.substring(startIndex, endIndex),
-                            start = startIndex,
-                            end = endIndex
-                        )
-                    }
-                }
-
-                ClickableText(
+                Text(
                     modifier = Modifier.padding(
                         start = Dimen.smallPadding,
                         end = Dimen.smallPadding,
                         bottom = Dimen.mediumPadding,
                     ),
-                    text = annotatedLinkString,
-                    onClick = {
-                        annotatedLinkString
-                            .getStringAnnotations("URL", it, it)
-                            .firstOrNull()?.let { stringAnnotation ->
-                                VibrateUtil(context).single()
-                                BrowserUtil.open(stringAnnotation.item)
+                    text = buildAnnotatedString {
+                        val str = data.getFormatTweet()
+                        val urlIndexList = clickableLink(str)
+                        //遍历链接，拼装文本
+                        urlIndexList.forEachIndexed { i, it ->
+                            val startIndex = it.first
+                            val endIndex = it.second
+                            //多个url时 只添加一次
+                            if (i == 0) {
+                                //第一个链接前的文本内容
+                                append(str.substring(0, urlIndexList[0].first))
+                            } else if (i < urlIndexList.size - 1) {
+                                //中间的文本内容
+                                append(
+                                    str.substring(
+                                        urlIndexList[i - 1].second,
+                                        urlIndexList[i].first
+                                    )
+                                )
                             }
+
+                            //链接文本内容
+                            val url = str.substring(startIndex, endIndex)
+                            val link = LinkAnnotation.Url(
+                                url = url,
+                                style = SpanStyle(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontSize = 16.sp,
+                                    textDecoration = TextDecoration.Underline
+                                ),
+                            ) {
+                                VibrateUtil(context).single()
+                                BrowserUtil.open((it as LinkAnnotation.Url).url)
+                            }
+                            withLink(link) { append(url + '\n') }
+                        }
+                        //最后一个链接后的文本内容
+                        append(str.substring(urlIndexList[urlIndexList.size - 1].second))
                     }
                 )
             } else {
