@@ -371,14 +371,6 @@ fun EnemyWeaknessContent(
         }
     }
     if (showText) {
-
-        IconTextButton(
-            text = "",
-            icon = MainIconType.HELP,
-            onClick = {
-            }
-        )
-
         MainAlertDialog(
             openDialog = openDialog,
             title = stringResource(id = R.string.talent_weakness),
