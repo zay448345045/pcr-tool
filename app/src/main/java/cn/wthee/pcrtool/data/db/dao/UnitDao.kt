@@ -630,7 +630,11 @@ interface UnitDao {
             AND a.unit_id < $maxUnitId 
             AND b.search_area_width > 0
             AND 1 = CASE
-            WHEN  1 = :type AND b.is_limited = 0 AND b.rarity = 1 THEN 1 
+            WHEN  1 = :type AND b.is_limited = 0 AND b.rarity = 1 
+                AND a.unit_id <> 105801
+                AND a.unit_id <> 105901
+                AND a.unit_id <> 106001
+            THEN 1 
             WHEN  2 = :type AND b.is_limited = 0 AND b.rarity = 2 THEN 1 
             WHEN  3 = :type AND b.is_limited = 0 AND b.rarity = 3 AND a.unit_id NOT IN $limitedIds THEN 1 
             WHEN  4 = :type AND ((is_limited = 1 AND rarity = 3 AND a.unit_id NOT IN (:exUnitIdList)) OR a.unit_id IN $limitedIds) THEN 1
