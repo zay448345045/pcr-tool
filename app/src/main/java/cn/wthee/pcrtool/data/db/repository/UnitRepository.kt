@@ -124,7 +124,7 @@ class UnitRepository @Inject constructor(
                     when {
                         second > 0 -> 1
                         second == 0L -> {
-                            o1.id.compareTo(o2.id)
+                            o2.gachaId.compareTo(o1.gachaId)
                         }
                         else -> -1
                     } * (if (filter.asc) 1 else -1)

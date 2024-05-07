@@ -87,13 +87,14 @@ interface UnitDao {
                     WHEN ((is_limited = 1 AND rarity = 3) OR unit_profile.unit_id IN $limitedIds) THEN 2
                     WHEN is_limited = 1 AND rarity = 1 THEN 3
                 END
-            ) AS limit_type
+            ) AS limit_type,
+            COALESCE(gacha.id, 0 ) AS gacha_id
         FROM
             unit_profile
             LEFT JOIN unit_data ON unit_data.unit_id = unit_profile.unit_id
             LEFT JOIN item_data ON item_data.item_id = 32000 + unit_data.unit_id / 100 % 1000
             LEFT JOIN quest_data ON quest_data.quest_id LIKE '13%' AND quest_data.daily_limit <> 0 AND quest_data.reward_image_1 = 32000 + unit_data.unit_id / 100 % 1000
-            LEFT JOIN (SELECT id,exchange_id,unit_id FROM gacha_exchange_lineup GROUP BY unit_id) AS gacha ON gacha.unit_id = unit_data.unit_id
+            LEFT JOIN (SELECT MAX(id) AS id ,MAX(exchange_id) AS exchange_id,unit_id FROM gacha_exchange_lineup GROUP BY unit_id) AS gacha ON gacha.unit_id = unit_data.unit_id
         WHERE 
             (unit_data.unit_name like '%' || :unitName || '%' OR unit_data.unit_id = :unitName)
         AND unit_data.search_area_width > 0
@@ -140,8 +141,7 @@ interface UnitDao {
         CASE WHEN :sortType = 5 AND :asc = 'asc'  THEN birth_day_int END ASC,
         CASE WHEN :sortType = 5 AND :asc = 'desc'  THEN birth_day_int END DESC,
         CASE WHEN :sortType = 6 AND :asc = 'asc'  THEN r6Id END ASC,
-        CASE WHEN :sortType = 6 AND :asc = 'desc'  THEN r6Id END DESC,
-        gacha.exchange_id, gacha.id
+        CASE WHEN :sortType = 6 AND :asc = 'desc'  THEN r6Id END DESC
         LIMIT :limit
         """
     )
