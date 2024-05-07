@@ -373,10 +373,12 @@ private fun CharacterDetailContent(
                             ToolsContent(
                                 unitId = uiState.unitId,
                                 cutinId = uiState.cutinId,
+                                talentType = uiState.basicInfo?.talentId ?: 0,
                                 idList = uiState.idList,
                                 toCharacterBasicInfo = actions.toCharacterBasicInfo,
                                 toAllPics = actions.toAllPics,
-                                toCharacterVideo = actions.toCharacterVideo
+                                toCharacterVideo = actions.toCharacterVideo,
+                                toUnitTalentFilterList = actions.toUnitTalentFilterList
                             )
 
                         //星级
@@ -522,10 +524,12 @@ private fun CharacterCard(
 private fun ToolsContent(
     unitId: Int,
     cutinId: Int,
+    talentType: Int,
     idList: ArrayList<Int>,
     toCharacterBasicInfo: (Int) -> Unit,
     toAllPics: (Int, Int) -> Unit,
     toCharacterVideo: (Int, Int) -> Unit,
+    toUnitTalentFilterList: (Int, Int) -> Unit,
 ) {
     val openDialog = remember {
         mutableStateOf(false)
@@ -575,6 +579,15 @@ private fun ToolsContent(
             modifier = Modifier.padding(end = Dimen.smallPadding),
             onClick = {
                 toCharacterVideo(unitId, VideoType.CHARACTER_CARD.value)
+            }
+        )
+        //相同天赋角色
+        IconTextButton(
+            icon = MainIconType.TALENT,
+            text = stringResource(id = R.string.talent),
+            modifier = Modifier.padding(end = Dimen.smallPadding),
+            onClick = {
+                toUnitTalentFilterList(unitId, talentType)
             }
         )
     }
@@ -1040,10 +1053,12 @@ private fun ToolsContentPreview() {
         ToolsContent(
             unitId = 100101,
             cutinId = 0,
+            talentType = 0,
             idList = arrayListOf(),
             toCharacterBasicInfo = {},
             toAllPics = { _, _ -> },
             toCharacterVideo = { _, _ -> },
+            toUnitTalentFilterList = { _, _ -> },
         )
     }
 }

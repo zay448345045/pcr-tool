@@ -759,6 +759,20 @@ fun NavGraph(
                     toCharacterDetail = actions.toCharacterDetail
                 )
             }
+
+            //角色天赋列表（指定天赋类型）
+            bottomSheet(
+                route = "${NavRoute.TALENT_LIST}/{${NavRoute.UNIT_ID}}/{${NavRoute.TALENT_TYPE}}",
+                arguments = listOf(navArgument(NavRoute.UNIT_ID) {
+                    type = NavType.IntType
+                }, navArgument(NavRoute.TALENT_TYPE) {
+                    type = NavType.IntType
+                })
+            ) {
+                UnitTalentListScreen(
+                    toCharacterDetail = actions.toCharacterDetail
+                )
+            }
         }
     }
 }
@@ -1153,11 +1167,17 @@ class NavActions(navController: NavHostController) {
         navController.navigate(NavRoute.LOAD_COMIC_LIST)
     }
 
-
     /**
      * 角色天赋列表
      */
     val toUnitTalentList = {
         navController.navigate(NavRoute.TALENT_LIST)
+    }
+
+    /**
+     * 角色天赋列表
+     */
+    val toUnitTalentFilterList: (Int, Int) -> Unit = { unitId, talentType ->
+        navController.navigate("${NavRoute.TALENT_LIST}/$unitId/$talentType")
     }
 }
