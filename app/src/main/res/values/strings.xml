@@ -569,6 +569,7 @@
     <string name="skill_critical_damage_take">受到的暴击伤害</string>
     <string name="skill_physical_damage_take">受到的物理伤害</string>
     <string name="skill_magic_damage_take">受到的魔法伤害</string>
+    <string name="skill_physical_damage">造成的物理伤害</string>
     <string name="skill_magic_damage">造成的魔法伤害</string>
     <string name="skill_depend_action">受到动作(%d)影响的</string>
     <string name="skill_range">范围 [%d] 内</string>
