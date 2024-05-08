@@ -1,5 +1,8 @@
 package cn.wthee.pcrtool.ui.tool.extraequip.detail
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,14 +25,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.BuildConfig
 import cn.wthee.pcrtool.R
-import cn.wthee.pcrtool.data.db.view.AttrDefaultInt
-import cn.wthee.pcrtool.data.db.view.AttrInt
 import cn.wthee.pcrtool.data.db.view.ExtraEquipmentData
 import cn.wthee.pcrtool.data.enums.AttrValueType
 import cn.wthee.pcrtool.data.enums.MainIconType
 import cn.wthee.pcrtool.data.enums.UnitType
 import cn.wthee.pcrtool.data.model.CharacterProperty
 import cn.wthee.pcrtool.data.model.SkillDetail
+import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.ui.components.AttrCompare
 import cn.wthee.pcrtool.ui.components.CommonSpacer
 import cn.wthee.pcrtool.ui.components.LifecycleEffect
@@ -55,8 +57,10 @@ import kotlinx.coroutines.launch
  *
  * @param equipId 装备编号
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ExtraEquipDetail(
+fun SharedTransitionScope.ExtraEquipDetail(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     equipId: Int,
     toExtraEquipUnit: (Int) -> Unit,
     toExtraEquipDrop: (Int) -> Unit,
@@ -90,7 +94,11 @@ fun ExtraEquipDetail(
                 ) {
                     //基本信息
                     if (extraEquipmentData.equipmentId != UNKNOWN_EQUIP_ID) {
-                        ExtraEquipBasicInfo(extraEquipmentData, uiState.favorite)
+                        ExtraEquipBasicInfo(
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            extraEquipmentData = extraEquipmentData,
+                            favorite = uiState.favorite
+                        )
                     }
                     //被动技能
                     uiState.skillList?.let { ExtraEquipSkill(it) }
@@ -155,78 +163,97 @@ private fun FabContent(
 /**
  * ex装备基本信息
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun ExtraEquipBasicInfo(
+private fun SharedTransitionScope.ExtraEquipBasicInfo(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     extraEquipmentData: ExtraEquipmentData,
     favorite: Boolean
 ) {
-    if (BuildConfig.DEBUG) {
-        Subtitle1(
-            text = extraEquipmentData.equipmentId.toString()
-        )
-    }
-    MainText(
-        text = extraEquipmentData.equipmentName,
-        color = if (favorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-        selectable = true
-    )
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        MainIcon(
-            data = ImageRequestHelper.getInstance()
-                .getUrl(ICON_EXTRA_EQUIPMENT_CATEGORY, extraEquipmentData.category),
-            size = Dimen.smallIconSize,
-        )
-        Subtitle2(
-            text = extraEquipmentData.categoryName,
-            modifier = Modifier.padding(start = Dimen.smallPadding)
-        )
-    }
-
-    Row(
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(Dimen.largePadding)
+            .then(
+                if (MainActivity.animOnFlag) {
+                    Modifier.sharedElement(
+                        state = rememberSharedContentState(
+                            key = "item-${extraEquipmentData.equipmentId}"
+                        ),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                    )
+                } else {
+                    Modifier
+                }
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        //图标
-        MainIcon(
-            data = ImageRequestHelper.getInstance()
-                .getUrl(ImageRequestHelper.ICON_EXTRA_EQUIPMENT, extraEquipmentData.equipmentId)
-        )
-        //描述
-        Subtitle2(
-            text = extraEquipmentData.getDesc(),
-            modifier = Modifier.padding(start = Dimen.mediumPadding),
+        if (BuildConfig.DEBUG) {
+            Subtitle1(
+                text = extraEquipmentData.equipmentId.toString()
+            )
+        }
+        MainText(
+            text = extraEquipmentData.equipmentName,
+            color = if (favorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             selectable = true
         )
-    }
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            MainIcon(
+                data = ImageRequestHelper.getInstance()
+                    .getUrl(ICON_EXTRA_EQUIPMENT_CATEGORY, extraEquipmentData.category),
+                size = Dimen.smallIconSize,
+            )
+            Subtitle2(
+                text = extraEquipmentData.categoryName,
+                modifier = Modifier.padding(start = Dimen.smallPadding)
+            )
+        }
 
-    //属性变化
-    Row(
-        modifier = Modifier.padding(
-            horizontal = Dimen.mediumPadding + Dimen.smallPadding
-        )
-    ) {
-        Spacer(modifier = Modifier.weight(0.3f))
-        Subtitle1(
-            text = stringResource(id = R.string.extra_equip_default_value),
-            textAlign = TextAlign.End,
+        Row(
             modifier = Modifier
-                .weight(0.2f)
-                .padding(0.dp)
-        )
-        Subtitle1(
-            text = stringResource(id = R.string.extra_equip_max_value),
-            textAlign = TextAlign.End,
-            modifier = Modifier.weight(0.2f)
+                .fillMaxWidth()
+                .padding(Dimen.largePadding)
+        ) {
+            //图标
+            MainIcon(
+                data = ImageRequestHelper.getInstance()
+                    .getUrl(ImageRequestHelper.ICON_EXTRA_EQUIPMENT, extraEquipmentData.equipmentId)
+            )
+            //描述
+            Subtitle2(
+                text = extraEquipmentData.getDesc(),
+                modifier = Modifier.padding(start = Dimen.mediumPadding),
+                selectable = true
+            )
+        }
+
+        //属性变化
+        Row(
+            modifier = Modifier.padding(
+                horizontal = Dimen.mediumPadding + Dimen.smallPadding
+            )
+        ) {
+            Spacer(modifier = Modifier.weight(0.3f))
+            Subtitle1(
+                text = stringResource(id = R.string.extra_equip_default_value),
+                textAlign = TextAlign.End,
+                modifier = Modifier
+                    .weight(0.2f)
+                    .padding(0.dp)
+            )
+            Subtitle1(
+                text = stringResource(id = R.string.extra_equip_max_value),
+                textAlign = TextAlign.End,
+                modifier = Modifier.weight(0.2f)
+            )
+        }
+        AttrCompare(
+            compareData = extraEquipmentData.fixAttrList(LocalContext.current),
+            isExtraEquip = true,
+            attrValueType = AttrValueType.PERCENT
         )
     }
-    AttrCompare(
-        compareData = extraEquipmentData.fixAttrList(LocalContext.current),
-        isExtraEquip = true,
-        attrValueType = AttrValueType.PERCENT
-    )
 }
 
 /**
@@ -271,22 +298,22 @@ private fun ExtraEquipSkill(
 private fun ExtraEquipBasicInfoPreview() {
     PreviewLayout {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            ExtraEquipBasicInfo(
-                ExtraEquipmentData(
-                    equipmentId = 1,
-                    equipmentName = stringResource(id = R.string.debug_short_text),
-                    description = stringResource(id = R.string.debug_long_text),
-                    attrDefault = AttrDefaultInt().also {
-                        it.hp = 2345
-                        it.atk = 3456
-                    },
-                    attr = AttrInt().also {
-                        it.hp = 2345
-                        it.atk = 3456
-                    }
-                ),
-                true
-            )
+//            ExtraEquipBasicInfo(
+//                ExtraEquipmentData(
+//                    equipmentId = 1,
+//                    equipmentName = stringResource(id = R.string.debug_short_text),
+//                    description = stringResource(id = R.string.debug_long_text),
+//                    attrDefault = AttrDefaultInt().also {
+//                        it.hp = 2345
+//                        it.atk = 3456
+//                    },
+//                    attr = AttrInt().also {
+//                        it.hp = 2345
+//                        it.atk = 3456
+//                    }
+//                ),
+//                true
+//            )
         }
     }
 }

@@ -1,5 +1,8 @@
 package cn.wthee.pcrtool.ui.tool.clan
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -13,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.ClanBattleEvent
-import cn.wthee.pcrtool.data.db.view.ClanBattleInfo
 import cn.wthee.pcrtool.ui.components.CaptionText
 import cn.wthee.pcrtool.ui.components.EventTitle
 import cn.wthee.pcrtool.ui.components.MainCard
@@ -30,13 +32,16 @@ import cn.wthee.pcrtool.utils.formatTime
 /**
  * 公会战 item 首页预览用
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ClanBattleOverviewItemContent(
+fun SharedTransitionScope.ClanBattleOverviewItemContent(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     clanBattleEvent: ClanBattleEvent,
     toClanBossInfo: (String) -> Unit,
 ) {
     if (clanBattleEvent.clanBattleInfo != null) {
         ClanBattleItem(
+            animatedVisibilityScope = animatedVisibilityScope,
             clanBattleEvent = clanBattleEvent,
             clanBattleInfo = clanBattleEvent.clanBattleInfo!!,
             toClanBossInfo = toClanBossInfo
@@ -104,15 +109,15 @@ private fun ClanBattleNoBossContent(clanBattleEvent: ClanBattleEvent) {
 @Composable
 private fun Preview() {
     PreviewLayout {
-        ClanBattleOverviewItemContent(
-            clanBattleEvent = ClanBattleEvent(
-                clanBattleInfo = ClanBattleInfo(1)
-            ),
-            toClanBossInfo = {}
-        )
-        ClanBattleOverviewItemContent(
-            clanBattleEvent = ClanBattleEvent(),
-            toClanBossInfo = {}
-        )
+//        ClanBattleOverviewItemContent(
+//            clanBattleEvent = ClanBattleEvent(
+//                clanBattleInfo = ClanBattleInfo(1)
+//            ),
+//            toClanBossInfo = {}
+//        )
+//        ClanBattleOverviewItemContent(
+//            clanBattleEvent = ClanBattleEvent(),
+//            toClanBossInfo = {}
+//        )
     }
 }

@@ -1,5 +1,8 @@
 package cn.wthee.pcrtool.ui.equip
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +38,7 @@ import cn.wthee.pcrtool.data.model.EquipGroupData
 import cn.wthee.pcrtool.data.model.FilterEquip
 import cn.wthee.pcrtool.data.model.isFilter
 import cn.wthee.pcrtool.navigation.navigateUp
+import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.ui.components.CommonGroupTitle
 import cn.wthee.pcrtool.ui.components.CommonSpacer
 import cn.wthee.pcrtool.ui.components.ExpandableFab
@@ -74,8 +78,10 @@ import kotlinx.serialization.json.Json
 /**
  * 装备列表
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun EquipListScreen(
+fun SharedTransitionScope.EquipListScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     toEquipDetail: (Int) -> Unit,
     toEquipMaterial: (Int, String) -> Unit,
     toSearchEquipQuest: (String) -> Unit,
@@ -131,6 +137,7 @@ fun EquipListScreen(
         ) {
             if (uiState.equipList != null && uiState.filter != null) {
                 EquipListContent(
+                    animatedVisibilityScope = animatedVisibilityScope,
                     equipList = uiState.equipList!!,
                     scrollState = scrollState,
                     favoriteIdList = uiState.favoriteIdList,
@@ -269,8 +276,10 @@ private fun EquipListFabContent(
     )
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun EquipListContent(
+private fun SharedTransitionScope.EquipListContent(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     equipList: List<EquipmentBasicInfo>,
     scrollState: LazyListState,
     favoriteIdList: List<Int>,
@@ -325,6 +334,7 @@ private fun EquipListContent(
                 }
             ) {
                 EquipItem(
+                    animatedVisibilityScope = animatedVisibilityScope,
                     favoriteIdList = favoriteIdList,
                     equip = equipGroupData.equipIdList[it],
                     toEquipDetail = toEquipDetail,
@@ -346,8 +356,10 @@ private fun EquipListContent(
 /**
  * 装备
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun EquipItem(
+private fun SharedTransitionScope.EquipItem(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     favoriteIdList: List<Int>,
     equip: EquipmentBasicInfo,
     toEquipDetail: (Int) -> Unit,
@@ -362,6 +374,18 @@ private fun EquipItem(
         modifier = Modifier
             .fillMaxWidth()
             .animateContentSize(defaultSpring())
+            .then(
+                if (MainActivity.animOnFlag) {
+                    Modifier.sharedElement(
+                        state = rememberSharedContentState(
+                            key = "item-${equip.equipmentId}"
+                        ),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                    )
+                } else {
+                    Modifier
+                }
+            )
             .clip(MaterialTheme.shapes.extraSmall)
             .clickable {
                 VibrateUtil(context).single()
@@ -434,21 +458,21 @@ private fun getEquipColor(colorType: Int): Color {
 private fun EquipListContentPreview() {
     val name = stringResource(id = R.string.debug_short_text)
     PreviewLayout {
-        EquipListContent(
-            equipList = arrayListOf(
-                EquipmentBasicInfo(equipmentId = 1, equipmentName = name, promotionLevel = 1),
-                EquipmentBasicInfo(equipmentId = 2, equipmentName = name, promotionLevel = 2),
-                EquipmentBasicInfo(equipmentId = 3, equipmentName = name, promotionLevel = 2),
-                EquipmentBasicInfo(equipmentId = 4, equipmentName = name, promotionLevel = 2),
-            ),
-            scrollState = rememberLazyListState(),
-            favoriteIdList = arrayListOf(1),
-            toEquipDetail = { },
-            toEquipMaterial = { _, _ -> },
-            searchEquipMode = false,
-            searchEquipIdList = arrayListOf(),
-            selectEquip = {}
-        )
+//        EquipListContent(
+//            equipList = arrayListOf(
+//                EquipmentBasicInfo(equipmentId = 1, equipmentName = name, promotionLevel = 1),
+//                EquipmentBasicInfo(equipmentId = 2, equipmentName = name, promotionLevel = 2),
+//                EquipmentBasicInfo(equipmentId = 3, equipmentName = name, promotionLevel = 2),
+//                EquipmentBasicInfo(equipmentId = 4, equipmentName = name, promotionLevel = 2),
+//            ),
+//            scrollState = rememberLazyListState(),
+//            favoriteIdList = arrayListOf(1),
+//            toEquipDetail = { },
+//            toEquipMaterial = { _, _ -> },
+//            searchEquipMode = false,
+//            searchEquipIdList = arrayListOf(),
+//            selectEquip = {}
+//        )
     }
 }
 

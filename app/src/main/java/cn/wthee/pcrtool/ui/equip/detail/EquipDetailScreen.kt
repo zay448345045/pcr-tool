@@ -1,6 +1,9 @@
 package cn.wthee.pcrtool.ui.equip.detail
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,10 +20,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.R
-import cn.wthee.pcrtool.data.db.view.Attr
 import cn.wthee.pcrtool.data.db.view.EquipmentMaxData
 import cn.wthee.pcrtool.data.enums.MainIconType
 import cn.wthee.pcrtool.data.model.EquipmentMaterial
+import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.ui.components.AttrList
 import cn.wthee.pcrtool.ui.components.LifecycleEffect
 import cn.wthee.pcrtool.ui.components.MainIcon
@@ -44,8 +47,10 @@ import kotlinx.coroutines.launch
  *
  * @param equipId 装备编号
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun EquipDetailScreen(
+fun SharedTransitionScope.EquipDetailScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     equipId: Int,
     toEquipMaterial: (Int, String) -> Unit,
     toEquipUnit: (Int) -> Unit,
@@ -89,6 +94,7 @@ fun EquipDetailScreen(
             StateBox(stateType = uiState.loadState) {
                 uiState.equipData?.let {
                     EquipDetailContent(
+                        animatedVisibilityScope = animatedVisibilityScope,
                         equipId = equipId,
                         equipMaxData = it,
                         favorite = uiState.favorite
@@ -109,20 +115,36 @@ fun EquipDetailScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun EquipDetailContent(
+private fun SharedTransitionScope.EquipDetailContent(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     equipId: Int,
     equipMaxData: EquipmentMaxData,
     favorite: Boolean,
 ) {
-    Column {
+    Column(
+        modifier = Modifier
+            .then(
+                if (MainActivity.animOnFlag) {
+                    Modifier.sharedElement(
+                        state = rememberSharedContentState(
+                            key = "item-$equipId"
+                        ),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                    )
+                } else {
+                    Modifier
+                }
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         if (equipId != UNKNOWN_EQUIP_ID) {
             MainText(
                 text = equipMaxData.equipmentName,
                 color = if (favorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
-                    .padding(top = Dimen.largePadding)
-                    .align(Alignment.CenterHorizontally),
+                    .padding(top = Dimen.largePadding),
                 selectable = true
             )
             Row(
@@ -200,17 +222,17 @@ private fun EquipMaterialListContent(
 @Composable
 private fun EquipDetailPreview() {
     PreviewLayout {
-        EquipDetailContent(
-            equipId = 0,
-            equipMaxData = EquipmentMaxData(
-                equipmentId = 1001,
-                equipmentName = stringResource(id = R.string.debug_short_text),
-                description = stringResource(id = R.string.debug_long_text),
-                craftFlg = 1,
-                attr = Attr()
-            ),
-            favorite = true
-        )
+//        EquipDetailContent(
+//            equipId = 0,
+//            equipMaxData = EquipmentMaxData(
+//                equipmentId = 1001,
+//                equipmentName = stringResource(id = R.string.debug_short_text),
+//                description = stringResource(id = R.string.debug_long_text),
+//                craftFlg = 1,
+//                attr = Attr()
+//            ),
+//            favorite = true
+//        )
         EquipMaterialListContent(
             materialList = arrayListOf(EquipmentMaterial(id = 1)),
             favoriteIdList = arrayListOf(1),

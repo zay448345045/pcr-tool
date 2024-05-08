@@ -1,5 +1,8 @@
 package cn.wthee.pcrtool.ui.tool.clan
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +30,7 @@ import cn.wthee.pcrtool.data.db.view.ClanBattleEvent
 import cn.wthee.pcrtool.data.db.view.ClanBattleInfo
 import cn.wthee.pcrtool.data.enums.MainIconType
 import cn.wthee.pcrtool.data.model.ClanBattleProperty
+import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.ui.components.CaptionText
 import cn.wthee.pcrtool.ui.components.CommonSpacer
 import cn.wthee.pcrtool.ui.components.EventTitle
@@ -64,8 +68,10 @@ import kotlinx.serialization.json.Json
 /**
  * 公会战 BOSS 信息列表
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ClanBattleListScreen(
+fun SharedTransitionScope.ClanBattleListScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     toClanBossInfo: (String) -> Unit,
     clanBattleListViewModel: ClanBattleListViewModel = hiltViewModel()
 ) {
@@ -101,6 +107,7 @@ fun ClanBattleListScreen(
                 ) {
                     items(10) {
                         ClanBattleItem(
+                            animatedVisibilityScope = animatedVisibilityScope,
                             clanBattleInfo = ClanBattleInfo(),
                             toClanBossInfo = toClanBossInfo
                         )
@@ -113,6 +120,7 @@ fun ClanBattleListScreen(
         ) {
             uiState.clanBattleList?.let { clanBattleList ->
                 ClanBattleListContent(
+                    animatedVisibilityScope = animatedVisibilityScope,
                     scrollState = scrollState,
                     clanBattleList = clanBattleList,
                     toClanBossInfo = toClanBossInfo
@@ -123,8 +131,10 @@ fun ClanBattleListScreen(
 
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun ClanBattleListContent(
+private fun SharedTransitionScope.ClanBattleListContent(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     scrollState: LazyGridState,
     clanBattleList: List<ClanBattleInfo>,
     toClanBossInfo: (String) -> Unit
@@ -139,7 +149,11 @@ private fun ClanBattleListContent(
                 it.clanBattleId
             }
         ) {
-            ClanBattleItem(clanBattleInfo = it, toClanBossInfo = toClanBossInfo)
+            ClanBattleItem(
+                animatedVisibilityScope = animatedVisibilityScope,
+                clanBattleInfo = it,
+                toClanBossInfo = toClanBossInfo
+            )
         }
         item {
             CommonSpacer()
@@ -152,9 +166,10 @@ private fun ClanBattleListContent(
  * 图标列表
  * @param clanBattleEvent 不为空时，首页日程展示用
  */
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun ClanBattleItem(
+fun SharedTransitionScope.ClanBattleItem(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     clanBattleEvent: ClanBattleEvent? = null,
     clanBattleInfo: ClanBattleInfo,
     toClanBossInfo: (String) -> Unit
@@ -168,10 +183,23 @@ fun ClanBattleItem(
 
 
     Column(
-        modifier = Modifier.padding(
-            horizontal = Dimen.largePadding,
-            vertical = Dimen.mediumPadding
-        )
+        modifier = Modifier
+            .padding(
+                horizontal = Dimen.largePadding,
+                vertical = Dimen.mediumPadding
+            )
+            .then(
+                if (placeholder || !MainActivity.animOnFlag) {
+                    Modifier
+                } else {
+                    Modifier.sharedElement(
+                        state = rememberSharedContentState(
+                            key = "item-${clanBattleInfo.clanBattleId}"
+                        ),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                    )
+                }
+            )
     ) {
         //标题
         FlowRow(
@@ -183,7 +211,13 @@ fun ClanBattleItem(
                     text = getClanBattleDate(clanBattleInfo),
                     modifier = Modifier
                         .placeholder(visible = placeholder)
-                        .align(Alignment.CenterVertically),
+                        .align(Alignment.CenterVertically)
+                        .sharedElement(
+                            state = rememberSharedContentState(
+                                key = "text-${clanBattleInfo.clanBattleId}"
+                            ),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                        ),
                 )
                 //阶段数
                 MainTitleText(
@@ -345,14 +379,14 @@ fun getClanBattleDate(clanBattleInfo: ClanBattleInfo): String {
 @Composable
 private fun ClanBattleListContentPreview() {
     PreviewLayout {
-        ClanBattleListContent(
-            scrollState = rememberLazyGridState(),
-            clanBattleList = arrayListOf(
-                ClanBattleInfo(1),
-                ClanBattleInfo(2),
-                ClanBattleInfo(3),
-            ),
-            toClanBossInfo = {}
-        )
+//        ClanBattleListContent(
+//            scrollState = rememberLazyGridState(),
+//            clanBattleList = arrayListOf(
+//                ClanBattleInfo(1),
+//                ClanBattleInfo(2),
+//                ClanBattleInfo(3),
+//            ),
+//            toClanBossInfo = {}
+//        )
     }
 }

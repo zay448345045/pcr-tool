@@ -1,5 +1,8 @@
 package cn.wthee.pcrtool.ui.tool.clan
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +23,7 @@ import cn.wthee.pcrtool.data.db.view.ClanBattleInfo
 import cn.wthee.pcrtool.data.db.view.EnemyParameterPro
 import cn.wthee.pcrtool.data.enums.MainIconType
 import cn.wthee.pcrtool.navigation.navigateUp
+import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.ui.components.IconHorizontalPagerIndicator
 import cn.wthee.pcrtool.ui.components.MainScaffold
 import cn.wthee.pcrtool.ui.components.MainTitleText
@@ -35,8 +39,10 @@ import cn.wthee.pcrtool.utils.getZhNumberText
 /**
  * 公会战 BOSS 详情
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ClanBattleDetailScreen(
+fun SharedTransitionScope.ClanBattleDetailScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     toSummonDetail: (String) -> Unit,
     clanBattleDetailViewModel: ClanBattleDetailViewModel = hiltViewModel()
 ) {
@@ -75,8 +81,9 @@ fun ClanBattleDetailScreen(
             clanBattleDetailViewModel.changeDialog(false)
         }
     ) {
-        if (uiState.clanBattleList.isNotEmpty()) {
+        if (uiState.clanBattleList.isNotEmpty() && uiState.bossDataList.isNotEmpty()) {
             ClanBattleDetailContent(
+                animatedVisibilityScope = animatedVisibilityScope,
                 clanBattleInfo = uiState.clanBattleList[0],
                 bossDataList = uiState.bossDataList,
                 pagerState = pagerState,
@@ -86,8 +93,10 @@ fun ClanBattleDetailScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun ClanBattleDetailContent(
+private fun SharedTransitionScope.ClanBattleDetailContent(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     clanBattleInfo: ClanBattleInfo,
     bossDataList: List<EnemyParameterPro>,
     pagerState: PagerState,
@@ -95,26 +104,51 @@ private fun ClanBattleDetailContent(
 ) {
 
     //图标列表
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        //日期
-        MainTitleText(
-            text = getClanBattleDate(clanBattleInfo),
-            modifier = Modifier.padding(vertical = Dimen.mediumPadding)
-        )
-        //图标
-        val urlList = arrayListOf<String>()
-        clanBattleInfo.unitIds.split("-").subList(0, 5).forEach {
-            urlList.add(
-                ImageRequestHelper.getInstance()
-                    .getUrl(ImageRequestHelper.ICON_UNIT, it)
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .then(
+                    if (MainActivity.animOnFlag) {
+                        Modifier.sharedElement(
+                            state = rememberSharedContentState(
+                                key = "item-${clanBattleInfo.clanBattleId}"
+                            ),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                        )
+                    } else {
+                        Modifier
+                    }
+                )
+        ) {
+            //日期
+            MainTitleText(
+                text = getClanBattleDate(clanBattleInfo),
+                modifier = Modifier
+                    .padding(vertical = Dimen.mediumPadding)
+                    .then(
+                        if (MainActivity.animOnFlag) {
+                            Modifier.sharedElement(
+                                state = rememberSharedContentState(
+                                    key = "text-${clanBattleInfo.clanBattleId}"
+                                ),
+                                animatedVisibilityScope = animatedVisibilityScope,
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
             )
-        }
+            //图标
+            val urlList = arrayListOf<String>()
+            clanBattleInfo.unitIds.split("-").subList(0, 5).forEach {
+                urlList.add(
+                    ImageRequestHelper.getInstance()
+                        .getUrl(ImageRequestHelper.ICON_UNIT, it)
+                )
+            }
 
-        //BOSS信息
-        if (bossDataList.isNotEmpty()) {
+            //BOSS信息
             //图标指示器
             IconHorizontalPagerIndicator(pagerState = pagerState, urlList = urlList) { index ->
                 clanBattleInfo.getWeakness(index)?.let {
@@ -126,20 +160,22 @@ private fun ClanBattleDetailContent(
                     }
                 }
             }
+        }
 
-            HorizontalPager(state = pagerState) {
-                /**
-                 * fixme 页面滑动问题
-                 * PagerScope#page 滑动时不准确，导致数据加载异常
-                 * 暂时替换为 pagerState.currentPage
-                 */
-                val enemy = bossDataList[pagerState.currentPage]
-                if (!LocalInspectionMode.current) {
-                    EnemyDetailScreen(
-                        enemyId = enemy.enemyId,
-                        toSummonDetail = toSummonDetail
-                    )
-                }
+
+        //BOSS信息
+        HorizontalPager(state = pagerState) {
+            /**
+             * fixme 页面滑动问题
+             * PagerScope#page 滑动时不准确，导致数据加载异常
+             * 暂时替换为 pagerState.currentPage
+             */
+            val enemy = bossDataList[pagerState.currentPage]
+            if (!LocalInspectionMode.current) {
+                EnemyDetailScreen(
+                    enemyId = enemy.enemyId,
+                    toSummonDetail = toSummonDetail
+                )
             }
         }
     }
@@ -153,19 +189,19 @@ private fun ClanBattleDetailContent(
 @Composable
 private fun ClanBattleDetailContentPreview() {
     PreviewLayout {
-        ClanBattleDetailContent(
-            clanBattleInfo = ClanBattleInfo(),
-            bossDataList = arrayListOf(
-                EnemyParameterPro(),
-                EnemyParameterPro(),
-                EnemyParameterPro(),
-                EnemyParameterPro(),
-                EnemyParameterPro(),
-            ),
-            pagerState = rememberPagerState {
-                5
-            },
-            toSummonDetail = {}
-        )
+//        ClanBattleDetailContent(
+//            clanBattleInfo = ClanBattleInfo(),
+//            bossDataList = arrayListOf(
+//                EnemyParameterPro(),
+//                EnemyParameterPro(),
+//                EnemyParameterPro(),
+//                EnemyParameterPro(),
+//                EnemyParameterPro(),
+//            ),
+//            pagerState = rememberPagerState {
+//                5
+//            },
+//            toSummonDetail = {}
+//        )
     }
 }

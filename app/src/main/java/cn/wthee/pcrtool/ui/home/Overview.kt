@@ -2,6 +2,9 @@ package cn.wthee.pcrtool.ui.home
 
 import android.os.Build
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -85,8 +88,10 @@ import kotlinx.coroutines.launch
 /**
  * 首页纵览
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun Overview(
+fun SharedTransitionScope.Overview(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     actions: NavActions,
     overviewScreenViewModel: OverviewScreenViewModel = hiltViewModel()
 ) {
@@ -144,6 +149,7 @@ fun Overview(
                 uiState.orderData.intArrayList.forEach {
                     when (OverviewType.getByValue(it)) {
                         OverviewType.CHARACTER -> CharacterSection(
+                            animatedVisibilityScope = animatedVisibilityScope,
                             toCharacterList = actions.toCharacterList,
                             toCharacterDetail = actions.toCharacterDetail,
                             updateOrderData = overviewScreenViewModel::updateOrderData,
@@ -174,6 +180,7 @@ fun Overview(
                         )
 
                         OverviewType.IN_PROGRESS_EVENT -> EventInProgressSection(
+                            animatedVisibilityScope = animatedVisibilityScope,
                             eventExpandState = uiState.eventExpandState,
                             updateOrderData = overviewScreenViewModel::updateOrderData,
                             updateEventLayoutState = overviewScreenViewModel::updateEventLayoutState,
@@ -183,6 +190,7 @@ fun Overview(
                         )
 
                         OverviewType.COMING_SOON_EVENT -> EventComingSoonSection(
+                            animatedVisibilityScope = animatedVisibilityScope,
                             eventExpandState = uiState.eventExpandState,
                             updateOrderData = overviewScreenViewModel::updateOrderData,
                             updateEventLayoutState = overviewScreenViewModel::updateEventLayoutState,
@@ -212,6 +220,7 @@ fun Overview(
 
                 //角色
                 CharacterSection(
+                    animatedVisibilityScope = animatedVisibilityScope,
                     toCharacterList = actions.toCharacterList,
                     toCharacterDetail = actions.toCharacterDetail,
                     updateOrderData = overviewScreenViewModel::updateOrderData,
@@ -255,6 +264,7 @@ fun Overview(
 
                 //进行中
                 EventInProgressSection(
+                    animatedVisibilityScope = animatedVisibilityScope,
                     eventExpandState = uiState.eventExpandState,
                     updateOrderData = overviewScreenViewModel::updateOrderData,
                     updateEventLayoutState = overviewScreenViewModel::updateEventLayoutState,
@@ -265,6 +275,7 @@ fun Overview(
 
                 //活动预告
                 EventComingSoonSection(
+                    animatedVisibilityScope = animatedVisibilityScope,
                     eventExpandState = uiState.eventExpandState,
                     updateOrderData = overviewScreenViewModel::updateOrderData,
                     updateEventLayoutState = overviewScreenViewModel::updateEventLayoutState,

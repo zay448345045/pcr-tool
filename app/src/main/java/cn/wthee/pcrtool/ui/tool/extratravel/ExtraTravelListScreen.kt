@@ -1,5 +1,8 @@
 package cn.wthee.pcrtool.ui.tool.extratravel
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,6 +24,7 @@ import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.ExtraEquipQuestData
 import cn.wthee.pcrtool.data.db.view.ExtraTravelData
 import cn.wthee.pcrtool.data.enums.MainIconType
+import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.ui.components.CenterTipText
 import cn.wthee.pcrtool.ui.components.CommonGroupTitle
 import cn.wthee.pcrtool.ui.components.CommonSpacer
@@ -44,8 +48,10 @@ import kotlinx.coroutines.launch
 /**
  * ex冒险区域
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ExtraTravelListScreen(
+fun SharedTransitionScope.ExtraTravelListScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     toExtraEquipTravelAreaDetail: (Int) -> Unit,
     extraTravelListViewModel: ExtraTravelListViewModel = hiltViewModel()
 ) {
@@ -79,7 +85,11 @@ fun ExtraTravelListScreen(
             uiState.areaList?.let { areaList ->
                 LazyColumn(state = scrollState) {
                     items(areaList) {
-                        TravelItem(it, toExtraEquipTravelAreaDetail)
+                        TravelItem(
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            travelData = it,
+                            toExtraEquipTravelAreaDetail = toExtraEquipTravelAreaDetail
+                        )
                     }
                     item {
                         CommonSpacer()
@@ -94,8 +104,10 @@ fun ExtraTravelListScreen(
 /**
  * 冒险区域item
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun TravelItem(
+private fun SharedTransitionScope.TravelItem(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     travelData: ExtraTravelData,
     toExtraEquipTravelAreaDetail: (Int) -> Unit
 ) {
@@ -125,6 +137,7 @@ private fun TravelItem(
         ) {
             TravelQuestHeader(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
+                animatedVisibilityScope = animatedVisibilityScope,
                 questData = questData
             )
         }
@@ -133,20 +146,34 @@ private fun TravelItem(
 
 /**
  * ex冒险区域公用头部布局
- * @param showTitle 查看掉落列表时，不显示标题
+ * @param showExtraContent false 查看掉落列表时，不显示其它额外信息
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun TravelQuestHeader(
+fun SharedTransitionScope.TravelQuestHeader(
     modifier: Modifier = Modifier,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     questData: ExtraEquipQuestData,
-    showTitle: Boolean = true
+    showExtraContent: Boolean = true
 ) {
     val context = LocalContext.current
 
     Column(
         modifier = modifier
             .clip(MaterialTheme.shapes.medium)
-            .padding(vertical = Dimen.mediumPadding),
+            .padding(vertical = Dimen.mediumPadding)
+            .then(
+                if (MainActivity.animOnFlag) {
+                    Modifier.sharedElement(
+                        state = rememberSharedContentState(
+                            key = "item-${questData.travelQuestId}"
+                        ),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                    )
+                } else {
+                    Modifier
+                }
+            ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         //图标
@@ -155,34 +182,34 @@ fun TravelQuestHeader(
                 .getUrl(ICON_EXTRA_EQUIPMENT_TRAVEL_MAP, questData.travelQuestId),
         )
         //标题
-        if (showTitle) {
-            Subtitle1(
-                text = questData.getTitle(),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = Dimen.smallPadding)
-            )
-        }
-        //其它参数
-        val titleList = arrayListOf(
-            stringResource(id = R.string.travel_limit_unit_num),
-            stringResource(id = R.string.travel_need_power),
-            stringResource(id = R.string.travel_time),
-            stringResource(id = R.string.travel_time_decrease_limit)
+        Subtitle1(
+            text = questData.getTitle(),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = Dimen.smallPadding)
         )
-        val contentList = arrayListOf(
-            questData.limitUnitNum.toString(),
-            stringResource(id = R.string.value_10_k, questData.needPower / 10000),
-            toTimeText(questData.travelTime * 1000, context),
-            toTimeText(questData.travelTimeDecreaseLimit * 1000, context)
-        )
-        VerticalGridList(
-            itemCount = titleList.size,
-            itemWidth = getItemWidth() / 2
-        ) {
-            CommonTitleContentText(
-                title = titleList[it],
-                content = contentList[it]
+        if (showExtraContent) {
+            //其它参数
+            val titleList = arrayListOf(
+                stringResource(id = R.string.travel_limit_unit_num),
+                stringResource(id = R.string.travel_need_power),
+                stringResource(id = R.string.travel_time),
+                stringResource(id = R.string.travel_time_decrease_limit)
             )
+            val contentList = arrayListOf(
+                questData.limitUnitNum.toString(),
+                stringResource(id = R.string.value_10_k, questData.needPower / 10000),
+                toTimeText(questData.travelTime * 1000, context),
+                toTimeText(questData.travelTimeDecreaseLimit * 1000, context)
+            )
+            VerticalGridList(
+                itemCount = titleList.size,
+                itemWidth = getItemWidth() / 2
+            ) {
+                CommonTitleContentText(
+                    title = titleList[it],
+                    content = contentList[it]
+                )
+            }
         }
     }
 }
@@ -191,29 +218,29 @@ fun TravelQuestHeader(
 @Composable
 private fun TravelItemPreview() {
     PreviewLayout {
-        val quest = ExtraEquipQuestData(
-            1,
-            1,
-            stringResource(id = R.string.debug_short_text),
-            10,
-            1000,
-            2000,
-            1,
-            1,
-            1
-        )
-
-        TravelItem(
-            travelData = ExtraTravelData(
-                travelAreaId = 1,
-                travelAreaName = stringResource(id = R.string.debug_short_text),
-                questCount = 1,
-                questList = arrayListOf(
-                    quest, quest, quest
-                )
-            ),
-            toExtraEquipTravelAreaDetail = {}
-        )
+//        val quest = ExtraEquipQuestData(
+//            1,
+//            1,
+//            stringResource(id = R.string.debug_short_text),
+//            10,
+//            1000,
+//            2000,
+//            1,
+//            1,
+//            1
+//        )
+//
+//        TravelItem(
+//            travelData = ExtraTravelData(
+//                travelAreaId = 1,
+//                travelAreaName = stringResource(id = R.string.debug_short_text),
+//                questCount = 1,
+//                questList = arrayListOf(
+//                    quest, quest, quest
+//                )
+//            ),
+//            toExtraEquipTravelAreaDetail = {}
+//        )
     }
 }
 

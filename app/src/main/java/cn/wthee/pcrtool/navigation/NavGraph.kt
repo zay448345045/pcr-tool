@@ -1,5 +1,7 @@
 package cn.wthee.pcrtool.navigation
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -119,6 +121,7 @@ fun <T> getData(key: String, prev: Boolean = false): T? {
 /**
  * 导航内容
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun NavGraph(
     bottomSheetNavigator: BottomSheetNavigator,
@@ -135,645 +138,672 @@ fun NavGraph(
         sheetShape = shapeTop(),
         bottomSheetNavigator = bottomSheetNavigator
     ) {
-        NavHost(
-            modifier = Modifier.fillMaxSize(),
-            navController = navController,
-            startDestination = NavRoute.HOME,
-            enterTransition = { enterTransition() },
-            exitTransition = { exitTransition() },
-        ) {
-
-            //首页
-            composable(
-                route = NavRoute.HOME
+        SharedTransitionLayout {
+            NavHost(
+                modifier = Modifier.fillMaxSize(),
+                navController = navController,
+                startDestination = NavRoute.HOME,
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
             ) {
-                Overview(actions = actions)
-            }
 
-            //角色列表
-            composable(
-                route = NavRoute.CHARACTER_LIST
-            ) {
-                CharacterListScreen(
-                    toCharacterDetail = actions.toCharacterDetail,
-                    toFilterCharacter = actions.toFilterCharacter
-                )
-            }
-            //角色列表筛选
-            bottomSheet(
-                route = "${NavRoute.FILTER_CHARACTER}/{${NavRoute.FILTER_DATA}}",
-                arguments = listOf(navArgument(NavRoute.FILTER_DATA) {
-                    type = NavType.StringType
-                })
-            ) {
-                CharacterListFilterScreen()
-            }
+                //首页
+                composable(
+                    route = NavRoute.HOME
+                ) {
+                    Overview(
+                        animatedVisibilityScope = this@composable,
+                        actions = actions
+                    )
+                }
 
-            //角色属性详情
-            composable(
-                route = "${NavRoute.CHARACTER_DETAIL}/{${NavRoute.UNIT_ID}}",
-                arguments = listOf(navArgument(NavRoute.UNIT_ID) {
-                    type = NavType.IntType
-                })
-            ) {
-                CharacterDetailScreen(actions)
-            }
+                //角色列表
+                composable(
+                    route = NavRoute.CHARACTER_LIST
+                ) {
+                    CharacterListScreen(
+                        animatedVisibilityScope = this@composable,
+                        toCharacterDetail = actions.toCharacterDetail,
+                        toFilterCharacter = actions.toFilterCharacter
+                    )
+                }
+                //角色列表筛选
+                bottomSheet(
+                    route = "${NavRoute.FILTER_CHARACTER}/{${NavRoute.FILTER_DATA}}",
+                    arguments = listOf(navArgument(NavRoute.FILTER_DATA) {
+                        type = NavType.StringType
+                    })
+                ) {
+                    CharacterListFilterScreen()
+                }
 
-            //角色图片详情
-            bottomSheet(
-                route = "${NavRoute.ALL_PICS}/{${NavRoute.UNIT_ID}}/{${NavRoute.ALL_PICS_TYPE}}",
-                arguments = listOf(navArgument(NavRoute.UNIT_ID) {
-                    type = NavType.IntType
-                }, navArgument(NavRoute.ALL_PICS_TYPE) {
-                    type = NavType.IntType
-                })
-            ) {
-                PictureScreen()
-            }
-
-            //剧情活动图片详情
-            bottomSheet(
-                route = "${NavRoute.ALL_STORY_EVENT_PICS}/{${NavRoute.STORY_ID}}/{${NavRoute.ORIGINAL_EVENT_ID}}/{${NavRoute.EVENT_ID}}/{${NavRoute.ALL_PICS_TYPE}}",
-                arguments = listOf(navArgument(NavRoute.STORY_ID) {
-                    type = NavType.IntType
-                }, navArgument(NavRoute.ORIGINAL_EVENT_ID) {
-                    type = NavType.IntType
-                }, navArgument(NavRoute.EVENT_ID) {
-                    type = NavType.IntType
-                }, navArgument(NavRoute.ALL_PICS_TYPE) {
-                    type = NavType.IntType
-                })
-            ) {
-                PictureScreen()
-            }
-
-            //角色资料
-            bottomSheet(
-                route = "${NavRoute.CHARACTER_BASIC_INFO}/{${NavRoute.UNIT_ID}}",
-                arguments = listOf(navArgument(NavRoute.UNIT_ID) {
-                    type = NavType.IntType
-                })
-            ) {
-                CharacterBasicInfo()
-            }
-
-            //角色剧情属性详情
-            bottomSheet(
-                route = "${NavRoute.CHARACTER_STORY_DETAIL}/{${NavRoute.UNIT_ID}}",
-                arguments = listOf(navArgument(NavRoute.UNIT_ID) {
-                    type = NavType.IntType
-                })
-            ) {
-                CharacterStoryAttrScreen()
-            }
-
-            //角色相关视频
-            bottomSheet(
-                route = "${NavRoute.CHARACTER_VIDEO}/{${NavRoute.UNIT_ID}}/{${NavRoute.CHARACTER_VIDEO_TYPE}}",
-                arguments = listOf(
-                    navArgument(NavRoute.UNIT_ID) {
+                //角色属性详情
+                composable(
+                    route = "${NavRoute.CHARACTER_DETAIL}/{${NavRoute.UNIT_ID}}",
+                    arguments = listOf(navArgument(NavRoute.UNIT_ID) {
                         type = NavType.IntType
-                    },
-                    navArgument(NavRoute.CHARACTER_VIDEO_TYPE) {
+                    })
+                ) {
+                    CharacterDetailScreen(
+                        animatedVisibilityScope = this@composable,
+                        actions = actions
+                    )
+                }
+
+                //角色图片详情
+                bottomSheet(
+                    route = "${NavRoute.ALL_PICS}/{${NavRoute.UNIT_ID}}/{${NavRoute.ALL_PICS_TYPE}}",
+                    arguments = listOf(navArgument(NavRoute.UNIT_ID) {
                         type = NavType.IntType
-                    },
-                )
-            ) {
-                val arguments = requireNotNull(it.arguments)
+                    }, navArgument(NavRoute.ALL_PICS_TYPE) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    PictureScreen()
+                }
 
-                VideoScreen(
-                    unitId = arguments.getInt(NavRoute.UNIT_ID),
-                    videoTypeValue = arguments.getInt(NavRoute.CHARACTER_VIDEO_TYPE)
-                )
-            }
+                //剧情活动图片详情
+                bottomSheet(
+                    route = "${NavRoute.ALL_STORY_EVENT_PICS}/{${NavRoute.STORY_ID}}/{${NavRoute.ORIGINAL_EVENT_ID}}/{${NavRoute.EVENT_ID}}/{${NavRoute.ALL_PICS_TYPE}}",
+                    arguments = listOf(navArgument(NavRoute.STORY_ID) {
+                        type = NavType.IntType
+                    }, navArgument(NavRoute.ORIGINAL_EVENT_ID) {
+                        type = NavType.IntType
+                    }, navArgument(NavRoute.EVENT_ID) {
+                        type = NavType.IntType
+                    }, navArgument(NavRoute.ALL_PICS_TYPE) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    PictureScreen()
+                }
 
-            //装备列表
-            composable(
-                route = NavRoute.EQUIP_LIST
-            ) {
-                EquipListScreen(
-                    toEquipDetail = actions.toEquipDetail,
-                    toEquipMaterial = actions.toEquipMaterial,
-                    toSearchEquipQuest = actions.toSearchEquipQuest,
-                    toFilterEquip = actions.toFilterEquip,
-                )
-            }
+                //角色资料
+                bottomSheet(
+                    route = "${NavRoute.CHARACTER_BASIC_INFO}/{${NavRoute.UNIT_ID}}",
+                    arguments = listOf(navArgument(NavRoute.UNIT_ID) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    CharacterBasicInfo()
+                }
 
-            //装备列表筛选
-            bottomSheet(
-                route = "${NavRoute.FILTER_EQUIP}/{${NavRoute.FILTER_DATA}}",
-                arguments = listOf(navArgument(NavRoute.FILTER_DATA) {
-                    type = NavType.StringType
-                })
-            ) {
-                EquipListFilterScreen()
-            }
+                //角色剧情属性详情
+                bottomSheet(
+                    route = "${NavRoute.CHARACTER_STORY_DETAIL}/{${NavRoute.UNIT_ID}}",
+                    arguments = listOf(navArgument(NavRoute.UNIT_ID) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    CharacterStoryAttrScreen()
+                }
 
-            //ex装备列表
-            composable(
-                route = NavRoute.TOOL_EXTRA_EQUIP
-            ) {
-                ExtraEquipList(
-                    toExtraEquipDetail = actions.toExtraEquipDetail,
-                    toFilterExtraEquip = actions.toFilterExtraEquip,
-                )
-            }
+                //角色相关视频
+                bottomSheet(
+                    route = "${NavRoute.CHARACTER_VIDEO}/{${NavRoute.UNIT_ID}}/{${NavRoute.CHARACTER_VIDEO_TYPE}}",
+                    arguments = listOf(
+                        navArgument(NavRoute.UNIT_ID) {
+                            type = NavType.IntType
+                        },
+                        navArgument(NavRoute.CHARACTER_VIDEO_TYPE) {
+                            type = NavType.IntType
+                        },
+                    )
+                ) {
+                    val arguments = requireNotNull(it.arguments)
 
-            //ex装备列表筛选
-            bottomSheet(
-                route = "${NavRoute.FILTER_EXTRA_EQUIP}/{${NavRoute.FILTER_DATA}}",
-                arguments = listOf(navArgument(NavRoute.FILTER_DATA) {
-                    type = NavType.StringType
-                })
-            ) {
-                ExtraEquipListFilterScreen()
-            }
+                    VideoScreen(
+                        unitId = arguments.getInt(NavRoute.UNIT_ID),
+                        videoTypeValue = arguments.getInt(NavRoute.CHARACTER_VIDEO_TYPE)
+                    )
+                }
 
-            //ex装备冒险区域
-            composable(
-                route = NavRoute.TOOL_TRAVEL_AREA
-            ) {
-                ExtraTravelListScreen(
-                    toExtraEquipTravelAreaDetail = actions.toExtraEquipTravelAreaDetail
-                )
-            }
+                //装备列表
+                composable(
+                    route = NavRoute.EQUIP_LIST
+                ) {
+                    EquipListScreen(
+                        animatedVisibilityScope = this@composable,
+                        toEquipDetail = actions.toEquipDetail,
+                        toEquipMaterial = actions.toEquipMaterial,
+                        toSearchEquipQuest = actions.toSearchEquipQuest,
+                        toFilterEquip = actions.toFilterEquip,
+                    )
+                }
 
-            //ex装备冒险区域详情
-            composable(
-                route = "${NavRoute.TOOL_TRAVEL_AREA_DETAIL}/{${NavRoute.TRAVEL_QUEST_ID}}",
-                arguments = listOf(navArgument(NavRoute.TRAVEL_QUEST_ID) {
-                    type = NavType.IntType
-                })
-            ) {
-                ExtraTravelDetailScreen(
-                    actions.toExtraEquipDetail
-                )
-            }
+                //装备列表筛选
+                bottomSheet(
+                    route = "${NavRoute.FILTER_EQUIP}/{${NavRoute.FILTER_DATA}}",
+                    arguments = listOf(navArgument(NavRoute.FILTER_DATA) {
+                        type = NavType.StringType
+                    })
+                ) {
+                    EquipListFilterScreen()
+                }
 
-            //装备详情
-            composable(
-                route = "${NavRoute.EQUIP_DETAIL}/{${NavRoute.EQUIP_ID}}",
-                arguments = listOf(navArgument(NavRoute.EQUIP_ID) {
-                    type = NavType.IntType
-                })
-            ) {
-                val arguments = requireNotNull(it.arguments)
-                EquipDetailScreen(
-                    arguments.getInt(NavRoute.EQUIP_ID),
-                    toEquipMaterial = actions.toEquipMaterial,
-                    toEquipUnit = actions.toEquipUnit
-                )
-            }
+                //ex装备列表
+                composable(
+                    route = NavRoute.TOOL_EXTRA_EQUIP
+                ) {
+                    ExtraEquipList(
+                        animatedVisibilityScope = this@composable,
+                        toExtraEquipDetail = actions.toExtraEquipDetail,
+                        toFilterExtraEquip = actions.toFilterExtraEquip,
+                    )
+                }
 
-            //装备关联角色
-            bottomSheet(
-                route = "${NavRoute.TOOL_EQUIP_UNIT}/{${NavRoute.EQUIP_ID}}",
-                arguments = listOf(navArgument(NavRoute.EQUIP_ID) {
-                    type = NavType.IntType
-                })
-            ) {
-                EquipUnitListScreen()
-            }
+                //ex装备列表筛选
+                bottomSheet(
+                    route = "${NavRoute.FILTER_EXTRA_EQUIP}/{${NavRoute.FILTER_DATA}}",
+                    arguments = listOf(navArgument(NavRoute.FILTER_DATA) {
+                        type = NavType.StringType
+                    })
+                ) {
+                    ExtraEquipListFilterScreen()
+                }
 
-            //ex装备详情
-            composable(
-                route = "${NavRoute.EXTRA_EQUIP_DETAIL}/{${NavRoute.EQUIP_ID}}",
-                arguments = listOf(navArgument(NavRoute.EQUIP_ID) {
-                    type = NavType.IntType
-                })
-            ) {
-                val arguments = requireNotNull(it.arguments)
-                ExtraEquipDetail(
-                    equipId = arguments.getInt(NavRoute.EQUIP_ID),
-                    toExtraEquipUnit = actions.toExtraEquipUnit,
-                    toExtraEquipDrop = actions.toExtraEquipDrop
-                )
-            }
+                //ex装备冒险区域
+                composable(
+                    route = NavRoute.TOOL_TRAVEL_AREA
+                ) {
+                    ExtraTravelListScreen(
+                        animatedVisibilityScope = this@composable,
+                        toExtraEquipTravelAreaDetail = actions.toExtraEquipTravelAreaDetail
+                    )
+                }
 
-            //ex装备关联角色
-            bottomSheet(
-                route = "${NavRoute.TOOL_EXTRA_EQUIP_UNIT}/{${NavRoute.EXTRA_EQUIP_CATEGORY}}",
-                arguments = listOf(navArgument(NavRoute.EXTRA_EQUIP_CATEGORY) {
-                    type = NavType.IntType
-                })
-            ) {
-                ExtraEquipUnitListScreen()
-            }
+                //ex装备冒险区域详情
+                composable(
+                    route = "${NavRoute.TOOL_TRAVEL_AREA_DETAIL}/{${NavRoute.TRAVEL_QUEST_ID}}",
+                    arguments = listOf(navArgument(NavRoute.TRAVEL_QUEST_ID) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    ExtraTravelDetailScreen(
+                        animatedVisibilityScope = this@composable,
+                        toExtraEquipDetail = actions.toExtraEquipDetail
+                    )
+                }
 
-            //ex装备掉落信息
-            bottomSheet(
-                route = "${NavRoute.EXTRA_EQUIP_DROP}/{${NavRoute.EQUIP_ID}}",
-                arguments = listOf(navArgument(NavRoute.EQUIP_ID) {
-                    type = NavType.IntType
-                })
-            ) {
-                val arguments = requireNotNull(it.arguments)
-                ExtraEquipDropListScreen(equipId = arguments.getInt(NavRoute.EQUIP_ID))
-            }
+                //装备详情
+                composable(
+                    route = "${NavRoute.EQUIP_DETAIL}/{${NavRoute.EQUIP_ID}}",
+                    arguments = listOf(navArgument(NavRoute.EQUIP_ID) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    val arguments = requireNotNull(it.arguments)
+                    EquipDetailScreen(
+                        animatedVisibilityScope = this@composable,
+                        equipId = arguments.getInt(NavRoute.EQUIP_ID),
+                        toEquipMaterial = actions.toEquipMaterial,
+                        toEquipUnit = actions.toEquipUnit
+                    )
+                }
 
-            //装备素材详情
-            bottomSheet(
-                route = "${NavRoute.EQUIP_MATERIAL}/{${NavRoute.EQUIP_ID}}/{${NavRoute.EQUIP_NAME}}",
-                arguments = listOf(navArgument(NavRoute.EQUIP_ID) {
-                    type = NavType.IntType
-                }, navArgument(NavRoute.EQUIP_NAME) {
-                    type = NavType.StringType
-                })
-            ) {
-                EquipMaterialDropInfoScreen()
-            }
+                //装备关联角色
+                bottomSheet(
+                    route = "${NavRoute.TOOL_EQUIP_UNIT}/{${NavRoute.EQUIP_ID}}",
+                    arguments = listOf(navArgument(NavRoute.EQUIP_ID) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    EquipUnitListScreen()
+                }
 
-            //角色 RANK 装备
-            bottomSheet(
-                route = "${NavRoute.RANK_EQUIP}/{${NavRoute.UNIT_ID}}/{${NavRoute.RANK}}",
-                arguments = listOf(navArgument(NavRoute.UNIT_ID) {
-                    type = NavType.IntType
-                }, navArgument(NavRoute.RANK) {
-                    type = NavType.IntType
-                })
-            ) {
-                RankEquipListScreen()
-            }
+                //ex装备详情
+                composable(
+                    route = "${NavRoute.EXTRA_EQUIP_DETAIL}/{${NavRoute.EQUIP_ID}}",
+                    arguments = listOf(navArgument(NavRoute.EQUIP_ID) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    val arguments = requireNotNull(it.arguments)
+                    ExtraEquipDetail(
+                        animatedVisibilityScope = this@composable,
+                        equipId = arguments.getInt(NavRoute.EQUIP_ID),
+                        toExtraEquipUnit = actions.toExtraEquipUnit,
+                        toExtraEquipDrop = actions.toExtraEquipDrop
+                    )
+                }
 
-            //角色 RANK 对比
-            bottomSheet(
-                route = "${NavRoute.RANK_COMPARE}/{${NavRoute.UNIT_ID}}/{${NavRoute.MAX_RANK}}/{${NavRoute.LEVEL}}/{${NavRoute.RARITY}}/{${NavRoute.UNIQUE_EQUIP_LEVEL}}/{${NavRoute.UNIQUE_EQUIP_LEVEL2}}",
-                arguments = listOf(navArgument(NavRoute.UNIT_ID) {
-                    type = NavType.IntType
-                }, navArgument(NavRoute.MAX_RANK) {
-                    type = NavType.IntType
-                }, navArgument(NavRoute.LEVEL) {
-                    type = NavType.IntType
-                }, navArgument(NavRoute.RARITY) {
-                    type = NavType.IntType
-                }, navArgument(NavRoute.UNIQUE_EQUIP_LEVEL) {
-                    type = NavType.IntType
-                }, navArgument(NavRoute.UNIQUE_EQUIP_LEVEL2) {
-                    type = NavType.IntType
-                })
-            ) {
-                RankCompareScreen()
-            }
+                //ex装备关联角色
+                bottomSheet(
+                    route = "${NavRoute.TOOL_EXTRA_EQUIP_UNIT}/{${NavRoute.EXTRA_EQUIP_CATEGORY}}",
+                    arguments = listOf(navArgument(NavRoute.EXTRA_EQUIP_CATEGORY) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    ExtraEquipUnitListScreen()
+                }
 
-            //角色ex装备列表
-            composable(
-                route = "${NavRoute.CHARACTER_EXTRA_EQUIP_SLOT}/{${NavRoute.UNIT_ID}}",
-                arguments = listOf(navArgument(NavRoute.UNIT_ID) {
-                    type = NavType.IntType
-                })
-            ) {
-                CharacterExtraEquipScreen(
-                    toExtraEquipDetail = actions.toExtraEquipDetail
-                )
-            }
+                //ex装备掉落信息
+                composable(
+                    route = "${NavRoute.EXTRA_EQUIP_DROP}/{${NavRoute.EQUIP_ID}}",
+                    arguments = listOf(navArgument(NavRoute.EQUIP_ID) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    val arguments = requireNotNull(it.arguments)
+                    ExtraEquipDropListScreen(
+                        animatedVisibilityScope = this@composable,
+                        equipId = arguments.getInt(NavRoute.EQUIP_ID)
+                    )
+                }
 
-            //角色装备统计
-            composable(
-                route = "${NavRoute.EQUIP_COUNT}/{${NavRoute.UNIT_ID}}",
-                arguments = listOf(navArgument(NavRoute.UNIT_ID) {
-                    type = NavType.IntType
-                })
-            ) {
-                RankEquipCountScreen(
-                    actions.toEquipMaterial
-                )
-            }
+                //装备素材详情
+                bottomSheet(
+                    route = "${NavRoute.EQUIP_MATERIAL}/{${NavRoute.EQUIP_ID}}/{${NavRoute.EQUIP_NAME}}",
+                    arguments = listOf(navArgument(NavRoute.EQUIP_ID) {
+                        type = NavType.IntType
+                    }, navArgument(NavRoute.EQUIP_NAME) {
+                        type = NavType.StringType
+                    })
+                ) {
+                    EquipMaterialDropInfoScreen()
+                }
 
-            //全角色装备统计
-            composable(
-                route = NavRoute.ALL_EQUIP
-            ) {
-                RankEquipCountScreen(
-                    actions.toEquipMaterial
-                )
-            }
+                //角色 RANK 装备
+                bottomSheet(
+                    route = "${NavRoute.RANK_EQUIP}/{${NavRoute.UNIT_ID}}/{${NavRoute.RANK}}",
+                    arguments = listOf(navArgument(NavRoute.UNIT_ID) {
+                        type = NavType.IntType
+                    }, navArgument(NavRoute.RANK) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    RankEquipListScreen()
+                }
 
-            //角色排行
-            composable(
-                route = NavRoute.TOOL_LEADER
-            ) {
-                LeaderboardScreen(actions.toCharacterDetail)
-            }
+                //角色 RANK 对比
+                bottomSheet(
+                    route = "${NavRoute.RANK_COMPARE}/{${NavRoute.UNIT_ID}}/{${NavRoute.MAX_RANK}}/{${NavRoute.LEVEL}}/{${NavRoute.RARITY}}/{${NavRoute.UNIQUE_EQUIP_LEVEL}}/{${NavRoute.UNIQUE_EQUIP_LEVEL2}}",
+                    arguments = listOf(navArgument(NavRoute.UNIT_ID) {
+                        type = NavType.IntType
+                    }, navArgument(NavRoute.MAX_RANK) {
+                        type = NavType.IntType
+                    }, navArgument(NavRoute.LEVEL) {
+                        type = NavType.IntType
+                    }, navArgument(NavRoute.RARITY) {
+                        type = NavType.IntType
+                    }, navArgument(NavRoute.UNIQUE_EQUIP_LEVEL) {
+                        type = NavType.IntType
+                    }, navArgument(NavRoute.UNIQUE_EQUIP_LEVEL2) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    RankCompareScreen()
+                }
 
-            //角色排行评级
-            composable(
-                route = NavRoute.TOOL_LEADER_TIER
-            ) {
-                LeaderTierScreen(actions.toCharacterDetail)
-            }
+                //角色ex装备列表
+                composable(
+                    route = "${NavRoute.CHARACTER_EXTRA_EQUIP_SLOT}/{${NavRoute.UNIT_ID}}",
+                    arguments = listOf(navArgument(NavRoute.UNIT_ID) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    CharacterExtraEquipScreen(
+                        toExtraEquipDetail = actions.toExtraEquipDetail
+                    )
+                }
 
-            //角色卡池
-            composable(
-                route = NavRoute.TOOL_GACHA
-            ) {
-                GachaListScreen(actions.toCharacterDetail, actions.toMockGachaFromList)
-            }
+                //角色装备统计
+                composable(
+                    route = "${NavRoute.EQUIP_COUNT}/{${NavRoute.UNIT_ID}}",
+                    arguments = listOf(navArgument(NavRoute.UNIT_ID) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    RankEquipCountScreen(
+                        actions.toEquipMaterial
+                    )
+                }
 
-            //免费十连
-            composable(
-                route = NavRoute.TOOL_FREE_GACHA
-            ) {
-                FreeGachaListScreen()
-            }
+                //全角色装备统计
+                composable(
+                    route = NavRoute.ALL_EQUIP
+                ) {
+                    RankEquipCountScreen(
+                        actions.toEquipMaterial
+                    )
+                }
 
-            //剧情活动
-            composable(
-                route = NavRoute.TOOL_STORY_EVENT
-            ) {
-                StoryEventListScreen(
-                    toCharacterDetail = actions.toCharacterDetail,
-                    toEventEnemyDetail = actions.toEventEnemyDetail,
-                    toAllStoryEventPics = actions.toAllStoryEventPics
-                )
-            }
+                //角色排行
+                composable(
+                    route = NavRoute.TOOL_LEADER
+                ) {
+                    LeaderboardScreen(actions.toCharacterDetail)
+                }
 
-            //角色公会
-            composable(
-                route = NavRoute.TOOL_GUILD
-            ) {
-                GuildListScreen(actions.toCharacterDetail)
-            }
+                //角色排行评级
+                composable(
+                    route = NavRoute.TOOL_LEADER_TIER
+                ) {
+                    LeaderTierScreen(actions.toCharacterDetail)
+                }
 
-            //公会战
-            composable(
-                route = NavRoute.TOOL_CLAN,
-            ) {
-                ClanBattleListScreen(actions.toClanBossInfo)
-            }
+                //角色卡池
+                composable(
+                    route = NavRoute.TOOL_GACHA
+                ) {
+                    GachaListScreen(actions.toCharacterDetail, actions.toMockGachaFromList)
+                }
 
-            //公会战详情
-            composable(
-                route = "${NavRoute.TOOL_CLAN_BOSS_INFO}/{${NavRoute.CLAN_BATTLE_PROPERTY}}",
-                arguments = listOf(navArgument(NavRoute.CLAN_BATTLE_PROPERTY) {
-                    type = NavType.StringType
-                }),
-            ) {
-                ClanBattleDetailScreen(
-                    actions.toSummonDetail
-                )
-            }
+                //免费十连
+                composable(
+                    route = NavRoute.TOOL_FREE_GACHA
+                ) {
+                    FreeGachaListScreen()
+                }
 
-            //竞技场查询
-            composable(
-                route = NavRoute.TOOL_PVP
-            ) {
-                val pagerState = rememberPagerState { 4 }
-                val selectListState = rememberLazyGridState()
-                val usedListState = rememberLazyGridState()
-                val resultListState = rememberLazyGridState()
-                val favoritesListState = rememberLazyGridState()
-                val historyListState = rememberLazyGridState()
+                //剧情活动
+                composable(
+                    route = NavRoute.TOOL_STORY_EVENT
+                ) {
+                    StoryEventListScreen(
+                        toCharacterDetail = actions.toCharacterDetail,
+                        toEventEnemyDetail = actions.toEventEnemyDetail,
+                        toAllStoryEventPics = actions.toAllStoryEventPics
+                    )
+                }
 
-                PvpSearchScreen(
-                    floatWindow = false,
-                    pagerState = pagerState,
-                    selectListState = selectListState,
-                    usedListState = usedListState,
-                    resultListState = resultListState,
-                    favoritesListState = favoritesListState,
-                    historyListState = historyListState,
-                    toCharacter = actions.toCharacterDetail
-                )
-            }
+                //角色公会
+                composable(
+                    route = NavRoute.TOOL_GUILD
+                ) {
+                    GuildListScreen(actions.toCharacterDetail)
+                }
 
-            //设置页面
-            bottomSheet(
-                route = NavRoute.MAIN_SETTINGS
-            ) {
-                MainSettings()
-            }
+                //公会战
+                composable(
+                    route = NavRoute.TOOL_CLAN,
+                ) {
+                    ClanBattleListScreen(
+                        animatedVisibilityScope = this@composable,
+                        toClanBossInfo = actions.toClanBossInfo
+                    )
+                }
 
-            //公告
-            composable(
-                route = NavRoute.TOOL_NEWS
-            ) {
-                NewsScreen()
-            }
+                //公会战详情
+                composable(
+                    route = "${NavRoute.TOOL_CLAN_BOSS_INFO}/{${NavRoute.CLAN_BATTLE_PROPERTY}}",
+                    arguments = listOf(navArgument(NavRoute.CLAN_BATTLE_PROPERTY) {
+                        type = NavType.StringType
+                    }),
+                ) {
+                    ClanBattleDetailScreen(
+                        animatedVisibilityScope = this@composable,
+                        toSummonDetail = actions.toSummonDetail
+                    )
+                }
 
-            //推特信息
-            composable(
-                route = NavRoute.TWEET
-            ) {
-                TweetList()
-            }
+                //竞技场查询
+                composable(
+                    route = NavRoute.TOOL_PVP
+                ) {
+                    val pagerState = rememberPagerState { 4 }
+                    val selectListState = rememberLazyGridState()
+                    val usedListState = rememberLazyGridState()
+                    val resultListState = rememberLazyGridState()
+                    val favoritesListState = rememberLazyGridState()
+                    val historyListState = rememberLazyGridState()
 
-            //漫画信息
-            composable(
-                route = NavRoute.COMIC
-            ) {
-                ComicListScreen()
-            }
+                    PvpSearchScreen(
+                        floatWindow = false,
+                        pagerState = pagerState,
+                        selectListState = selectListState,
+                        usedListState = usedListState,
+                        resultListState = resultListState,
+                        favoritesListState = favoritesListState,
+                        historyListState = historyListState,
+                        toCharacter = actions.toCharacterDetail
+                    )
+                }
 
-            //战力系数
-            bottomSheet(
-                route = NavRoute.ATTR_COE
-            ) {
-                CharacterStatusCoeScreen()
-            }
+                //设置页面
+                bottomSheet(
+                    route = NavRoute.MAIN_SETTINGS
+                ) {
+                    MainSettings()
+                }
 
-            //召唤物信息
-            bottomSheet(
-                route = "${NavRoute.SUMMON_DETAIL}/{${NavRoute.SUMMON_PROPERTY}}",
-                arguments = listOf(navArgument(NavRoute.SUMMON_PROPERTY) {
-                    type = NavType.StringType
-                })
-            ) {
-                val arguments = requireNotNull(it.arguments)
-                val summonProperty =
-                    JsonUtil.fromJson<SummonProperty>(arguments.getString(NavRoute.SUMMON_PROPERTY))
-                summonProperty?.let {
-                    SkillSummonScreen(
-                        id = summonProperty.id,
-                        unitType = UnitType.getByValue(summonProperty.type),
-                        level = summonProperty.level,
-                        rank = summonProperty.rank,
-                        rarity = summonProperty.rarity
+                //公告
+                composable(
+                    route = NavRoute.TOOL_NEWS
+                ) {
+                    NewsScreen()
+                }
+
+                //推特信息
+                composable(
+                    route = NavRoute.TWEET
+                ) {
+                    TweetList()
+                }
+
+                //漫画信息
+                composable(
+                    route = NavRoute.COMIC
+                ) {
+                    ComicListScreen()
+                }
+
+                //战力系数
+                bottomSheet(
+                    route = NavRoute.ATTR_COE
+                ) {
+                    CharacterStatusCoeScreen()
+                }
+
+                //召唤物信息
+                bottomSheet(
+                    route = "${NavRoute.SUMMON_DETAIL}/{${NavRoute.SUMMON_PROPERTY}}",
+                    arguments = listOf(navArgument(NavRoute.SUMMON_PROPERTY) {
+                        type = NavType.StringType
+                    })
+                ) {
+                    val arguments = requireNotNull(it.arguments)
+                    val summonProperty =
+                        JsonUtil.fromJson<SummonProperty>(arguments.getString(NavRoute.SUMMON_PROPERTY))
+                    summonProperty?.let {
+                        SkillSummonScreen(
+                            id = summonProperty.id,
+                            unitType = UnitType.getByValue(summonProperty.type),
+                            level = summonProperty.level,
+                            rank = summonProperty.rank,
+                            rarity = summonProperty.rarity
+                        )
+                    }
+                }
+
+                //技能循环信息
+                bottomSheet(
+                    route = "${NavRoute.CHARACTER_SKILL_LOOP}/{${NavRoute.UNIT_ID}}",
+                    arguments = listOf(navArgument(NavRoute.UNIT_ID) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    val arguments = requireNotNull(it.arguments)
+                    CharacterSkillLoopScreen(
+                        unitId = arguments.getInt(NavRoute.UNIT_ID),
+                        scrollable = true
+                    )
+                }
+
+                //额外随机装备掉落地区
+                composable(
+                    route = "${NavRoute.TOOL_EQUIP_AREA}/{${NavRoute.EQUIP_ID}}",
+                    arguments = listOf(navArgument(NavRoute.EQUIP_ID) {
+                        type = NavType.IntType
+                    }),
+                ) {
+                    val arguments = requireNotNull(it.arguments)
+                    RandomDropAreaListScreen(
+                        arguments.getInt(NavRoute.EQUIP_ID)
+                    )
+                }
+
+                //更多工具
+                composable(
+                    route = "${NavRoute.TOOL_MORE}/{${NavRoute.TOOL_MORE_EDIT_MODE}}",
+                    arguments = listOf(navArgument(NavRoute.TOOL_MORE_EDIT_MODE) {
+                        type = NavType.BoolType
+                    }),
+                ) {
+                    val arguments = requireNotNull(it.arguments)
+                    AllToolMenuScreen(
+                        arguments.getBoolean(NavRoute.TOOL_MORE_EDIT_MODE), actions
+                    )
+                }
+
+                //模拟抽卡
+                composable(
+                    route = NavRoute.TOOL_MOCK_GACHA,
+                ) {
+                    MockGachaScreen()
+                }
+
+                //模拟抽卡
+                composable(
+                    route = "${NavRoute.TOOL_MOCK_GACHA_FROM_LIST}/{${NavRoute.MOCK_GACHA_TYPE}}/{${NavRoute.PICKUP_LIST}}",
+                    arguments = listOf(
+                        navArgument(NavRoute.MOCK_GACHA_TYPE) {
+                            type = NavType.IntType
+                        },
+                        navArgument(NavRoute.PICKUP_LIST) {
+                            type = NavType.StringType
+                        }
+                    )
+                ) {
+                    MockGachaScreen()
+                }
+
+                //生日日程
+                composable(
+                    route = NavRoute.TOOL_BIRTHDAY
+                ) {
+                    BirthdayListScreen(actions.toCharacterDetail)
+                }
+
+                //日程
+                composable(
+                    route = NavRoute.TOOL_CALENDAR_EVENT
+                ) {
+                    CalendarEventListScreen()
+                }
+
+                //怪物详情信息
+                composable(
+                    route = "${NavRoute.ENEMY_DETAIL}/{${NavRoute.ENEMY_ID}}",
+                    arguments = listOf(navArgument(NavRoute.ENEMY_ID) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    val arguments = requireNotNull(it.arguments)
+                    EnemyDetailScreen(
+                        arguments.getInt(NavRoute.ENEMY_ID),
+                        actions.toSummonDetail
+                    )
+                }
+
+                //活动剧情怪物详情信息
+                composable(
+                    route = "${NavRoute.EVENT_ENEMY_DETAIL}/{${NavRoute.ENEMY_ID}}",
+                    arguments = listOf(navArgument(NavRoute.ENEMY_ID) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    val arguments = requireNotNull(it.arguments)
+                    StoryEventBossDetail(
+                        arguments.getInt(NavRoute.ENEMY_ID),
+                        actions.toSummonDetail
+                    )
+                }
+
+                //网站
+                composable(
+                    route = NavRoute.PCR_WEBSITE
+                ) {
+                    WebsiteScreen()
+                }
+
+                //主线地图
+                composable(
+                    route = NavRoute.TOOL_ALL_QUEST
+                ) {
+                    QuestListScreen()
+                }
+
+                //装备掉落搜索
+                bottomSheet(
+                    route = "${NavRoute.TOOL_ALL_QUEST}/{${NavRoute.SEARCH_EQUIP_IDS}}",
+                    arguments = listOf(navArgument(NavRoute.SEARCH_EQUIP_IDS) {
+                        type = NavType.StringType
+                    })
+                ) {
+                    val arguments = requireNotNull(it.arguments)
+                    QuestListScreen(
+                        searchEquipIds = arguments.getString(NavRoute.SEARCH_EQUIP_IDS) ?: ""
+                    )
+                }
+
+                //专用装备列表
+                composable(
+                    route = NavRoute.UNIQUE_EQUIP_LIST
+                ) {
+                    UniqueEquipListScreen(
+                        animatedVisibilityScope = this@composable,
+                        toUniqueEquipDetail = actions.toUniqueEquipDetail
+                    )
+                }
+
+                //专用装备属性详情
+                composable(
+                    route = "${NavRoute.UNIQUE_EQUIP_DETAIL}/{${NavRoute.UNIT_ID}}/{${NavRoute.SHOW_ALL_INFO}}",
+                    arguments = listOf(navArgument(NavRoute.UNIT_ID) {
+                        type = NavType.IntType
+                    }, navArgument(NavRoute.SHOW_ALL_INFO) {
+                        type = NavType.BoolType
+                    })
+                ) {
+                    CharacterDetailScreen(
+                        animatedVisibilityScope = this@composable,
+                        actions = actions
+                    )
+                }
+
+                //过场漫画列表
+                composable(
+                    route = NavRoute.LOAD_COMIC_LIST
+                ) {
+                    LoadComicScreen()
+                }
+
+                //角色天赋列表
+                composable(
+                    route = NavRoute.TALENT_LIST
+                ) {
+                    UnitTalentListScreen(
+                        toCharacterDetail = actions.toCharacterDetail
+                    )
+                }
+
+                //角色天赋列表（指定天赋类型）
+                bottomSheet(
+                    route = "${NavRoute.TALENT_LIST}/{${NavRoute.UNIT_ID}}/{${NavRoute.TALENT_TYPE}}",
+                    arguments = listOf(navArgument(NavRoute.UNIT_ID) {
+                        type = NavType.IntType
+                    }, navArgument(NavRoute.TALENT_TYPE) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    UnitTalentListScreen(
+                        toCharacterDetail = actions.toCharacterDetail
                     )
                 }
             }
-
-            //技能循环信息
-            bottomSheet(
-                route = "${NavRoute.CHARACTER_SKILL_LOOP}/{${NavRoute.UNIT_ID}}",
-                arguments = listOf(navArgument(NavRoute.UNIT_ID) {
-                    type = NavType.IntType
-                })
-            ) {
-                val arguments = requireNotNull(it.arguments)
-                CharacterSkillLoopScreen(
-                    unitId = arguments.getInt(NavRoute.UNIT_ID),
-                    scrollable = true
-                )
-            }
-
-            //额外随机装备掉落地区
-            composable(
-                route = "${NavRoute.TOOL_EQUIP_AREA}/{${NavRoute.EQUIP_ID}}",
-                arguments = listOf(navArgument(NavRoute.EQUIP_ID) {
-                    type = NavType.IntType
-                }),
-            ) {
-                val arguments = requireNotNull(it.arguments)
-                RandomDropAreaListScreen(
-                    arguments.getInt(NavRoute.EQUIP_ID)
-                )
-            }
-
-            //更多工具
-            composable(
-                route = "${NavRoute.TOOL_MORE}/{${NavRoute.TOOL_MORE_EDIT_MODE}}",
-                arguments = listOf(navArgument(NavRoute.TOOL_MORE_EDIT_MODE) {
-                    type = NavType.BoolType
-                }),
-            ) {
-                val arguments = requireNotNull(it.arguments)
-                AllToolMenuScreen(
-                    arguments.getBoolean(NavRoute.TOOL_MORE_EDIT_MODE), actions
-                )
-            }
-
-            //模拟抽卡
-            composable(
-                route = NavRoute.TOOL_MOCK_GACHA,
-            ) {
-                MockGachaScreen()
-            }
-
-            //模拟抽卡
-            composable(
-                route = "${NavRoute.TOOL_MOCK_GACHA_FROM_LIST}/{${NavRoute.MOCK_GACHA_TYPE}}/{${NavRoute.PICKUP_LIST}}",
-                arguments = listOf(
-                    navArgument(NavRoute.MOCK_GACHA_TYPE) {
-                        type = NavType.IntType
-                    },
-                    navArgument(NavRoute.PICKUP_LIST) {
-                        type = NavType.StringType
-                    }
-                )
-            ) {
-                MockGachaScreen()
-            }
-
-            //生日日程
-            composable(
-                route = NavRoute.TOOL_BIRTHDAY
-            ) {
-                BirthdayListScreen(actions.toCharacterDetail)
-            }
-
-            //日程
-            composable(
-                route = NavRoute.TOOL_CALENDAR_EVENT
-            ) {
-                CalendarEventListScreen()
-            }
-
-            //怪物详情信息
-            composable(
-                route = "${NavRoute.ENEMY_DETAIL}/{${NavRoute.ENEMY_ID}}",
-                arguments = listOf(navArgument(NavRoute.ENEMY_ID) {
-                    type = NavType.IntType
-                })
-            ) {
-                val arguments = requireNotNull(it.arguments)
-                EnemyDetailScreen(
-                    arguments.getInt(NavRoute.ENEMY_ID),
-                    actions.toSummonDetail
-                )
-            }
-
-            //活动剧情怪物详情信息
-            composable(
-                route = "${NavRoute.EVENT_ENEMY_DETAIL}/{${NavRoute.ENEMY_ID}}",
-                arguments = listOf(navArgument(NavRoute.ENEMY_ID) {
-                    type = NavType.IntType
-                })
-            ) {
-                val arguments = requireNotNull(it.arguments)
-                StoryEventBossDetail(
-                    arguments.getInt(NavRoute.ENEMY_ID),
-                    actions.toSummonDetail
-                )
-            }
-
-            //网站
-            composable(
-                route = NavRoute.PCR_WEBSITE
-            ) {
-                WebsiteScreen()
-            }
-
-            //主线地图
-            composable(
-                route = NavRoute.TOOL_ALL_QUEST
-            ) {
-                QuestListScreen()
-            }
-
-            //装备掉落搜索
-            bottomSheet(
-                route = "${NavRoute.TOOL_ALL_QUEST}/{${NavRoute.SEARCH_EQUIP_IDS}}",
-                arguments = listOf(navArgument(NavRoute.SEARCH_EQUIP_IDS) {
-                    type = NavType.StringType
-                })
-            ) {
-                val arguments = requireNotNull(it.arguments)
-                QuestListScreen(
-                    searchEquipIds = arguments.getString(NavRoute.SEARCH_EQUIP_IDS) ?: ""
-                )
-            }
-
-            //专用装备列表
-            composable(
-                route = NavRoute.UNIQUE_EQUIP_LIST
-            ) {
-                UniqueEquipListScreen(
-                    toUniqueEquipDetail = actions.toUniqueEquipDetail
-                )
-            }
-
-            //专用装备属性详情
-            composable(
-                route = "${NavRoute.UNIQUE_EQUIP_DETAIL}/{${NavRoute.UNIT_ID}}/{${NavRoute.SHOW_ALL_INFO}}",
-                arguments = listOf(navArgument(NavRoute.UNIT_ID) {
-                    type = NavType.IntType
-                }, navArgument(NavRoute.SHOW_ALL_INFO) {
-                    type = NavType.BoolType
-                })
-            ) {
-                CharacterDetailScreen(actions)
-            }
-
-            //过场漫画列表
-            composable(
-                route = NavRoute.LOAD_COMIC_LIST
-            ) {
-                LoadComicScreen()
-            }
-
-            //角色天赋列表
-            composable(
-                route = NavRoute.TALENT_LIST
-            ) {
-                UnitTalentListScreen(
-                    toCharacterDetail = actions.toCharacterDetail
-                )
-            }
-
-            //角色天赋列表（指定天赋类型）
-            bottomSheet(
-                route = "${NavRoute.TALENT_LIST}/{${NavRoute.UNIT_ID}}/{${NavRoute.TALENT_TYPE}}",
-                arguments = listOf(navArgument(NavRoute.UNIT_ID) {
-                    type = NavType.IntType
-                }, navArgument(NavRoute.TALENT_TYPE) {
-                    type = NavType.IntType
-                })
-            ) {
-                UnitTalentListScreen(
-                    toCharacterDetail = actions.toCharacterDetail
-                )
-            }
         }
+
     }
 }
 

@@ -1,5 +1,8 @@
 package cn.wthee.pcrtool.ui.tool.extraequip
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +31,7 @@ import cn.wthee.pcrtool.data.model.ExtraEquipGroupData
 import cn.wthee.pcrtool.data.model.FilterExtraEquipment
 import cn.wthee.pcrtool.data.model.isFilter
 import cn.wthee.pcrtool.ui.LoadState
+import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.ui.components.CenterTipText
 import cn.wthee.pcrtool.ui.components.CommonGroupTitle
 import cn.wthee.pcrtool.ui.components.CommonSpacer
@@ -50,8 +54,10 @@ import kotlinx.serialization.json.Json
 /**
  * ex装备列表
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ExtraEquipList(
+fun SharedTransitionScope.ExtraEquipList(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     extraEquipmentViewModel: ExtraEquipListViewModel = hiltViewModel(),
     toExtraEquipDetail: (Int) -> Unit,
     toFilterExtraEquip: (String) -> Unit,
@@ -86,6 +92,7 @@ fun ExtraEquipList(
         ) {
             if (uiState.equipList != null && uiState.filter != null) {
                 ExtraEquipListContent(
+                    animatedVisibilityScope = animatedVisibilityScope,
                     equipList = uiState.equipList!!,
                     favoriteIdList = uiState.favoriteIdList,
                     scrollState = scrollState,
@@ -96,8 +103,10 @@ fun ExtraEquipList(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun ExtraEquipListContent(
+private fun SharedTransitionScope.ExtraEquipListContent(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     equipList: List<ExtraEquipmentBasicInfo>,
     favoriteIdList: List<Int>,
     scrollState: LazyListState,
@@ -123,6 +132,7 @@ private fun ExtraEquipListContent(
             }
         ) { equipGroupData ->
             ExtraEquipGroup(
+                animatedVisibilityScope = animatedVisibilityScope,
                 equipGroupData = equipGroupData,
                 favoriteIdList = favoriteIdList,
                 toExtraEquipDetail = toExtraEquipDetail
@@ -179,8 +189,10 @@ private fun ExtraEquipListFabContent(
 /**
  * ex装备分组
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun ExtraEquipGroup(
+private fun SharedTransitionScope.ExtraEquipGroup(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     equipGroupData: ExtraEquipGroupData,
     favoriteIdList: List<Int>,
     toExtraEquipDetail: (Int) -> Unit
@@ -213,6 +225,7 @@ private fun ExtraEquipGroup(
         )
     ) {
         ExtraEquipItem(
+            animatedVisibilityScope = animatedVisibilityScope,
             favoriteIdList = favoriteIdList,
             equip = equipGroupData.equipIdList[it],
             toExtraEquipDetail = toExtraEquipDetail
@@ -223,8 +236,10 @@ private fun ExtraEquipGroup(
 /**
  * ex装备
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun ExtraEquipItem(
+private fun SharedTransitionScope.ExtraEquipItem(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     favoriteIdList: List<Int>,
     equip: ExtraEquipmentBasicInfo,
     toExtraEquipDetail: (Int) -> Unit
@@ -239,6 +254,18 @@ private fun ExtraEquipItem(
                 VibrateUtil(context).single()
                 toExtraEquipDetail(equip.equipmentId)
             }
+            .then(
+                if (MainActivity.animOnFlag) {
+                    Modifier.sharedElement(
+                        state = rememberSharedContentState(
+                            key = "item-${equip.equipmentId}"
+                        ),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                    )
+                } else {
+                    Modifier
+                }
+            ),
     ) {
         MainIcon(
             data = ImageRequestHelper.getInstance()
@@ -264,18 +291,18 @@ private fun ExtraEquipItem(
 private fun ExtraEquipGroupPreview() {
     val text = stringResource(id = R.string.debug_short_text)
     PreviewLayout {
-        ExtraEquipGroup(
-            ExtraEquipGroupData(
-                rarity = 3,
-                category = 1,
-                categoryName = text,
-                equipIdList = arrayListOf(
-                    ExtraEquipmentBasicInfo(equipmentId = 1, equipmentName = text),
-                    ExtraEquipmentBasicInfo(equipmentName = text),
-                    ExtraEquipmentBasicInfo(equipmentName = text)
-                )
-            ),
-            favoriteIdList = arrayListOf(1)
-        ) { }
+//        ExtraEquipGroup(
+//            ExtraEquipGroupData(
+//                rarity = 3,
+//                category = 1,
+//                categoryName = text,
+//                equipIdList = arrayListOf(
+//                    ExtraEquipmentBasicInfo(equipmentId = 1, equipmentName = text),
+//                    ExtraEquipmentBasicInfo(equipmentName = text),
+//                    ExtraEquipmentBasicInfo(equipmentName = text)
+//                )
+//            ),
+//            favoriteIdList = arrayListOf(1)
+//        ) { }
     }
 }

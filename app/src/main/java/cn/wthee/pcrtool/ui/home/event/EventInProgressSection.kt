@@ -1,5 +1,8 @@
 package cn.wthee.pcrtool.ui.home.event
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -12,8 +15,10 @@ import cn.wthee.pcrtool.navigation.NavActions
 /**
  * 进行中活动
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun EventInProgressSection(
+fun SharedTransitionScope.EventInProgressSection(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     eventExpandState: Int,
     updateOrderData: (Int) -> Unit,
     updateEventLayoutState : (Int) -> Unit,
@@ -29,6 +34,7 @@ fun EventInProgressSection(
 
 
     CalendarEventLayout(
+        animatedVisibilityScope = animatedVisibilityScope,
         isEditMode = isEditMode,
         calendarType = EventType.IN_PROGRESS,
         eventExpandState = eventExpandState,

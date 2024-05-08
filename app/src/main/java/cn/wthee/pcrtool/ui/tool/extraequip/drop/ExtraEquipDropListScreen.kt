@@ -1,8 +1,10 @@
 package cn.wthee.pcrtool.ui.tool.extraequip.drop
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
@@ -16,20 +18,20 @@ import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.ExtraEquipQuestData
 import cn.wthee.pcrtool.data.db.view.ExtraEquipSubRewardData
 import cn.wthee.pcrtool.ui.components.CenterTipText
+import cn.wthee.pcrtool.ui.components.MainHorizontalPagerIndicator
 import cn.wthee.pcrtool.ui.components.MainScaffold
-import cn.wthee.pcrtool.ui.components.MainTabRow
 import cn.wthee.pcrtool.ui.components.StateBox
-import cn.wthee.pcrtool.ui.components.TabData
 import cn.wthee.pcrtool.ui.theme.CombinedPreviews
-import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.PreviewLayout
 import cn.wthee.pcrtool.ui.tool.extratravel.TravelQuestItem
 
 /**
  * ex装备掉落信息
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ExtraEquipDropListScreen(
+fun SharedTransitionScope.ExtraEquipDropListScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     equipId: Int,
     extraEquipDropViewModel: ExtraEquipDropViewModel = hiltViewModel()
 ) {
@@ -45,6 +47,7 @@ fun ExtraEquipDropListScreen(
         ) {
             if (uiState.dropList != null) {
                 ExtraEquipDropListContent(
+                    animatedVisibilityScope = animatedVisibilityScope,
                     equipId = equipId,
                     dropList = uiState.dropList!!,
                     subRewardListMap = uiState.subRewardListMap
@@ -55,30 +58,21 @@ fun ExtraEquipDropListScreen(
 
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun ExtraEquipDropListContent(
+private fun SharedTransitionScope.ExtraEquipDropListContent(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     equipId: Int,
     dropList: List<ExtraEquipQuestData>,
     subRewardListMap: HashMap<Int, List<ExtraEquipSubRewardData>>?
 ) {
-    Column {
+    Column(modifier = Modifier.fillMaxSize()) {
         val pagerState = rememberPagerState { dropList.size }
-        val tabs = arrayListOf<TabData>()
-        dropList.forEach {
-            tabs.add(
-                TabData(
-                    tab = it.getTitle()
-                )
-            )
-        }
 
-        MainTabRow(
+        MainHorizontalPagerIndicator(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
             pagerState = pagerState,
-            tabs = tabs,
-            scrollable = true,
-            modifier = Modifier
-                .padding(top = Dimen.mediumPadding)
-                .align(Alignment.CenterHorizontally)
+            pageCount = dropList.size
         )
 
         HorizontalPager(
@@ -88,6 +82,7 @@ private fun ExtraEquipDropListContent(
         ) {
             val questData = dropList[pagerState.currentPage]
             TravelQuestItem(
+                animatedVisibilityScope = animatedVisibilityScope,
                 selectedId = equipId,
                 questData = questData,
                 subRewardList = subRewardListMap?.get(questData.travelQuestId)
@@ -101,38 +96,38 @@ private fun ExtraEquipDropListContent(
 @Composable
 private fun ExtraEquipDropListContentPreview() {
     PreviewLayout {
-        val data = hashMapOf<Int, List<ExtraEquipSubRewardData>>()
-        data[1] = arrayListOf(
-            ExtraEquipSubRewardData(
-                travelQuestId = 1,
-                category = 1,
-                categoryName = stringResource(id = R.string.debug_short_text),
-                subRewardIds = "1-2-3",
-                subRewardDrops = "1234-2323-4567"
-            )
-        )
-        val questData = ExtraEquipQuestData(
-            travelQuestId = 1,
-            travelAreaId = 1,
-            travelQuestName = stringResource(id = R.string.debug_short_text),
-            limitUnitNum = 10,
-            travelTime = 1000,
-            travelTimeDecreaseLimit = 2000,
-            travelDecreaseFlag = 1,
-            needPower = 1,
-            iconId = 1
-        )
+//        val data = hashMapOf<Int, List<ExtraEquipSubRewardData>>()
+//        data[1] = arrayListOf(
+//            ExtraEquipSubRewardData(
+//                travelQuestId = 1,
+//                category = 1,
+//                categoryName = stringResource(id = R.string.debug_short_text),
+//                subRewardIds = "1-2-3",
+//                subRewardDrops = "1234-2323-4567"
+//            )
+//        )
+//        val questData = ExtraEquipQuestData(
+//            travelQuestId = 1,
+//            travelAreaId = 1,
+//            travelQuestName = stringResource(id = R.string.debug_short_text),
+//            limitUnitNum = 10,
+//            travelTime = 1000,
+//            travelTimeDecreaseLimit = 2000,
+//            travelDecreaseFlag = 1,
+//            needPower = 1,
+//            iconId = 1
+//        )
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            ExtraEquipDropListContent(
-                dropList = arrayListOf(
-                    questData,
-                    questData,
-                    questData
-                ),
-                equipId = 1,
-                subRewardListMap = data
-            )
-        }
+//        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//            ExtraEquipDropListContent(
+//                dropList = arrayListOf(
+//                    questData,
+//                    questData,
+//                    questData
+//                ),
+//                equipId = 1,
+//                subRewardListMap = data
+//            )
+//        }
     }
 }

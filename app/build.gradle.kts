@@ -12,8 +12,8 @@ hilt {
     enableAggregatingTask = true
 }
 
-val composeBom = "2024.04.01"
-val composeCompilerVersion = "1.5.12"
+val composeBom = "2024.05.00"
+val composeCompilerVersion = "1.5.13"
 val appVersionCode = 384
 val appVersionName = "3.8.4"
 val appId = "cn.wthee.pcrtool"
@@ -113,7 +113,7 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.9.0")
     implementation("androidx.multidex:multidex:2.0.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.fragment:fragment-ktx:1.6.2")
+    implementation("androidx.fragment:fragment-ktx:1.7.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:${rootProject.extra["kotlinVersion"]}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
 
@@ -124,9 +124,12 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.runtime:runtime-livedata")
-    implementation("androidx.compose.material:material:1.7.0-alpha07")
-    implementation("androidx.compose.material:material-navigation:1.7.0-alpha07")
     implementation("androidx.compose.material3:material3")
+    //compose unstable
+    val composeUnstableVersion = "1.7.0-alpha08"
+    implementation("androidx.compose.animation:animation:${composeUnstableVersion}")
+    implementation("androidx.compose.material:material:${composeUnstableVersion}")
+    implementation("androidx.compose.material:material-navigation:${composeUnstableVersion}")
 
     //Browser
     implementation("androidx.browser:browser:1.8.0")
@@ -140,7 +143,7 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-network-ktor:$coilVersion")
 
     //datastore
-    implementation("androidx.datastore:datastore-preferences:1.1.0")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 
     //Hilt
     implementation("com.google.dagger:hilt-android:${rootProject.extra["hiltVersion"]}")
