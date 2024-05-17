@@ -506,7 +506,7 @@ data class SkillActionDetail(
                 val value = getValueText(1, actionValue1, actionValue2)
                 tag = getString(
                     when (actionDetail1) {
-                        1 -> R.string.skill_action_tp_recovery
+                        1, 4 -> R.string.skill_action_tp_recovery
                         else -> R.string.skill_action_tp_reduce
                     }
                 )
