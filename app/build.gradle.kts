@@ -13,9 +13,9 @@ hilt {
 }
 
 val composeBom = "2024.05.00"
-val composeCompilerVersion = "1.5.13"
-val appVersionCode = 384
-val appVersionName = "3.8.4"
+val composeCompilerVersion = "1.5.14"
+val appVersionCode = 385
+val appVersionName = "3.8.5"
 val appId = "cn.wthee.pcrtool"
 
 android {
@@ -113,7 +113,7 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.9.0")
     implementation("androidx.multidex:multidex:2.0.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.fragment:fragment-ktx:1.7.0")
+    implementation("androidx.fragment:fragment-ktx:1.7.1")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:${rootProject.extra["kotlinVersion"]}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
 
@@ -126,7 +126,7 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-livedata")
     implementation("androidx.compose.material3:material3")
     //compose unstable
-    val composeUnstableVersion = "1.7.0-alpha08"
+    val composeUnstableVersion = "1.7.0-beta01"
     implementation("androidx.compose.animation:animation:${composeUnstableVersion}")
     implementation("androidx.compose.material:material:${composeUnstableVersion}")
     implementation("androidx.compose.material:material-navigation:${composeUnstableVersion}")
@@ -158,7 +158,7 @@ dependencies {
     implementation("io.ktor:ktor-client-android:$ktorVersion")
 
     //Lifecycle
-    val lifecycleVersion = "2.7.0"
+    val lifecycleVersion = "2.8.0"
     implementation("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
@@ -167,7 +167,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
 
     //media3
-    val media3Version = "1.2.1"
+    val media3Version = "1.3.1"
     implementation("androidx.media3:media3-exoplayer:$media3Version")
     implementation("androidx.media3:media3-ui:$media3Version")
 
@@ -175,7 +175,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
     //Paging3
-    val pagingVersion = "3.2.1"
+    val pagingVersion = "3.3.0"
     implementation("androidx.paging:paging-runtime-ktx:$pagingVersion")
     implementation("androidx.paging:paging-compose:$pagingVersion")
 
