@@ -41,6 +41,7 @@ import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.PreviewLayout
 import cn.wthee.pcrtool.ui.theme.colorGreen
 import cn.wthee.pcrtool.ui.theme.colorRed
+import cn.wthee.pcrtool.utils.BrowserUtil
 import cn.wthee.pcrtool.utils.VibrateUtil
 import cn.wthee.pcrtool.utils.fillZero
 import cn.wthee.pcrtool.utils.getToday
@@ -125,7 +126,17 @@ fun PvpSearchResult(
                 } else {
                     CenterTipText(
                         text = stringResource(id = R.string.pvp_no_data)
-                    )
+                    ) {
+                        // 无查询结果，提示去网站查询
+                        val searchUrl = stringResource(id = R.string.pcrdfans_search_url)
+                        SubButton(
+                            text = stringResource(id = R.string.pvp_search_on_web),
+                            modifier = Modifier.padding(top = Dimen.mediumPadding),
+                            onClick = {
+                                BrowserUtil.open(searchUrl)
+                            }
+                        )
+                    }
                 }
             } else {
                 Column(

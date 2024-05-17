@@ -1,5 +1,8 @@
 package cn.wthee.pcrtool.ui.character.detail
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -90,8 +93,10 @@ import cn.wthee.pcrtool.utils.int
 /**
  * 角色信息
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun CharacterDetailScreen(
+fun SharedTransitionScope.CharacterDetailScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     actions: NavActions,
     characterDetailViewModel: CharacterDetailViewModel = hiltViewModel()
 ) {
@@ -149,6 +154,7 @@ fun CharacterDetailScreen(
             }
         ) {
             CharacterDetailContent(
+                animatedVisibilityScope = animatedVisibilityScope,
                 uiState = uiState,
                 pagerState = pagerState,
                 updateOrderData = characterDetailViewModel::updateOrderData,
@@ -273,8 +279,10 @@ private fun ChangeCutinFabContent(
 }
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun CharacterDetailContent(
+private fun SharedTransitionScope.CharacterDetailContent(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     uiState: CharacterDetailUiState,
     pagerState: PagerState,
     actions: NavActions,
@@ -353,6 +361,7 @@ private fun CharacterDetailContent(
 
                         //角色卡面
                         CharacterDetailModuleType.CARD -> CharacterCard(
+                            animatedVisibilityScope = animatedVisibilityScope,
                             unitId = uiState.unitId,
                             basicInfo = uiState.basicInfo,
                             favorite = uiState.favorite,
@@ -373,10 +382,12 @@ private fun CharacterDetailContent(
                             ToolsContent(
                                 unitId = uiState.unitId,
                                 cutinId = uiState.cutinId,
+                                talentType = uiState.basicInfo?.talentId ?: 0,
                                 idList = uiState.idList,
                                 toCharacterBasicInfo = actions.toCharacterBasicInfo,
                                 toAllPics = actions.toAllPics,
-                                toCharacterVideo = actions.toCharacterVideo
+                                toCharacterVideo = actions.toCharacterVideo,
+                                toUnitTalentFilterList = actions.toUnitTalentFilterList
                             )
 
                         //星级
@@ -429,6 +440,7 @@ private fun CharacterDetailContent(
                         CharacterDetailModuleType.UNIQUE_EQUIP -> uiState.allAttr.uniqueEquipList
                             .forEachIndexed { index, uniqueEquipmentMaxData ->
                                 UniqueEquipDetail(
+                                    animatedVisibilityScope = animatedVisibilityScope,
                                     slot = index + 1,
                                     currentValue = uiState.currentValue,
                                     uniqueEquipLevelMax = if (index == 0) {
@@ -454,10 +466,13 @@ private fun CharacterDetailContent(
                         )
 
                         //图标
-                        CharacterDetailModuleType.UNIT_ICON -> UnitIconAndTag(
-                            uiState.basicInfo,
-                            showUniqueEquipType = uiState.showAllInfo
-                        )
+                        CharacterDetailModuleType.UNIT_ICON -> {
+                            UnitIconAndTag(
+                                basicInfo = uiState.basicInfo,
+                                showUniqueEquipType = uiState.showAllInfo,
+                                animatedVisibilityScope = animatedVisibilityScope
+                            )
+                        }
 
                         //技能循环
                         CharacterDetailModuleType.SKILL_LOOP -> CharacterSkillLoopScreen(
@@ -482,8 +497,10 @@ private fun CharacterDetailContent(
 /**
  * 角色卡面
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun CharacterCard(
+private fun SharedTransitionScope.CharacterCard(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     unitId: Int,
     basicInfo: CharacterInfo?,
     favorite: Boolean,
@@ -503,6 +520,7 @@ private fun CharacterCard(
     ) {
         //卡面信息
         CharacterItemContent(
+            animatedVisibilityScope = animatedVisibilityScope,
             unitId = unitId,
             character = basicInfo,
             favorite = favorite,
@@ -522,10 +540,12 @@ private fun CharacterCard(
 private fun ToolsContent(
     unitId: Int,
     cutinId: Int,
+    talentType: Int,
     idList: ArrayList<Int>,
     toCharacterBasicInfo: (Int) -> Unit,
     toAllPics: (Int, Int) -> Unit,
     toCharacterVideo: (Int, Int) -> Unit,
+    toUnitTalentFilterList: (Int, Int) -> Unit,
 ) {
     val openDialog = remember {
         mutableStateOf(false)
@@ -575,6 +595,15 @@ private fun ToolsContent(
             modifier = Modifier.padding(end = Dimen.smallPadding),
             onClick = {
                 toCharacterVideo(unitId, VideoType.CHARACTER_CARD.value)
+            }
+        )
+        //相同天赋角色
+        IconTextButton(
+            icon = MainIconType.TALENT,
+            text = stringResource(id = R.string.talent),
+            modifier = Modifier.padding(end = Dimen.smallPadding),
+            onClick = {
+                toUnitTalentFilterList(unitId, talentType)
             }
         )
     }
@@ -1040,10 +1069,12 @@ private fun ToolsContentPreview() {
         ToolsContent(
             unitId = 100101,
             cutinId = 0,
+            talentType = 0,
             idList = arrayListOf(),
             toCharacterBasicInfo = {},
             toAllPics = { _, _ -> },
             toCharacterVideo = { _, _ -> },
+            toUnitTalentFilterList = { _, _ -> },
         )
     }
 }

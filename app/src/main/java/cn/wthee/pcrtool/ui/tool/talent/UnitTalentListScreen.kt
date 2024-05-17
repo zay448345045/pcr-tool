@@ -62,22 +62,40 @@ fun UnitTalentListScreen(
         rememberScrollState(),
         rememberScrollState(),
     )
+    //筛选的天赋
+    val talentType = TalentType.getByType(uiState.talentType)
 
     MainScaffold(
         fab = {
             //回到顶部
-            MainSmallFab(
-                iconType = MainIconType.TALENT,
-                text = stringResource(id = R.string.unit_talent),
-                onClick = {
-                    coroutineScope.launch {
-                        try {
-                            scrollStateList[pagerState.currentPage].scrollTo(0)
-                        } catch (_: Exception) {
+            if (uiState.showAllType) {
+                MainSmallFab(
+                    iconType = MainIconType.TALENT,
+                    text = stringResource(id = R.string.unit_talent),
+                    onClick = {
+                        coroutineScope.launch {
+                            try {
+                                scrollStateList[pagerState.currentPage].scrollTo(0)
+                            } catch (_: Exception) {
+                            }
                         }
                     }
-                }
-            )
+                )
+            } else {
+                MainSmallFab(
+                    iconType = MainIconType.TALENT,
+                    text = stringResource(id = talentType.typeNameId) + " ${uiState.unitTalentList?.size ?: 0}",
+                    tintColor = talentType.color,
+                    onClick = {
+                        coroutineScope.launch {
+                            try {
+                                scrollStateList[0].scrollTo(0)
+                            } catch (_: Exception) {
+                            }
+                        }
+                    }
+                )
+            }
         }
     ) {
         StateBox(
@@ -86,21 +104,28 @@ fun UnitTalentListScreen(
                 CenterTipText(text = stringResource(R.string.not_installed))
             }
         ) {
-            UnitTalentContent(
-                unitTalentList = uiState.unitTalentList,
-                pagerState = pagerState,
-                scrollStateList = scrollStateList,
-                toCharacterDetail = toCharacterDetail
-            )
+            if (uiState.showAllType) {
+                UnitTalentPagerContent(
+                    unitTalentList = uiState.unitTalentList,
+                    pagerState = pagerState,
+                    scrollStateList = scrollStateList,
+                    toCharacterDetail = toCharacterDetail
+                )
+            } else {
+                UnitTalentListItemContent(
+                    scrollState = scrollStateList[0],
+                    list = uiState.unitTalentList ?: arrayListOf(),
+                    toCharacterDetail = toCharacterDetail
+                )
+            }
         }
-
     }
 
 }
 
 
 @Composable
-private fun UnitTalentContent(
+private fun UnitTalentPagerContent(
     unitTalentList: List<TalentData>?,
     pagerState: PagerState,
     scrollStateList: List<ScrollState>,
@@ -149,28 +174,41 @@ private fun UnitTalentContent(
             val list = unitTalentList?.filter { it.talentId == pagerState.currentPage + 1 }
                 ?: arrayListOf()
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(scrollStateList[pagerState.currentPage])
-            ) {
-                //物理
-                UnitAtkTypeList(
-                    list = list,
-                    atkType = AtkType.PHYSICAL,
-                    toCharacterDetail = toCharacterDetail
-                )
-                //魔法
-                UnitAtkTypeList(
-                    list = list,
-                    atkType = AtkType.MAGIC,
-                    toCharacterDetail = toCharacterDetail
-                )
-                CommonSpacer()
-            }
+            UnitTalentListItemContent(
+                scrollState = scrollStateList[pagerState.currentPage],
+                list = list,
+                toCharacterDetail = toCharacterDetail
+            )
         }
     }
 
+}
+
+@Composable
+private fun UnitTalentListItemContent(
+    scrollState: ScrollState,
+    list: List<TalentData>,
+    toCharacterDetail: (Int) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(scrollState)
+    ) {
+        //物理
+        UnitAtkTypeList(
+            list = list,
+            atkType = AtkType.PHYSICAL,
+            toCharacterDetail = toCharacterDetail
+        )
+        //魔法
+        UnitAtkTypeList(
+            list = list,
+            atkType = AtkType.MAGIC,
+            toCharacterDetail = toCharacterDetail
+        )
+        CommonSpacer()
+    }
 }
 
 

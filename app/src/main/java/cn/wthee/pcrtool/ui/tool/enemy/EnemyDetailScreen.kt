@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -171,7 +172,7 @@ fun EnemyDetailContent(
         MainText(
             text = enemyData.name,
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
+                .fillMaxWidth()
                 .padding(top = Dimen.mediumPadding),
             selectable = true
         )
@@ -371,14 +372,6 @@ fun EnemyWeaknessContent(
         }
     }
     if (showText) {
-
-        IconTextButton(
-            text = "",
-            icon = MainIconType.HELP,
-            onClick = {
-            }
-        )
-
         MainAlertDialog(
             openDialog = openDialog,
             title = stringResource(id = R.string.talent_weakness),

@@ -1,5 +1,8 @@
 package cn.wthee.pcrtool.ui.home.character
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -18,9 +21,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.R
-import cn.wthee.pcrtool.data.db.view.CharacterInfo
 import cn.wthee.pcrtool.data.enums.MainIconType
 import cn.wthee.pcrtool.data.enums.OverviewType
+import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.ui.components.MainCard
 import cn.wthee.pcrtool.ui.components.MainImage
 import cn.wthee.pcrtool.ui.components.RATIO
@@ -36,9 +39,11 @@ import cn.wthee.pcrtool.utils.ScreenUtil
 /**
  * 角色预览
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun CharacterSection(
+fun SharedTransitionScope.CharacterSection(
     isEditMode: Boolean,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     orderStr: String,
     updateOrderData: (Int) -> Unit,
     toCharacterList: () -> Unit,
@@ -49,6 +54,7 @@ fun CharacterSection(
 
     CharacterSectionContent(
         uiState = uiState,
+        animatedVisibilityScope = animatedVisibilityScope,
         isEditMode = isEditMode,
         orderStr = orderStr,
         updateOrderData = updateOrderData,
@@ -57,9 +63,11 @@ fun CharacterSection(
     )
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun CharacterSectionContent(
+private fun SharedTransitionScope.CharacterSectionContent(
     uiState: CharacterSectionUiState,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     isEditMode: Boolean,
     orderStr: String,
     updateOrderData: (Int) -> Unit,
@@ -100,6 +108,7 @@ private fun CharacterSectionContent(
                     val unitId = if (characterList.isEmpty()) 0 else characterList[index].id
                     CharacterImageItem(
                         unitId = unitId,
+                        animatedVisibilityScope = animatedVisibilityScope,
                         toCharacterDetail = toCharacterDetail
                     )
                 }
@@ -113,6 +122,7 @@ private fun CharacterSectionContent(
                         Box(modifier = Modifier.padding(start = Dimen.largePadding)) {
                             CharacterImageItem(
                                 modifier = Modifier.widthIn(max = Dimen.itemMaxWidth),
+                                animatedVisibilityScope = animatedVisibilityScope,
                                 unitId = it.id,
                                 toCharacterDetail = toCharacterDetail
                             )
@@ -132,16 +142,30 @@ private fun CharacterSectionContent(
 /**
  * 角色图片
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun CharacterImageItem(
+private fun SharedTransitionScope.CharacterImageItem(
     modifier: Modifier = Modifier,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     unitId: Int,
     toCharacterDetail: (Int) -> Unit
 ) {
     val placeholder = unitId == -1
     MainCard(
         modifier = modifier
-            .placeholder(visible = placeholder, shape = MaterialTheme.shapes.medium),
+            .placeholder(visible = placeholder, shape = MaterialTheme.shapes.medium)
+            .then(
+                if (MainActivity.animOnFlag) {
+                    Modifier.sharedElement(
+                        state = rememberSharedContentState(
+                            key = "CharacterItemContent-$unitId"
+                        ),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                    )
+                } else {
+                    Modifier
+                }
+            ),
         onClick = {
             if (!placeholder) {
                 toCharacterDetail(unitId)
@@ -160,23 +184,23 @@ private fun CharacterImageItem(
 @Composable
 private fun CharacterSectionContentPreview() {
     PreviewLayout {
-        CharacterSectionContent(
-            uiState = CharacterSectionUiState(
-                characterList = arrayListOf(
-                    CharacterInfo(
-                        id = 1
-                    ),
-                    CharacterInfo(
-                        id = 2
-                    )
-                ),
-                characterCount = "100"
-            ),
-            isEditMode = false,
-            orderStr = "${OverviewType.CHARACTER.id}",
-            updateOrderData = {},
-            toCharacterList = {},
-            toCharacterDetail = {}
-        )
+//        CharacterSectionContent(
+//            uiState = CharacterSectionUiState(
+//                characterList = arrayListOf(
+//                    CharacterInfo(
+//                        id = 1
+//                    ),
+//                    CharacterInfo(
+//                        id = 2
+//                    )
+//                ),
+//                characterCount = "100"
+//            ),
+//            isEditMode = false,
+//            orderStr = "${OverviewType.CHARACTER.id}",
+//            updateOrderData = {},
+//            toCharacterList = {},
+//            toCharacterDetail = {}
+//        )
     }
 }

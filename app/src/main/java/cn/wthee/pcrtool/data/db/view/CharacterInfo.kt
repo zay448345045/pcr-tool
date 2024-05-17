@@ -24,6 +24,7 @@ data class CharacterInfo(
     @ColumnInfo(name = "unit_start_time") var startTime: String = "",
     @ColumnInfo(name = "r6Id") var r6Id: Int = 1,
     @ColumnInfo(name = "limit_type") var limitType: Int = 0,
+    @ColumnInfo(name = "gacha_id") var gachaId: Int = 0,
     @Ignore var talentId: Int = 0,
     @Ignore var uniqueEquipType: Int = 0,
 ) {

@@ -56,9 +56,9 @@ fun PCRToolApp(
         ) {
             //页面导航
             NavGraph(
-                bottomSheetNavigator,
-                MainActivity.navController,
-                actions
+                bottomSheetNavigator = bottomSheetNavigator,
+                navController = MainActivity.navController,
+                actions = actions
             )
 
             if (loading) {

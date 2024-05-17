@@ -1,11 +1,11 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
-    id("com.google.devtools.ksp") version "1.9.22-1.0.17" apply false
-    kotlin("plugin.serialization") version "1.9.22"
+    id("com.google.devtools.ksp") version "1.9.24-1.0.20" apply false
+    kotlin("plugin.serialization") version "1.9.24"
 }
 
 buildscript {
-    val kotlinVersion by extra("1.9.22")
+    val kotlinVersion by extra("1.9.24")
     val hiltVersion by extra("2.51")
 
     repositories {
@@ -13,7 +13,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.3.0")
+        classpath("com.android.tools.build:gradle:8.3.2")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
         classpath("com.google.dagger:hilt-android-gradle-plugin:$hiltVersion")
 

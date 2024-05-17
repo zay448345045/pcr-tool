@@ -1,5 +1,8 @@
 package cn.wthee.pcrtool.ui.character
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,6 +47,7 @@ import cn.wthee.pcrtool.data.enums.MainIconType
 import cn.wthee.pcrtool.data.model.FilterCharacter
 import cn.wthee.pcrtool.data.model.isFilter
 import cn.wthee.pcrtool.navigation.navigateUp
+import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.ui.components.CaptionText
 import cn.wthee.pcrtool.ui.components.CharacterTagRow
 import cn.wthee.pcrtool.ui.components.CommonSpacer
@@ -82,8 +86,10 @@ import kotlinx.serialization.json.Json
 /**
  * 角色列表
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun CharacterListScreen(
+fun SharedTransitionScope.CharacterListScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     toCharacterDetail: (Int) -> Unit,
     toFilterCharacter: (String) -> Unit,
     characterListViewModel: CharacterListViewModel = hiltViewModel(),
@@ -148,6 +154,7 @@ fun CharacterListScreen(
             stateType = uiState.loadState,
         ) {
             CharacterListContent(
+                animatedVisibilityScope = animatedVisibilityScope,
                 characterList = uiState.characterList,
                 scrollState = scrollState,
                 favoriteIdList = uiState.favoriteIdList,
@@ -157,8 +164,10 @@ fun CharacterListScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun CharacterListContent(
+private fun SharedTransitionScope.CharacterListContent(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     characterList: List<CharacterInfo>?,
     scrollState: LazyGridState,
     favoriteIdList: List<Int>,
@@ -177,6 +186,7 @@ private fun CharacterListContent(
             ) {
                 CharacterItemContent(
                     unitId = it.id,
+                    animatedVisibilityScope = animatedVisibilityScope,
                     character = it,
                     favorite = favoriteIdList.contains(it.id),
                     modifier = Modifier.padding(Dimen.mediumPadding),
@@ -238,10 +248,11 @@ private fun CharacterListFabContent(
 /**
  * 角色列表项
  */
-@OptIn(ExperimentalCoilApi::class)
+@OptIn(ExperimentalCoilApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun CharacterItemContent(
+fun SharedTransitionScope.CharacterItemContent(
     modifier: Modifier = Modifier,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onClick: () -> Unit,
     unitId: Int,
     character: CharacterInfo?,
@@ -271,7 +282,20 @@ fun CharacterItemContent(
 
 
     MainCard(
-        modifier = modifier.placeholder(character?.id == -1),
+        modifier = modifier
+            .placeholder(character?.id == -1)
+            .then(
+                if (MainActivity.animOnFlag) {
+                    Modifier.sharedElement(
+                        state = rememberSharedContentState(
+                            key = "CharacterItemContent-$unitId"
+                        ),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                    )
+                } else {
+                    Modifier
+                }
+            ),
         onClick = onClick
     ) {
         Box(modifier = Modifier.height(IntrinsicSize.Min)) {
@@ -489,18 +513,18 @@ private fun CharacterName(
 @Composable
 fun CharacterItemPreview() {
     PreviewLayout {
-        CharacterItemContent(
-            unitId = 100101,
-            character = CharacterInfo(
-                id = 100101,
-                position = 100,
-                name = stringResource(id = R.string.debug_name),
-                startTime = "2022-02-03 22:22:22",
-                uniqueEquipType = 2
-            ),
-            favorite = true,
-            onClick = {}
-        )
+//        CharacterItemContent(
+//            unitId = 100101,
+//            character = CharacterInfo(
+//                id = 100101,
+//                position = 100,
+//                name = stringResource(id = R.string.debug_name),
+//                startTime = "2022-02-03 22:22:22",
+//                uniqueEquipType = 2
+//            ),
+//            favorite = true,
+//            onClick = {}
+//        )
     }
 }
 

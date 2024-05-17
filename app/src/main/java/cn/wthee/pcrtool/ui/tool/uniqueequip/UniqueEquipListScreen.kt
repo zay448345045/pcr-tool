@@ -1,5 +1,8 @@
 package cn.wthee.pcrtool.ui.tool.uniqueequip
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -18,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -27,6 +29,7 @@ import cn.wthee.pcrtool.data.db.view.CharacterInfo
 import cn.wthee.pcrtool.data.db.view.UniqueEquipBasicData
 import cn.wthee.pcrtool.data.db.view.getIndex
 import cn.wthee.pcrtool.data.enums.MainIconType
+import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.ui.components.BottomSearchBar
 import cn.wthee.pcrtool.ui.components.CharacterTagRow
 import cn.wthee.pcrtool.ui.components.CommonSpacer
@@ -51,8 +54,10 @@ import kotlinx.coroutines.launch
 /**
  * 专用装备列表
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun UniqueEquipListScreen(
+fun SharedTransitionScope.UniqueEquipListScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     uniqueEquipListViewModel: UniqueEquipListViewModel = hiltViewModel(),
     toUniqueEquipDetail: (Int) -> Unit
 ) {
@@ -165,6 +170,7 @@ fun UniqueEquipListScreen(
 
                             basicInfo?.let {
                                 UniqueEquipItem(
+                                    animatedVisibilityScope = animatedVisibilityScope,
                                     equip = uniqueEquip,
                                     basicInfo = it,
                                     toUniqueEquipDetail = toUniqueEquipDetail
@@ -187,22 +193,38 @@ fun UniqueEquipListScreen(
 /**
  * 专用装备
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun UniqueEquipItem(
+private fun SharedTransitionScope.UniqueEquipItem(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     equip: UniqueEquipBasicData,
     basicInfo: CharacterInfo,
     toUniqueEquipDetail: (Int) -> Unit
 ) {
 
     Row(
-        modifier = Modifier.padding(
-            top = Dimen.largePadding,
-            start = Dimen.largePadding,
-            end = Dimen.largePadding,
-        )
+        modifier = Modifier
+            .padding(
+                top = Dimen.largePadding,
+                start = Dimen.largePadding,
+                end = Dimen.largePadding,
+            )
+            .then(
+                if (MainActivity.animOnFlag) {
+                    Modifier.sharedElement(
+                        state = rememberSharedContentState(
+                            key = "item-${equip.equipId}"
+                        ),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                    )
+                } else {
+                    Modifier
+                }
+            )
     ) {
         //装备图标
         MainIcon(
+            modifier = Modifier,
             data = ImageRequestHelper.getInstance()
                 .getUrl(ImageRequestHelper.ICON_EQUIPMENT, equip.equipId),
             onClick = {
@@ -237,7 +259,11 @@ private fun UniqueEquipItem(
                     selectable = true
                 )
 
-                UnitIconAndTag(basicInfo = basicInfo, showUniqueEquipType = false)
+                UnitIconAndTag(
+                    basicInfo = basicInfo,
+                    showUniqueEquipType = false,
+                    animatedVisibilityScope = animatedVisibilityScope
+                )
 
             }
         }
@@ -249,14 +275,29 @@ private fun UniqueEquipItem(
 /**
  * 角色图标和标签
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun UnitIconAndTag(
+fun SharedTransitionScope.UnitIconAndTag(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     basicInfo: CharacterInfo?,
     showUniqueEquipType: Boolean
 ) {
     basicInfo?.let {
         Row(
-            modifier = Modifier.padding(Dimen.mediumPadding),
+            modifier = Modifier
+                .padding(Dimen.mediumPadding)
+                .then(
+                    if (MainActivity.animOnFlag) {
+                        Modifier.sharedElement(
+                            state = rememberSharedContentState(
+                                key = "unit-${basicInfo.id}"
+                            ),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                        )
+                    } else {
+                        Modifier
+                    }
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             MainIcon(
@@ -288,14 +329,14 @@ fun UnitIconAndTag(
 @Composable
 private fun UniqueEquipItemPreview() {
     PreviewLayout {
-        UniqueEquipItem(
-            UniqueEquipBasicData(
-                equipName = stringResource(id = R.string.debug_short_text),
-                description = stringResource(id = R.string.debug_long_text),
-            ),
-            CharacterInfo(
-                name = stringResource(id = R.string.debug_short_text)
-            )
-        ) {}
+//        UniqueEquipItem(
+//            UniqueEquipBasicData(
+//                equipName = stringResource(id = R.string.debug_short_text),
+//                description = stringResource(id = R.string.debug_long_text),
+//            ),
+//            CharacterInfo(
+//                name = stringResource(id = R.string.debug_short_text)
+//            )
+//        ) {}
     }
 }

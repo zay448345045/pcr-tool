@@ -87,13 +87,14 @@ interface UnitDao {
                     WHEN ((is_limited = 1 AND rarity = 3) OR unit_profile.unit_id IN $limitedIds) THEN 2
                     WHEN is_limited = 1 AND rarity = 1 THEN 3
                 END
-            ) AS limit_type
+            ) AS limit_type,
+            COALESCE(gacha.id, 0 ) AS gacha_id
         FROM
             unit_profile
             LEFT JOIN unit_data ON unit_data.unit_id = unit_profile.unit_id
             LEFT JOIN item_data ON item_data.item_id = 32000 + unit_data.unit_id / 100 % 1000
             LEFT JOIN quest_data ON quest_data.quest_id LIKE '13%' AND quest_data.daily_limit <> 0 AND quest_data.reward_image_1 = 32000 + unit_data.unit_id / 100 % 1000
-            LEFT JOIN (SELECT id,exchange_id,unit_id FROM gacha_exchange_lineup GROUP BY unit_id) AS gacha ON gacha.unit_id = unit_data.unit_id
+            LEFT JOIN (SELECT MAX(id) AS id ,MAX(exchange_id) AS exchange_id,unit_id FROM gacha_exchange_lineup GROUP BY unit_id) AS gacha ON gacha.unit_id = unit_data.unit_id
         WHERE 
             (unit_data.unit_name like '%' || :unitName || '%' OR unit_data.unit_id = :unitName)
         AND unit_data.search_area_width > 0
@@ -140,8 +141,7 @@ interface UnitDao {
         CASE WHEN :sortType = 5 AND :asc = 'asc'  THEN birth_day_int END ASC,
         CASE WHEN :sortType = 5 AND :asc = 'desc'  THEN birth_day_int END DESC,
         CASE WHEN :sortType = 6 AND :asc = 'asc'  THEN r6Id END ASC,
-        CASE WHEN :sortType = 6 AND :asc = 'desc'  THEN r6Id END DESC,
-        gacha.exchange_id, gacha.id
+        CASE WHEN :sortType = 6 AND :asc = 'desc'  THEN r6Id END DESC
         LIMIT :limit
         """
     )
@@ -362,7 +362,8 @@ interface UnitDao {
             AND a.unit_id < $maxUnitId
             AND b.search_area_width > 0
         ORDER BY
-            b.search_area_width
+            b.search_area_width DESC,
+            a.unit_id
     """
     )
     suspend fun getCharacterByIds(unitIds: List<Int>): List<PvpCharacterData>
@@ -629,7 +630,11 @@ interface UnitDao {
             AND a.unit_id < $maxUnitId 
             AND b.search_area_width > 0
             AND 1 = CASE
-            WHEN  1 = :type AND b.is_limited = 0 AND b.rarity = 1 THEN 1 
+            WHEN  1 = :type AND b.is_limited = 0 AND b.rarity = 1 
+                AND a.unit_id <> 105801
+                AND a.unit_id <> 105901
+                AND a.unit_id <> 106001
+            THEN 1 
             WHEN  2 = :type AND b.is_limited = 0 AND b.rarity = 2 THEN 1 
             WHEN  3 = :type AND b.is_limited = 0 AND b.rarity = 3 AND a.unit_id NOT IN $limitedIds THEN 1 
             WHEN  4 = :type AND ((is_limited = 1 AND rarity = 3 AND a.unit_id NOT IN (:exUnitIdList)) OR a.unit_id IN $limitedIds) THEN 1
@@ -699,9 +704,10 @@ interface UnitDao {
             LEFT JOIN unit_profile ON unit_profile.unit_id = unit_talent.unit_id
             LEFT JOIN unit_data ON unit_data.unit_id = unit_profile.unit_id
         WHERE (0 = :unitId OR unit_talent.unit_id = :unitId) AND unit_talent.unit_id < $maxUnitId
+        AND (0 = :talentType OR talent_id = :talentType) 
         AND search_area_width > 0
         ORDER BY search_area_width, atk_type
         """
     )
-    suspend fun getTalentIdList(unitId: Int): List<TalentData>
+    suspend fun getTalentIdList(unitId: Int, talentType: Int): List<TalentData>
 }

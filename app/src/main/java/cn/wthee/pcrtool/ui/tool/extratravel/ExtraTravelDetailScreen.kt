@@ -1,5 +1,8 @@
 package cn.wthee.pcrtool.ui.tool.extratravel
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,8 +37,10 @@ import cn.wthee.pcrtool.utils.intArrayList
 /**
  * ex冒险区域详情
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ExtraTravelDetailScreen(
+fun SharedTransitionScope.ExtraTravelDetailScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     toExtraEquipDetail: (Int) -> Unit,
     extraTravelDetailViewModel: ExtraTravelDetailViewModel = hiltViewModel()
 ) {
@@ -49,6 +54,7 @@ fun ExtraTravelDetailScreen(
                 .background(MaterialTheme.colorScheme.surface)
         ) {
             TravelQuestItem(
+                animatedVisibilityScope = animatedVisibilityScope,
                 selectedId = 0,
                 questData = uiState.questData,
                 subRewardList = uiState.subRewardList,
@@ -64,8 +70,10 @@ fun ExtraTravelDetailScreen(
  * 区域详情信息、ex装备掉落信息
  * @param selectedId 0：无选中装备（区域详情信息）；非0：查看ex装备掉落信息时
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun TravelQuestItem(
+fun SharedTransitionScope.TravelQuestItem(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     selectedId: Int,
     questData: ExtraEquipQuestData?,
     subRewardList: List<ExtraEquipSubRewardData>?,
@@ -79,8 +87,9 @@ fun TravelQuestItem(
         //标题
         questData?.let {
             TravelQuestHeader(
+                animatedVisibilityScope = animatedVisibilityScope,
                 questData = it,
-                showTitle = selectedId == 0
+                showExtraContent = selectedId == 0
             )
         }
         //掉落

@@ -313,7 +313,7 @@ private fun PvpSearchContent(
 @Composable
 private fun PvpSearchSelectedContent(
     mediumPadding: Dp,
-    selectedIds: java.util.ArrayList<PvpCharacterData>,
+    selectedIds: ArrayList<PvpCharacterData>,
     floatWindow: Boolean
 ) {
     Row(
@@ -502,7 +502,11 @@ private fun PvpToSelectList(
                     }
 
                 } else {
-                    PvpIconItem(selectedIds, it, floatWindow)
+                    PvpIconItem(
+                        selectedIds = selectedIds,
+                        pvpCharacterData = it,
+                        floatWindow = floatWindow
+                    )
                 }
             }
             items(if (floatWindow) 5 else 10) {
@@ -576,6 +580,7 @@ fun PvpIconItem(
             data = icon,
             onClick = {
                 val newList = arrayListOf<PvpCharacterData>()
+                //初始已选择的角色
                 selectedIds.forEach {
                     newList.add(it)
                 }
@@ -593,10 +598,8 @@ fun PvpIconItem(
 
                     if (!newList.contains(PvpCharacterData())) {
                         ToastUtil.short(getString(R.string.tip_selected_5))
-                    }
-
-                    val unSelected = newList.find { it.position == 999 }
-                    if (unSelected != null) {
+                        return@MainIcon
+                    } else {
                         //可以选择
                         newList[0] = pvpCharacterData
                     }

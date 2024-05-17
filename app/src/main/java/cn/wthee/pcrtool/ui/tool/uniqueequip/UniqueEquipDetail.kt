@@ -1,5 +1,8 @@
 package cn.wthee.pcrtool.ui.tool.uniqueequip
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,11 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import cn.wthee.pcrtool.R
-import cn.wthee.pcrtool.data.db.view.Attr
 import cn.wthee.pcrtool.data.db.view.UniqueEquipmentMaxData
 import cn.wthee.pcrtool.data.db.view.getIndex
 import cn.wthee.pcrtool.data.enums.MainIconType
 import cn.wthee.pcrtool.data.model.CharacterProperty
+import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.ui.components.AttrList
 import cn.wthee.pcrtool.ui.components.IconTextButton
 import cn.wthee.pcrtool.ui.components.LevelInputText
@@ -35,8 +38,10 @@ import cn.wthee.pcrtool.utils.deleteSpace
  * @param uniqueEquipLevelMax 等级
  * @param uniqueEquipmentMaxData 专武数值信息
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun UniqueEquipDetail(
+fun SharedTransitionScope.UniqueEquipDetail(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     slot: Int,
     currentValue: CharacterProperty,
     uniqueEquipLevelMax: Int,
@@ -48,7 +53,20 @@ fun UniqueEquipDetail(
 
     uniqueEquipmentMaxData?.let {
         Column(
-            modifier = Modifier.padding(top = Dimen.largePadding),
+            modifier = Modifier
+                .padding(top = Dimen.largePadding)
+                .then(
+                    if (MainActivity.animOnFlag) {
+                        Modifier.sharedElement(
+                            state = rememberSharedContentState(
+                                key = "item-${it.equipmentId}"
+                            ),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                        )
+                    } else {
+                        Modifier
+                    }
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             //装备名称
@@ -87,7 +105,8 @@ fun UniqueEquipDetail(
             ) {
                 MainIcon(
                     data = ImageRequestHelper.getInstance()
-                        .getUrl(ImageRequestHelper.ICON_EQUIPMENT, it.equipmentId)
+                        .getUrl(ImageRequestHelper.ICON_EQUIPMENT, it.equipmentId),
+                    modifier = Modifier
                 )
                 Subtitle2(
                     text = getIndex(it.equipmentId % 10) + it.description.deleteSpace,
@@ -121,16 +140,16 @@ fun UniqueEquipDetail(
 @Composable
 private fun UniqueEquipPreview() {
     PreviewLayout {
-        UniqueEquipDetail(
-            1,
-            currentValue = CharacterProperty(),
-            uniqueEquipLevelMax = 100,
-            uniqueEquipmentMaxData = UniqueEquipmentMaxData(
-                equipmentName = stringResource(id = R.string.debug_short_text),
-                description = stringResource(id = R.string.debug_long_text),
-                attr = Attr().random()
-            ),
-            updateCurrentValue = {}
-        )
+//        UniqueEquipDetail(
+//            1,
+//            currentValue = CharacterProperty(),
+//            uniqueEquipLevelMax = 100,
+//            uniqueEquipmentMaxData = UniqueEquipmentMaxData(
+//                equipmentName = stringResource(id = R.string.debug_short_text),
+//                description = stringResource(id = R.string.debug_long_text),
+//                attr = Attr().random()
+//            ),
+//            updateCurrentValue = {}
+//        )
     }
 }

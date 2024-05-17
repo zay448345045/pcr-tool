@@ -1,25 +1,75 @@
 package cn.wthee.pcrtool.data.db.view
 
 import androidx.room.ColumnInfo
+import androidx.room.Ignore
 import cn.wthee.pcrtool.data.enums.GachaType
 import cn.wthee.pcrtool.utils.deleteSpace
 import cn.wthee.pcrtool.utils.intArrayList
-import cn.wthee.pcrtool.utils.stringArrayList
 
 /**
  * 卡池记录
  */
-data class GachaInfo(
-    @ColumnInfo(name = "gacha_id") val gachaId: Int = -1,
-    @ColumnInfo(name = "gacha_name") val gachaName: String = "???",
-    @ColumnInfo(name = "description") val description: String = "???",
-    @ColumnInfo(name = "start_time") val startTime: String = "2020/01/01 00:00:00",
-    @ColumnInfo(name = "end_time") val endTime: String = "2020/01/07 00:00:00",
-    @ColumnInfo(name = "unit_ids") val unitIds: String = "100101",
-    @ColumnInfo(name = "unit_names") val unitNames: String = "",
-    @ColumnInfo(name = "is_limiteds") val isLimiteds: String = "0-0",
-    @ColumnInfo(name = "is_ups") val isUps: String = "0-0",
+open class GachaHistoryInfo(
+    @ColumnInfo(name = "gacha_id") var gachaId: Int = -1,
+    @ColumnInfo(name = "gacha_name") var gachaName: String = "???",
+    @ColumnInfo(name = "description") var description: String = "???",
+    @ColumnInfo(name = "start_time") var startTime: String = "2020/01/01 00:00:00",
+    @ColumnInfo(name = "end_time") var endTime: String = "2020/01/07 00:00:00",
+    @ColumnInfo(name = "ids") var ids: String = "100101",
+    @ColumnInfo(name = "unit_ids") var unitIds: String = "100101",
+    @ColumnInfo(name = "unit_names") var unitNames: String = "",
+    @ColumnInfo(name = "is_limiteds") var isLimiteds: String = "0-0",
+    @ColumnInfo(name = "is_ups") var isUps: String = "0-0"
 ) {
+    /**
+     * 转换数据
+     */
+    fun covertData(): GachaInfo {
+        val unitList = arrayListOf<GachaExchangeUnit>()
+        val ids = this.ids.intArrayList
+        val unitIds = this.unitIds.intArrayList
+        val unitNames = this.unitNames.split("-")
+        val isLimiteds = this.isLimiteds.intArrayList
+        val isUps = this.isUps.intArrayList
+        // 首先，我们需要获取keys数组中元素的索引，然后按照keys数组中的值进行排序
+        val sortedIndices = ids.withIndex().sortedBy { it.value }.map { it.index }
+        sortedIndices.forEach {
+            unitList.add(
+                GachaExchangeUnit(
+                    id = ids[it],
+                    unitId = unitIds[it],
+                    unitName = unitNames[it],
+                    isLimited = isLimiteds[it],
+                    isUp = isUps[it],
+                )
+            )
+        }
+
+        return GachaInfo(
+            unitList = unitList,
+            gachaId = gachaId,
+            gachaName = gachaName,
+            description = description,
+            startTime = startTime,
+            endTime = endTime,
+        )
+    }
+}
+
+
+/**
+ * 卡池记录
+ */
+class GachaInfo(
+    //重新排序后的角色列表
+    var unitList: List<GachaExchangeUnit> = emptyList(),
+    var gachaId: Int = 0,
+    var gachaName: String = "",
+    var description: String = "",
+    var startTime: String = "",
+    var endTime: String = "",
+) {
+
 
     /**
      * 获取卡池描述
@@ -78,33 +128,47 @@ data class GachaInfo(
             170201
         )
         var isLimit = false
-        unitIds.intArrayList.forEach {
+        val isLimiteds = unitList.map { it.isLimited }
+        unitList.map { it.unitId }.forEach {
             isLimit = limitIdsCn.contains(it)
             if (isLimit) return@forEach
         }
-        return isLimit || isLimiteds.intArrayList.contains(1)
+        return isLimit || isLimiteds.contains(1)
     }
 
     /**
      * 获取模拟抽卡up角色信息
      */
     fun getMockGachaPickUpUnitList(): List<GachaUnitInfo> {
-        val ids = unitIds.intArrayList
-        val names = unitNames.stringArrayList
-        val isLimits = isLimiteds.intArrayList
-        val upIds = isUps.intArrayList
+        val upIds = unitList.map { it.isUp }
         val list = arrayListOf<GachaUnitInfo>()
         //无大于0的，全部添加
         val addAll = upIds.none { it > 0 }
         //遍历卡池角色
-        ids.forEachIndexed { index, id ->
-            if (addAll || upIds[index] > 0) {
+        unitList.forEach { unitInfo ->
+            if (addAll || unitInfo.isUp > 0) {
                 //正常卡池、或fes卡池up的角色
                 list.add(
-                    GachaUnitInfo(id, names[index], isLimits[index], 3)
+                    GachaUnitInfo(unitInfo.unitId, unitInfo.unitName, unitInfo.isLimited, 3)
                 )
             }
         }
         return list
     }
 }
+
+/**
+ * 卡池中的角色相关信息
+ */
+data class GachaExchangeUnit(
+    @Ignore
+    var id: Int = 0,
+    @Ignore
+    var unitId: Int = 0,
+    @Ignore
+    var unitName: String = "",
+    @Ignore
+    var isLimited: Int = 0,
+    @Ignore
+    var isUp: Int = 0
+)

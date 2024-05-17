@@ -1,23 +1,21 @@
 package cn.wthee.pcrtool.ui.home.event
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavHostController
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.BirthdayData
 import cn.wthee.pcrtool.data.db.view.CalendarEvent
 import cn.wthee.pcrtool.data.db.view.ClanBattleEvent
-import cn.wthee.pcrtool.data.db.view.ClanBattleInfo
 import cn.wthee.pcrtool.data.db.view.FreeGachaInfo
 import cn.wthee.pcrtool.data.db.view.GachaInfo
 import cn.wthee.pcrtool.data.db.view.StoryEventData
-import cn.wthee.pcrtool.data.enums.CalendarEventType
 import cn.wthee.pcrtool.data.enums.EventType
 import cn.wthee.pcrtool.data.enums.MainIconType
 import cn.wthee.pcrtool.data.enums.OverviewType
@@ -44,8 +42,10 @@ import cn.wthee.pcrtool.ui.tool.storyevent.StoryEventItemContent
 /**
  * 日程通用布局
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun CalendarEventLayout(
+fun SharedTransitionScope.CalendarEventLayout(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     isEditMode: Boolean,
     calendarType: EventType,
     eventExpandState: Int,
@@ -109,6 +109,7 @@ fun CalendarEventLayout(
             ) {
                 clanBattleList.forEach {
                     ClanBattleOverviewItemContent(
+                        animatedVisibilityScope = animatedVisibilityScope,
                         clanBattleEvent = it,
                         toClanBossInfo = actions.toClanBossInfo
                     )
@@ -184,41 +185,43 @@ private fun CalendarEventOperation(
 }
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @CombinedPreviews
 @Composable
 private fun CalendarEventLayoutPreview() {
     PreviewLayout {
-        val text = stringResource(id = R.string.debug_long_text)
-        CalendarEventLayout(
-            isEditMode = false,
-            calendarType = EventType.COMING_SOON,
-            eventExpandState = 2,
-            actions = NavActions(NavHostController(LocalContext.current)),
-            orderStr = "${OverviewType.COMING_SOON_EVENT.id}",
-            eventList = arrayListOf(
-                CalendarEvent(
-                    type = CalendarEventType.H_DROP.type.toString(),
-                    value = 3000,
-                    startTime = "2030-01-01 00:00:00",
-                    endTime = "2031-01-01 00:00:00"
-                )
-            ),
-            storyEventList = arrayListOf(
-                StoryEventData(
-                    title = text
-                )
-            ),
-            gachaList = arrayListOf(GachaInfo()),
-            freeGachaList = arrayListOf(FreeGachaInfo()),
-            birthdayList = arrayListOf(BirthdayData(unitIds = "1-2-3", unitNames = "1-2-3")),
-            clanBattleList = arrayListOf(
-                ClanBattleEvent(
-                    clanBattleInfo = ClanBattleInfo(1)
-                )
-            ),
-            fesUnitIdList = arrayListOf(1),
-            updateOrderData = {},
-            updateEventLayoutState = {}
-        )
+//        val text = stringResource(id = R.string.debug_long_text)
+//        CalendarEventLayout(
+//            animatedVisibilityScope = null,
+//            isEditMode = false,
+//            calendarType = EventType.COMING_SOON,
+//            eventExpandState = 2,
+//            actions = NavActions(NavHostController(LocalContext.current)),
+//            orderStr = "${OverviewType.COMING_SOON_EVENT.id}",
+//            eventList = arrayListOf(
+//                CalendarEvent(
+//                    type = CalendarEventType.H_DROP.type.toString(),
+//                    value = 3000,
+//                    startTime = "2030-01-01 00:00:00",
+//                    endTime = "2031-01-01 00:00:00"
+//                )
+//            ),
+//            storyEventList = arrayListOf(
+//                StoryEventData(
+//                    title = text
+//                )
+//            ),
+//            gachaList = arrayListOf(GachaInfo()),
+//            freeGachaList = arrayListOf(FreeGachaInfo()),
+//            birthdayList = arrayListOf(BirthdayData(unitIds = "1-2-3", unitNames = "1-2-3")),
+//            clanBattleList = arrayListOf(
+//                ClanBattleEvent(
+//                    clanBattleInfo = ClanBattleInfo(1)
+//                )
+//            ),
+//            fesUnitIdList = arrayListOf(1),
+//            updateOrderData = {},
+//            updateEventLayoutState = {}
+//        )
     }
 }
