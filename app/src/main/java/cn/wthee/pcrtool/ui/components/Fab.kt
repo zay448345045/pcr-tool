@@ -240,29 +240,41 @@ fun ExpandableFab(
                 customFabContent()
             } else {
                 //fab
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(start = Dimen.largePadding)
-                ) {
-                    if (icon != null) {
-                        MainIcon(
-                            data = icon,
-                            tint = tint,
-                            size = Dimen.fabIconSize
-                        )
-                    }
-                    Text(
-                        text = text,
-                        style = MaterialTheme.typography.titleSmall,
-                        textAlign = TextAlign.Center,
-                        color = tint,
-                        modifier = Modifier.padding(
-                            start = Dimen.mediumPadding, end = Dimen.largePadding
-                        )
-                    )
-                }
+                FabContent(icon, tint, text)
             }
         }
+    }
+}
+
+/**
+ * fab 内容
+ */
+@Composable
+fun FabContent(
+    icon: MainIconType?,
+    tint: Color,
+    text: String
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(start = Dimen.largePadding)
+    ) {
+        if (icon != null) {
+            MainIcon(
+                data = icon,
+                tint = tint,
+                size = Dimen.fabIconSize
+            )
+        }
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleSmall,
+            textAlign = TextAlign.Center,
+            color = tint,
+            modifier = Modifier.padding(
+                start = Dimen.mediumPadding, end = Dimen.largePadding
+            )
+        )
     }
 }
 
