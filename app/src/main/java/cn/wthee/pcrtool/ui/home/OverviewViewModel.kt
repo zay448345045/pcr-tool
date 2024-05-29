@@ -63,12 +63,26 @@ data class OverviewScreenUiState(
      * -1: 显示加载中
      * >0: 进度
      */
-    val dbDownloadState: Int = -1,
+    val dbDownloadState: Int = DbDownloadState.LOADING.state,
     /**
      * 数据库更新信息
      */
     val dbVersion: DatabaseVersion? = null
 )
+
+/**
+ * 数据库文件下载状态枚举
+ */
+enum class DbDownloadState(val state: Int) {
+    //数据库文件大小异常
+    SIZE_ERROR(-3),
+
+    //正常状态
+    NORMAL(-2),
+
+    //加载中
+    LOADING(-1);
+}
 
 /**
  * 首页纵览

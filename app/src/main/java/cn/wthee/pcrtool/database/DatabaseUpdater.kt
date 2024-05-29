@@ -16,6 +16,7 @@ import cn.wthee.pcrtool.data.preferences.SettingPreferencesKeys
 import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.ui.MainActivity.Companion.handler
 import cn.wthee.pcrtool.ui.dataStoreSetting
+import cn.wthee.pcrtool.ui.home.DbDownloadState
 import cn.wthee.pcrtool.utils.ActivityHelper
 import cn.wthee.pcrtool.utils.Constants
 import cn.wthee.pcrtool.utils.Constants.DOWNLOAD_DB_WORK
@@ -59,12 +60,12 @@ object DatabaseUpdater {
         updateDbDownloadState: (Int) -> Unit
     ) {
         //加载中
-        updateDbDownloadState(-1)
+        updateDbDownloadState(DbDownloadState.LOADING.state)
         //获取远程数据版本
         val version = ApiRepository().getDbVersion(getRegionCode())
         if (version.status == -1) {
             ToastUtil.short(getString(R.string.check_db_error))
-            updateDbDownloadState(-2)
+            updateDbDownloadState(DbDownloadState.NORMAL.state)
             return
         }
         //更新版本文本内容
@@ -76,6 +77,7 @@ object DatabaseUpdater {
     /**
      * 下载数据库文件
      * @param versionData 版本信息
+     * @param fixDb 修复数据库（强制重新下载）
      */
     @SuppressLint("UnsafeOptInUsageError")
     private suspend fun downloadDB(
@@ -118,10 +120,9 @@ object DatabaseUpdater {
                 val workManager = WorkManager.getInstance(MyApplication.context)
                 workManager.enqueueUniqueWork(
                     DOWNLOAD_DB_WORK,
-                    ExistingWorkPolicy.KEEP,
+                    ExistingWorkPolicy.REPLACE,
                     updateDbRequest
                 )
-
                 //监听下载进度
                 ActivityHelper.instance.currentActivity?.let {
                     workManager.getWorkInfoByIdLiveData(updateDbRequest.id)
@@ -152,7 +153,9 @@ object DatabaseUpdater {
 
             } catch (e: Exception) {
                 WorkManager.getInstance(MyApplication.context).cancelAllWork()
-                LogReportUtil.upload(e, Constants.EXCEPTION_DOWNLOAD_DB)
+                LogReportUtil.upload(e, Constants.EXCEPTION_DOWNLOAD_WORK_DB)
+                ToastUtil.short(getString(R.string.db_download_failure))
+                updateDbDownloadState(DbDownloadState.NORMAL.state)
             }
         } else {
             //更新数据库版本号
@@ -160,7 +163,7 @@ object DatabaseUpdater {
                 updateLocalDataBaseVersion(versionData.toString())
             } catch (_: Exception) {
             }
-            updateDbDownloadState(-2)
+            updateDbDownloadState(DbDownloadState.NORMAL.state)
         }
     }
 

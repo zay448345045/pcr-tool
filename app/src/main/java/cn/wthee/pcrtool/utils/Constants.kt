@@ -90,6 +90,7 @@ object Constants {
     // 异常
     const val EXCEPTION_API = "api exception: "
     const val EXCEPTION_DOWNLOAD_DB = "db download exception: "
+    const val EXCEPTION_DOWNLOAD_WORK_DB = "db download work exception: "
     const val EXCEPTION_DOWNLOAD_FILE = "file download exception: "
     const val EXCEPTION_SAVE_DB = "db file save exception: "
     const val EXCEPTION_FILE_SAVE = "file save exception: "

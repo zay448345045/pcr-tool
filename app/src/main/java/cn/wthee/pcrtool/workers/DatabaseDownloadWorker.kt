@@ -12,11 +12,13 @@ import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.enums.RegionType
 import cn.wthee.pcrtool.database.AppBasicDatabase
 import cn.wthee.pcrtool.database.updateLocalDataBaseVersion
+import cn.wthee.pcrtool.ui.home.DbDownloadState
 import cn.wthee.pcrtool.utils.Constants
 import cn.wthee.pcrtool.utils.Constants.KEY_PROGRESS
 import cn.wthee.pcrtool.utils.FileUtil
 import cn.wthee.pcrtool.utils.LogReportUtil
 import cn.wthee.pcrtool.utils.NotificationUtil
+import cn.wthee.pcrtool.utils.ToastUtil
 import cn.wthee.pcrtool.utils.UnzippedUtil
 import cn.wthee.pcrtool.utils.getString
 import io.ktor.client.call.body
@@ -34,7 +36,7 @@ class DatabaseDownloadWorker(
     parameters: WorkerParameters?,
 ) : CoroutineWorker(context, parameters!!) {
 
-    private val downloadNotice = getString(R.string.title_download_database)
+    private val downloadNotice = getString(R.string.title_db_downloading)
     //通知栏
     private val notificationManager: NotificationManager =
         context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -58,13 +60,26 @@ class DatabaseDownloadWorker(
         val region = inputData.getInt(KEY_REGION, 2)
         val fileName = inputData.getString(KEY_FILE)
         setForegroundAsync(createForegroundInfo())
-        return@coroutineScope download(version, region, fileName ?: "")
+        val result = download(version, region, fileName ?: "")
+        if (result == Result.failure()) {
+            //数据下载失败提示
+            ToastUtil.launchShort(getString(R.string.db_download_failure))
+        }
+        return@coroutineScope result
     }
 
-
+    /**
+     * 下载数据并保存
+     * @param version 版本字符串 "$truthVersion/$hash/${SQLITE_VERSION}"
+     * @param region 游戏区域版本
+     * @param fileName 需下载的文件名
+     */
     private suspend fun download(version: String, region: Int, fileName: String): Result {
         val responseBody: ByteArray?
         var progress = -2
+
+        //数据开始下载提示
+        ToastUtil.launchShort(getString(R.string.title_db_downloading))
 
         try {
             //创建下载请求
@@ -74,12 +89,12 @@ class DatabaseDownloadWorker(
                         progress = (bytesSentTotal * 100.0 / contentLength).toInt()
                         if (contentLength < 1000) {
                             //文件大小异常
-                            progress = -3
+                            progress = DbDownloadState.SIZE_ERROR.state
                         }
                         //更新下载进度
                         setProgressAsync(Data.Builder().putInt(KEY_PROGRESS, progress).build())
                         //取消通知
-                        if (progress == -3 || progress == 100) {
+                        if (progress == DbDownloadState.SIZE_ERROR.state || progress == 100) {
                             notificationManager.cancelAll()
                         }
                     }
@@ -87,7 +102,9 @@ class DatabaseDownloadWorker(
             responseBody = httpResponse.body()!!
         } catch (e: Exception) {
             LogReportUtil.upload(e, Constants.EXCEPTION_DOWNLOAD_DB)
-            return Result.failure(Data.Builder().putInt(KEY_PROGRESS, progress).build())
+            return Result.failure(
+                Data.Builder().putInt(KEY_PROGRESS, DbDownloadState.NORMAL.state).build()
+            )
         }
 
         try {
@@ -107,11 +124,6 @@ class DatabaseDownloadWorker(
             db.writeBytes(responseBody)
             //关闭数据库
             AppBasicDatabase.close()
-            //删除旧的wal
-//            FileUtil.apply {
-//                delete(getDatabaseWalPath(RegionType.getByValue(region)))
-//                delete(getDatabaseShmPath(RegionType.getByValue(region)))
-//            }
             //解压
             UnzippedUtil.deCompress(db, true)
             //更新数据库版本号
@@ -119,7 +131,9 @@ class DatabaseDownloadWorker(
             return Result.success()
         } catch (e: Exception) {
             LogReportUtil.upload(e, Constants.EXCEPTION_SAVE_DB)
-            return Result.failure(Data.Builder().putInt(KEY_PROGRESS, -2).build())
+            return Result.failure(
+                Data.Builder().putInt(KEY_PROGRESS, DbDownloadState.NORMAL.state).build()
+            )
         }
     }
 
