@@ -1,5 +1,6 @@
 package cn.wthee.pcrtool.ui.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -135,6 +137,7 @@ fun VerticalGridList(
  * @param idList id列表
  * @param detailIdList 调整详情用id列表
  * @param iconResourceType 图标类型
+ * @param selectedUnitId 选中的角色id
  */
 @Composable
 fun GridIconList(
@@ -150,6 +153,7 @@ fun GridIconList(
         start = Dimen.smallPadding,
         end = Dimen.smallPadding
     ),
+    selectedUnitId: Int? = null,
     onClickItem: ((Int) -> Unit)? = null
 ) {
     VerticalGridList(
@@ -163,6 +167,7 @@ fun GridIconList(
         if (idList != null) {
             IconItem(
                 id = idList[it],
+                selected = selectedUnitId == idList[it],
                 detailId = if (detailIdList.isNotEmpty()) {
                     detailIdList[it]
                 } else {
@@ -178,12 +183,14 @@ fun GridIconList(
 /**
  * 角色、装备图标
  * @param id 0，1，2显示位置图标
+ * @param selected 是否选中
  */
 @Composable
 fun IconItem(
     id: Int,
     detailId: Int? = null,
     iconResourceType: IconResourceType,
+    selected: Boolean = false,
     onClickItem: ((Int) -> Unit)? = null
 ) {
     val placeholder = id == ImageRequestHelper.UNKNOWN_EQUIP_ID
@@ -217,7 +224,19 @@ fun IconItem(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         MainIcon(
-            modifier = Modifier.placeholder(placeholder),
+            modifier = Modifier
+                .placeholder(placeholder)
+                .then(
+                    if (selected) {
+                        Modifier.border(
+                            width = Dimen.strokeWidth,
+                            shape = MaterialTheme.shapes.extraSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
+                        Modifier
+                    }
+                ),
             data = when (id) {
                 0 -> R.drawable.ic_position_0
                 1 -> R.drawable.ic_position_1

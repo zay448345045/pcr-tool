@@ -283,7 +283,7 @@ private fun SingleRow(title: String, content: String) {
         MainContentText(
             text = content,
             modifier = Modifier.weight(CONTENT_WEIGHT),
-            selectable = true
+//            selectable = true
         )
     }
 }

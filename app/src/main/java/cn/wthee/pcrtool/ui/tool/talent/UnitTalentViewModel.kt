@@ -54,6 +54,8 @@ class UnitTalentViewModel @Inject constructor(
     /**
      * 获取角色天赋记录
      *
+     * @param selectedUnitId 选中的角色id
+     * @param talentType 天赋类型
      */
     private fun getUnitTalentList(selectedUnitId: Int, talentType: Int) {
         viewModelScope.launch {
@@ -65,7 +67,8 @@ class UnitTalentViewModel @Inject constructor(
                         unitTalentList = list,
                         talentType = talentType,
                         loadState = updateLoadState(list),
-                        showAllType = selectedUnitId == 0
+                        showAllType = selectedUnitId == 0,
+                        selectedUnitId = selectedUnitId
                     )
                 }
             } catch (e: Exception) {

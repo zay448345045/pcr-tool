@@ -115,6 +115,7 @@ fun UnitTalentListScreen(
                 UnitTalentListItemContent(
                     scrollState = scrollStateList[0],
                     list = uiState.unitTalentList ?: arrayListOf(),
+                    selectedUnitId = uiState.selectedUnitId,
                     toCharacterDetail = toCharacterDetail
                 )
             }
@@ -122,7 +123,6 @@ fun UnitTalentListScreen(
     }
 
 }
-
 
 @Composable
 private fun UnitTalentPagerContent(
@@ -188,6 +188,7 @@ private fun UnitTalentPagerContent(
 private fun UnitTalentListItemContent(
     scrollState: ScrollState,
     list: List<TalentData>,
+    selectedUnitId: Int? = null,
     toCharacterDetail: (Int) -> Unit
 ) {
     Column(
@@ -199,12 +200,14 @@ private fun UnitTalentListItemContent(
         UnitAtkTypeList(
             list = list,
             atkType = AtkType.PHYSICAL,
+            selectedUnitId = selectedUnitId,
             toCharacterDetail = toCharacterDetail
         )
         //魔法
         UnitAtkTypeList(
             list = list,
             atkType = AtkType.MAGIC,
+            selectedUnitId = selectedUnitId,
             toCharacterDetail = toCharacterDetail
         )
         CommonSpacer()
@@ -219,6 +222,7 @@ private fun UnitTalentListItemContent(
 private fun UnitAtkTypeList(
     list: List<TalentData>,
     atkType: AtkType,
+    selectedUnitId: Int? = null,
     toCharacterDetail: (Int) -> Unit
 ) {
     val atkTypeList =
@@ -269,6 +273,7 @@ private fun UnitAtkTypeList(
     GridIconList(
         idList = idList,
         iconResourceType = IconResourceType.CHARACTER,
+        selectedUnitId = selectedUnitId,
         onClickItem = toCharacterDetail
     )
 }
