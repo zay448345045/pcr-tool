@@ -5,6 +5,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("kotlinx-serialization")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 
@@ -30,13 +31,13 @@ android {
 
     namespace = appId
     compileSdk = 34
-    buildToolsVersion = "35.0.0-rc02"
+    buildToolsVersion = "35.0.0-rc04"
     flavorDimensions += listOf("version")
 
     defaultConfig {
         applicationId = appId
         minSdk = 23
-        targetSdk = 34
+        targetSdk = 35
         versionCode = appVersionCode
         versionName = appVersionName
 
@@ -112,24 +113,31 @@ dependencies {
 
     implementation("androidx.activity:activity-ktx:1.9.0")
     implementation("androidx.multidex:multidex:2.0.1")
-    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.fragment:fragment-ktx:1.7.1")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:${rootProject.extra["kotlinVersion"]}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
     //compose BOM
-    implementation(platform("androidx.compose:compose-bom:${composeBom}"))
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    implementation("androidx.compose.ui:ui-util")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.compose.runtime:runtime-livedata")
-    implementation("androidx.compose.material3:material3")
+//    implementation(platform("androidx.compose:compose-bom:${composeBom}"))
+//    debugImplementation("androidx.compose.ui:ui-tooling")
+//    implementation("androidx.compose.ui:ui-util")
+//    implementation("androidx.compose.ui:ui-tooling-preview")
+//    implementation("androidx.compose.material:material-icons-extended")
+//    implementation("androidx.compose.runtime:runtime-livedata")
+//    implementation("androidx.compose.material3:material3")
     //compose unstable
-    val composeUnstableVersion = "1.7.0-beta01"
+    val composeUnstableVersion = "1.7.0-beta02"
     implementation("androidx.compose.animation:animation:${composeUnstableVersion}")
     implementation("androidx.compose.material:material:${composeUnstableVersion}")
-    implementation("androidx.compose.material:material-navigation:${composeUnstableVersion}")
+    implementation("androidx.compose.material:material-navigation:1.7.0-beta01")
+//    implementation("androidx.compose.material:material-navigation:${composeUnstableVersion}")
+    debugImplementation("androidx.compose.ui:ui-tooling:${composeUnstableVersion}")
+    implementation("androidx.compose.ui:ui-util:${composeUnstableVersion}")
+    implementation("androidx.compose.ui:ui-tooling-preview:${composeUnstableVersion}")
+    implementation("androidx.compose.material:material-icons-extended:${composeUnstableVersion}")
+    implementation("androidx.compose.runtime:runtime-livedata:${composeUnstableVersion}")
+    implementation("androidx.compose.material3:material3:1.3.0-beta02")
 
     //Browser
     implementation("androidx.browser:browser:1.8.0")
@@ -151,14 +159,14 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     //ktor
-    val ktorVersion = "2.3.10"
+    val ktorVersion = "2.3.11"
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("io.ktor:ktor-client-android:$ktorVersion")
 
     //Lifecycle
-    val lifecycleVersion = "2.8.0"
+    val lifecycleVersion = "2.8.1"
     implementation("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
@@ -172,7 +180,7 @@ dependencies {
     implementation("androidx.media3:media3-ui:$media3Version")
 
     //Navigation
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.navigation:navigation-compose:2.8.0-beta02")
 
     //Paging3
     val pagingVersion = "3.3.0"
