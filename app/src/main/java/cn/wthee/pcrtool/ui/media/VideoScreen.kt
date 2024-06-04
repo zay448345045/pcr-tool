@@ -90,7 +90,9 @@ fun VideoScreen(
 
     MainScaffold {
         MediaGridList(urlList = urlList, title = typeName) {
-            VideoPlayer(url = it)
+            if (it != null) {
+                VideoPlayer(url = it)
+            }
         }
     }
 

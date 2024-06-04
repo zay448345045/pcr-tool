@@ -129,7 +129,7 @@ private fun SkillLoopItemContent(
     ) {
         val skillId = loopList[it]
         val type: String
-        val url: Any
+        val url: Any?
         val skillBasicData = skillMap[skillId]
         //准备时间
         val castTime: Double

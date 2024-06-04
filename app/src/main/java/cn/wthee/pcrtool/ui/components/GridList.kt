@@ -189,7 +189,7 @@ fun IconItem(
     val placeholder = id == ImageRequestHelper.UNKNOWN_EQUIP_ID
 
     var mId: Int = id
-    val url: String
+    val url: String?
 
     when (iconResourceType) {
         IconResourceType.CHARACTER -> {

@@ -219,7 +219,7 @@ private fun PictureScreenContent(uiState: PictureUiState) {
                         loadState = LoadState.Success,
                         showTitle = false
                     ) {
-                        val isBanner = it.contains(ImageRequestHelper.EVENT_BANNER)
+                        val isBanner = it?.contains(ImageRequestHelper.EVENT_BANNER) ?: false
                         PictureItem(
                             picUrl = it,
                             modifier = Modifier
@@ -256,7 +256,7 @@ private fun PictureScreenContent(uiState: PictureUiState) {
 @Composable
 fun PictureItem(
     modifier: Modifier = Modifier,
-    picUrl: String,
+    picUrl: String?,
     ratio: Float? = null,
     shape: CornerBasedShape = MaterialTheme.shapes.medium,
     contentScale: ContentScale = ContentScale.FillWidth,
@@ -293,7 +293,7 @@ fun PictureItem(
     )
 
     //预览
-    if (openPreviewDialog.value) {
+    if (openPreviewDialog.value && picUrl != null) {
         PreviewPictureDialog(
             openPreviewDialog = openPreviewDialog,
             picUrl = picUrl,

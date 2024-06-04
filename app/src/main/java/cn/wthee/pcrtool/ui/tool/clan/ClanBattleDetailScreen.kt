@@ -140,7 +140,7 @@ private fun SharedTransitionScope.ClanBattleDetailContent(
                     )
             )
             //图标
-            val urlList = arrayListOf<String>()
+            val urlList = arrayListOf<String?>()
             clanBattleInfo.unitIds.split("-").subList(0, 5).forEach {
                 urlList.add(
                     ImageRequestHelper.getInstance()

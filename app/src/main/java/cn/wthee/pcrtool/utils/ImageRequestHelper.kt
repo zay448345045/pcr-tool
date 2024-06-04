@@ -1,7 +1,9 @@
 package cn.wthee.pcrtool.utils
 
 import cn.wthee.pcrtool.MyApplication.Companion.URL_DOMAIN
+import cn.wthee.pcrtool.data.enums.RegionType
 import cn.wthee.pcrtool.data.enums.VideoType
+import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.ui.MainActivity.Companion.r6Ids
 
 /**
@@ -9,10 +11,10 @@ import cn.wthee.pcrtool.ui.MainActivity.Companion.r6Ids
  */
 class ImageRequestHelper {
 
-    var type = "cn"
+    var type = RegionType.CN.code
 
     init {
-        type = getRegionCode()
+        type = MainActivity.regionType.code
     }
 
     companion object {
@@ -73,8 +75,6 @@ class ImageRequestHelper {
         const val COMIC = "comic/"
         const val COMIC_ZH = "comic_zh/"
 
-        //错误链接
-        const val ERROR_URL = "/.webp"
     }
 
     /**
@@ -82,7 +82,14 @@ class ImageRequestHelper {
      * @param forceJpType 使用日服图片资源
      */
     fun getUrl(resUrl: String, id: Any, forceJpType: Boolean = true) =
-        RESOURCE_PREFIX_URL + (if (forceJpType) "jp" else type) + RESOURCE + resUrl + id.toString() + WEBP
+        if (id.toString() == "" || id == 0) {
+            //忽略错误请求
+            null
+        } else {
+            val type = if (forceJpType) RegionType.JP.code else type
+            RESOURCE_PREFIX_URL + type + RESOURCE + resUrl + id.toString() + WEBP
+        }
+
 
     fun getResourcePrefixUrl() = RESOURCE_PREFIX_URL
 
@@ -101,20 +108,24 @@ class ImageRequestHelper {
         when (videoType) {
             VideoType.UB_SKILL -> {
                 val url =
-                    RESOURCE_PREFIX_URL + "jp" + RESOURCE + SKILL_MOVIE + unitId.toString() + MP4
+                    RESOURCE_PREFIX_URL + RegionType.JP.code + RESOURCE + SKILL_MOVIE + unitId.toString() + MP4
                 list.add(url)
             }
 
             VideoType.CHARACTER_CARD -> {
                 if (r6Ids.contains(unitId)) {
-                    val sixStarUrl = RESOURCE_PREFIX_URL + "jp" + RESOURCE + CARD_MOVIE + getStarId(
+                    val sixStarUrl =
+                        RESOURCE_PREFIX_URL + RegionType.JP.code + RESOURCE + CARD_MOVIE + getStarId(
                         unitId,
                         6
                     ) + MP4
                     list.add(sixStarUrl)
                 }
                 val normalUrl =
-                    RESOURCE_PREFIX_URL + "jp" + RESOURCE + CARD_MOVIE + getStarId(unitId, 3) + MP4
+                    RESOURCE_PREFIX_URL + RegionType.JP.code + RESOURCE + CARD_MOVIE + getStarId(
+                        unitId,
+                        3
+                    ) + MP4
 
                 list.add(normalUrl)
             }
@@ -130,8 +141,8 @@ class ImageRequestHelper {
      *
      * @param unitId 角色编号
      */
-    fun getAllPicUrl(unitId: Int, actualId: Int?): ArrayList<String> {
-        val list = arrayListOf<String>()
+    fun getAllPicUrl(unitId: Int, actualId: Int?): ArrayList<String?> {
+        val list = arrayListOf<String?>()
         if (r6Ids.contains(unitId)) {
             list.add(getUrl(CARD_FULL, getStarId(unitId, 6)))
         }
@@ -148,7 +159,7 @@ class ImageRequestHelper {
      *
      * @param unitId 角色编号
      */
-    fun getMaxCardUrl(unitId: Int): String {
+    fun getMaxCardUrl(unitId: Int): String? {
         if (r6Ids.contains(unitId)) {
             return getUrl(CARD_FULL, getStarId(unitId, 6))
         }
@@ -160,7 +171,7 @@ class ImageRequestHelper {
      *
      * @param unitId 角色编号
      */
-    fun getMaxIconUrl(unitId: Int): String {
+    fun getMaxIconUrl(unitId: Int): String? {
         if (r6Ids.contains(unitId)) {
             return getUrl(ICON_UNIT, getStarId(unitId, 6))
         }
@@ -173,7 +184,7 @@ class ImageRequestHelper {
      * @param unitId 角色编号
      * @param star 星级
      */
-    fun getUnitIconUrl(unitId: Int, star: Int): String {
+    fun getUnitIconUrl(unitId: Int, star: Int): String? {
         return getUrl(ICON_UNIT, getStarId(unitId, star))
     }
 

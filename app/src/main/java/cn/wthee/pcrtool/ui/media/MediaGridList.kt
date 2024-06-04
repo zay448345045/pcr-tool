@@ -39,14 +39,14 @@ import cn.wthee.pcrtool.ui.theme.PreviewLayout
  */
 @Composable
 fun MediaGridList(
-    urlList: List<String>,
+    urlList: List<String?>,
     loadState: LoadState = LoadState.Success,
     title: String = "",
     noDataText: String = stringResource(id = R.string.no_data),
     showTitle: Boolean = true,
     itemWidth: Dp = getItemWidth(),
     scrollState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
-    itemContent: @Composable (String) -> Unit
+    itemContent: @Composable (String?) -> Unit
 ) {
 
     Column(

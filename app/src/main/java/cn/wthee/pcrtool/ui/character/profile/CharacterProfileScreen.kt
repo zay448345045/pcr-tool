@@ -248,7 +248,7 @@ private fun RoomCommentContent(roomCommentList: List<RoomCommentData>) {
 
         //多角色时，显示角色图标
         if (list.size > 1) {
-            val urlList = arrayListOf<String>()
+            val urlList = arrayListOf<String?>()
             list.forEach { roomComment ->
                 urlList.add(
                     ImageRequestHelper.getInstance().getMaxIconUrl(roomComment.unitId)

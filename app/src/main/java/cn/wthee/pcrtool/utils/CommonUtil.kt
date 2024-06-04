@@ -14,8 +14,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import cn.wthee.pcrtool.MyApplication
 import cn.wthee.pcrtool.R
-import cn.wthee.pcrtool.data.enums.RegionType
-import cn.wthee.pcrtool.ui.MainActivity
 import java.math.RoundingMode
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -199,13 +197,4 @@ fun getZhNumberText(section: Int): String {
         7 -> stringResource(R.string.no7)
         else -> section.toString()
     }
-}
-
-/**
- * 获取区服代码
- */
-fun getRegionCode(type: RegionType = MainActivity.regionType) = when (type) {
-    RegionType.CN -> "cn"
-    RegionType.TW -> "tw"
-    RegionType.JP -> "jp"
 }
