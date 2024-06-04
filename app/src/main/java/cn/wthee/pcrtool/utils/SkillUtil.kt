@@ -120,7 +120,7 @@ fun SkillActionDetail.getValueText(
 /**
  * 效果
  */
-fun SkillActionDetail.getAura(v: Int, valueText: String): String {
+fun getAura(v: Int, valueText: String): String {
     val action = getString(
         if (v == 1) {
             R.string.skill_hp_max
@@ -178,7 +178,7 @@ fun SkillActionDetail.getAura(v: Int, valueText: String): String {
 /**
  * 护盾类型
  */
-fun SkillActionDetail.getBarrierType(v1: Int): String {
+fun getBarrierType(v1: Int): String {
     //作用
     val f = if (v1 == 1 || v1 == 2 || v1 == 5) {
         getString(R.string.skill_shield_no_effect)

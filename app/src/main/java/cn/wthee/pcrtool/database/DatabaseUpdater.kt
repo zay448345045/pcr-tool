@@ -23,7 +23,6 @@ import cn.wthee.pcrtool.utils.Constants.DOWNLOAD_DB_WORK
 import cn.wthee.pcrtool.utils.FileUtil
 import cn.wthee.pcrtool.utils.LogReportUtil
 import cn.wthee.pcrtool.utils.ToastUtil
-import cn.wthee.pcrtool.utils.getRegionCode
 import cn.wthee.pcrtool.utils.getString
 import cn.wthee.pcrtool.workers.DatabaseDownloadWorker
 import kotlinx.coroutines.MainScope
@@ -62,7 +61,7 @@ object DatabaseUpdater {
         //加载中
         updateDbDownloadState(DbDownloadState.LOADING.state)
         //获取远程数据版本
-        val version = ApiRepository().getDbVersion(getRegionCode())
+        val version = ApiRepository().getDbVersion(MainActivity.regionType.code)
         if (version.status == -1) {
             ToastUtil.short(getString(R.string.check_db_error))
             updateDbDownloadState(DbDownloadState.NORMAL.state)
@@ -94,10 +93,14 @@ object DatabaseUpdater {
         val localVersion = runBlocking {
             MyApplication.context.dataStoreSetting.data.first()[localVersionKey] ?: ""
         }
+
+        //版本号hash与远程不一致
+        val diffVersion = localVersion != versionData.toString()
+        //数据库文件不存在
+        val dbNotExist = FileUtil.dbNotExist(region) || localVersion == "0"
         //正常下载
-        val toDownload = localVersion != versionData.toString()  //版本号hash远程不一致
-                || (FileUtil.dbNotExists(region) || localVersion == "0")  //数据库wal被清空
-                || fixDb
+        val toDownload = diffVersion || dbNotExist || fixDb
+
         if (toDownload) {
             //远程备份时
             val fileName = when (region) {

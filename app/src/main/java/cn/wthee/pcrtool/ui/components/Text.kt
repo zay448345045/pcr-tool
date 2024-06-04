@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -93,7 +94,10 @@ fun MainContentText(
     }
 
     if (selectable) {
-        SelectionContainer(modifier = modifier, content = content)
+        //fixme 2024-06-04 添加一层 Surface 。直接使用 SelectionContainer 时，设置 weight 无效
+        Surface(modifier = modifier) {
+            SelectionContainer(content = content)
+        }
     } else {
         content()
     }

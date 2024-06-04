@@ -160,19 +160,6 @@ class LeaderTierViewModel @Inject constructor(
     }
 
     /**
-     * 弹窗状态更新
-     */
-    fun updateCount(count: Int) {
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    count = count
-                )
-            }
-        }
-    }
-
-    /**
      * 切换天赋类型
      */
     fun changeTalentSelect(type: Int) {

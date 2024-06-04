@@ -287,10 +287,10 @@ enum class SkillIndexType(val index: Int) {
 /**
  * 区服
  */
-enum class RegionType(val value: Int, val stringId: Int) {
-    CN(2, R.string.db_cn),
-    TW(3, R.string.db_tw),
-    JP(4, R.string.db_jp),
+enum class RegionType(val value: Int, val stringId: Int, val code: String) {
+    CN(2, R.string.db_cn, "cn"),
+    TW(3, R.string.db_tw, "tw"),
+    JP(4, R.string.db_jp, "jp"),
     ;
 
     companion object {

@@ -118,7 +118,6 @@
     <string name="talent">天赋</string>
     <string name="physical">物理</string>
     <string name="magic">魔法</string>
-    <string name="element_type">属性</string>
     <string name="fire">火</string>
     <string name="water">水</string>
     <string name="wind">风</string>
@@ -177,7 +176,6 @@
     <string name="tool_event">剧情活动</string>
     <string name="tool_news">公告</string>
     <string name="news_title">公告标题</string>
-    <string name="quest">主线</string>
     <string name="jjc">竞技场</string>
     <string name="clan">公会战</string>
     <string name="tower">露娜塔</string>
@@ -198,7 +196,6 @@
     <string name="tip_no_equip_get_area">暂无掉落区域</string>
     <string name="title_recently_used">常用</string>
     <string name="phase">%s阶段</string>
-    <string name="last_update">最近评分调整</string>
     <string name="random_area">额外掉落</string>
     <string name="random_drop_area_title">区域 %d</string>
     <string name="random_drop_area_1">（前半）</string>
@@ -339,7 +336,6 @@
     <string name="db_error">数据异常</string>
     <string name="remote_db_file_error">数据异常\n请加群反馈</string>
     <string name="re_download_db_file">若数据加载异常\n请点击重新下载</string>
-    <string name="db_remote_backup">已启用远程备用数据</string>
     <string name="title_db_downloading">正在下载数据</string>
     <string name="update_database">数据更新</string>
     <string name="db_download_failure">数据下载失败，请重试</string>

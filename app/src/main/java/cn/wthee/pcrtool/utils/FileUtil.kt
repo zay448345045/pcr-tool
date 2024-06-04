@@ -55,29 +55,9 @@ object FileUtil {
         }
 
     /**
-     * wal 文件路径
-     */
-    fun getDatabaseWalPath(region: RegionType) =
-        getDatabaseDir() + "/" + when (region) {
-            RegionType.CN -> Constants.DATABASE_NAME_CN
-            RegionType.TW -> Constants.DATABASE_NAME_TW
-            RegionType.JP -> Constants.DATABASE_NAME_JP
-        } + "-wal"
-
-    /**
-     * shm 文件路径
-     */
-    fun getDatabaseShmPath(region: RegionType) =
-        getDatabaseDir() + "/" + when (region) {
-            RegionType.CN -> Constants.DATABASE_NAME_CN
-            RegionType.TW -> Constants.DATABASE_NAME_TW
-            RegionType.JP -> Constants.DATABASE_NAME_JP
-        } + "-shm"
-
-    /**
      * 数据库是否需要判断
      */
-    fun dbNotExists(type: RegionType): Boolean {
+    fun dbNotExist(type: RegionType): Boolean {
         val dbFile = File(getDatabasePath(type))
         return !dbFile.exists()
     }
