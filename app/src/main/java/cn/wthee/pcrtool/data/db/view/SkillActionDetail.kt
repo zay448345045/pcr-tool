@@ -95,7 +95,7 @@ data class SkillActionDetail(
         val skillActionText = SkillActionText(
             actionId = actionId,
             tag = tag,
-            action = "(${actionId % 100}) $formatDescText",
+            actionDesc = "(${actionId % 100}) $formatDescText",
             summonUnitId = summonUnitId,
             showCoe = showCoe,
             level = level,

@@ -19,6 +19,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import cn.wthee.pcrtool.BuildConfig
 import cn.wthee.pcrtool.data.enums.UnitType
 import cn.wthee.pcrtool.data.model.SummonProperty
 import cn.wthee.pcrtool.ui.MainActivity
@@ -77,6 +78,7 @@ import cn.wthee.pcrtool.ui.tool.storyevent.StoryEventListScreen
 import cn.wthee.pcrtool.ui.tool.talent.UnitTalentListScreen
 import cn.wthee.pcrtool.ui.tool.tweet.TweetList
 import cn.wthee.pcrtool.ui.tool.uniqueequip.UniqueEquipListScreen
+import cn.wthee.pcrtool.ui.tool.unknownskill.UnknownSkillListScreen
 import cn.wthee.pcrtool.ui.tool.website.WebsiteScreen
 import cn.wthee.pcrtool.utils.JsonUtil
 
@@ -801,6 +803,15 @@ fun NavGraph(
                         toCharacterDetail = actions.toCharacterDetail
                     )
                 }
+
+                if (BuildConfig.DEBUG) {
+                    //未知技能列表
+                    composable(
+                        route = NavRoute.UNKNOWN_SKILL
+                    ) {
+                        UnknownSkillListScreen()
+                    }
+                }
             }
         }
 
@@ -1205,9 +1216,16 @@ class NavActions(navController: NavHostController) {
     }
 
     /**
-     * 角色天赋列表
+     * 角色天赋列表（按选中角色筛选列表）
      */
     val toUnitTalentFilterList: (Int, Int) -> Unit = { unitId, talentType ->
         navController.navigate("${NavRoute.TALENT_LIST}/$unitId/$talentType")
+    }
+
+    /**
+     * 未知技能列表
+     */
+    val toUnknownSkillList = {
+        navController.navigate(NavRoute.UNKNOWN_SKILL)
     }
 }

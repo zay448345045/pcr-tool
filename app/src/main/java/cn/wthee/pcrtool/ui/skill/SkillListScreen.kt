@@ -223,7 +223,7 @@ fun SkillItemContent(
                 it.actionIndex == index
             }
             val show = s.isNotEmpty()
-            val str = skillActionText.action
+            val str = skillActionText.actionDesc
             if (show) {
                 //显示系数文本
                 //系数表达式开始位置
@@ -233,18 +233,18 @@ fun SkillItemContent(
                 }
                 if (startIndex != -1) {
                     var coeExpr = str.substring(startIndex, str.length)
-                    Regex("\\{.*?\\}").findAll(skillActionText.action).forEach {
+                    Regex("\\{.*?\\}").findAll(skillActionText.actionDesc).forEach {
                         if (s[0].type == 0 || (s[0].type == 1 && s[0].coe != it.value)) {
                             //隐藏不需要的系数文本
                             coeExpr = coeExpr.replace(it.value, "")
                         }
                     }
-                    skillActionText.action =
+                    skillActionText.actionDesc =
                         str.substring(0, startIndex) + coeExpr
                 }
             } else {
                 //隐藏系数文本
-                skillActionText.action =
+                skillActionText.actionDesc =
                     str.replace(Regex("\\{.*?\\}"), "")
             }
         }
@@ -469,7 +469,7 @@ fun SkillActionItem(
             colorPurple,
             MaterialTheme.colorScheme.primary
         )
-    skillAction.action.forEachIndexed { index, c ->
+    skillAction.actionDesc.forEachIndexed { index, c ->
         if (c == '[') {
             mark0.add(ColorTextIndex(start = index))
         }
@@ -524,7 +524,7 @@ fun SkillActionItem(
             modifier = Modifier.padding(Dimen.smallPadding),
             color = MaterialTheme.colorScheme.onSurface,
             text = buildAnnotatedString {
-                skillAction.action.forEachIndexed { index, char ->
+                skillAction.actionDesc.forEachIndexed { index, char ->
                     //替换括号及括号内字体颜色
                     for (i in 0..3) {
                         map[i]?.forEach {

@@ -7,7 +7,7 @@ package cn.wthee.pcrtool.data.model
 data class SkillActionText(
     val actionId: Int,
     val tag: String,
-    var action: String,
+    var actionDesc: String,
     val summonUnitId: Int,
     val showCoe: Boolean,
     val level: Int,
