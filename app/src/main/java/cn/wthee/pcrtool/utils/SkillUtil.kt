@@ -18,6 +18,8 @@ fun SkillActionDetail.getAtkType() = getString(
         2 -> R.string.skill_magic
         3 -> R.string.skill_must_hit_physical
         4 -> R.string.skill_must_hit_magic
+        5 -> R.string.skill_sum_atk_physical
+        6 -> R.string.skill_sum_atk_magic
         else -> R.string.unknown
     }
 )
