@@ -47,7 +47,7 @@ data class CharacterDetailUiState(
     //角色id
     val unitId: Int = 0,
     //角色信息
-    val basicInfo: CharacterInfo? = null,
+    val characterInfo: CharacterInfo? = null,
     //角色转换id
     val cutinId: Int = 0,
     //当前角色id
@@ -115,7 +115,7 @@ class CharacterDetailViewModel @Inject constructor(
             updateOrderList(getOrderData(showAllInfo))
             getCoefficient()
             getCutinId(unitId)
-            getCharacterBasicInfo(unitId)
+            getCharacterInfo(unitId)
             getMaxRankAndRarity(unitId)
             getFavoriteState(unitId)
             getMultiIds(unitId)
@@ -128,13 +128,13 @@ class CharacterDetailViewModel @Inject constructor(
      *
      * @param unitId 角色编号
      */
-    private fun getCharacterBasicInfo(unitId: Int) {
+    private fun getCharacterInfo(unitId: Int) {
         viewModelScope.launch {
-            val data = unitRepository.getCharacterBasicInfo(unitId)
+            val characterInfo = unitRepository.getCharacterInfo(unitId)
             _uiState.update {
                 it.copy(
-                    basicInfo = data,
-                    loadState = it.loadState.isNoData(data == null)
+                    characterInfo = characterInfo,
+                    loadState = it.loadState.isNoData(characterInfo == null)
                 )
             }
         }

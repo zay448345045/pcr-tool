@@ -17,6 +17,10 @@ object MainPreferencesKeys {
     val SP_STAR_CHARACTER = stringPreferencesKey("star_character")
     val SP_STAR_EQUIP = stringPreferencesKey("star_equip")
     val SP_STAR_EXTRA_EQUIP = stringPreferencesKey("star_extra_equip")
+
+    //角色列表展示方式
+    val SP_CHARACTER_LIST_SHOW_TYPE = intPreferencesKey("characterListShowType")
+
 }
 
 /**

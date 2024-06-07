@@ -246,15 +246,15 @@ private fun LeaderTierContent(
                         val leader = group.leaderList[it]
                         //获取角色名
                         val flow = remember(leader.unitId) {
-                            leaderTierViewModel.getCharacterBasicInfo(
+                            leaderTierViewModel.getCharacterInfo(
                                 leader.unitId ?: 0
                             )
                         }
-                        val basicInfo by flow.collectAsState(initial = null)
+                        val characterInfo by flow.collectAsState(initial = null)
 
                         LeaderItem(
                             leader = leader,
-                            basicInfo = basicInfo,
+                            characterInfo = characterInfo,
                             toCharacterDetail = toCharacterDetail
                         )
                     }
@@ -273,13 +273,13 @@ private fun LeaderTierContent(
 @Composable
 private fun LeaderItem(
     leader: LeaderTierItem,
-    basicInfo: CharacterInfo?,
+    characterInfo: CharacterInfo?,
     toCharacterDetail: (Int) -> Unit,
 ) {
     val placeholder = leader.name == ""
     val hasUnitId = leader.unitId != null && leader.unitId != 0
     //是否登场角色
-    val unknown = basicInfo == null || basicInfo.position == 0
+    val unknown = characterInfo == null || characterInfo.position == 0
 
     val textColor = if (!hasUnitId || unknown) {
         colorGray
@@ -324,7 +324,7 @@ private fun LeaderItem(
                     vertical = Dimen.smallPadding
                 ),
                 text = if (hasUnitId && !unknown) {
-                    basicInfo!!.name
+                    characterInfo!!.name
                 } else {
                     leader.name
                 },
@@ -337,7 +337,7 @@ private fun LeaderItem(
                 modifier = Modifier
                     .padding(top = Dimen.mediumPadding, bottom = Dimen.smallPadding),
                 unknown = unknown,
-                basicInfo = basicInfo,
+                characterInfo = characterInfo,
                 tipText = tipText,
                 showUniqueEquipType = false
             )
@@ -363,7 +363,7 @@ private fun LeaderItemPreview() {
                     leader = LeaderTierItem(
                         name = stringResource(id = R.string.debug_name),
                     ),
-                    basicInfo = CharacterInfo(
+                    characterInfo = CharacterInfo(
                         id = 1,
                         name = stringResource(id = R.string.debug_name),
                         position = 100,
@@ -375,7 +375,7 @@ private fun LeaderItemPreview() {
                     leader = LeaderTierItem(
                         name = stringResource(id = R.string.debug_name),
                     ),
-                    basicInfo = CharacterInfo(
+                    characterInfo = CharacterInfo(
                         name = stringResource(id = R.string.debug_name)
                     )
                 ) {}

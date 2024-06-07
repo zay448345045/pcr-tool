@@ -41,7 +41,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
 /**
- * 本地存储：收藏信息
+ * 本地存储：收藏等个性化信息
  */
 private const val MAIN_PREFERENCES_NAME = "main"
 val Context.dataStoreMain: DataStore<Preferences> by preferencesDataStore(

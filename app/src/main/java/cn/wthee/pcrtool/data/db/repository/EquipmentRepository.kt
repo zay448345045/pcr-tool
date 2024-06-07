@@ -153,6 +153,7 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
             equipmentDao.getUniqueEquipInfo(unitId = unitId, lv = lv)?.let {
                 list.add(it)
             }
+//            LogReportUtil.upload(e, "getUniqueEquip#unitId:$unitId")
         }
         return list
     }
@@ -163,6 +164,8 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
     private suspend fun getUniqueEquipBonus(unitId: Int, offsetLv: Int, minLv: Int) = try {
         equipmentDao.getUniqueEquipBonusV2(unitId = unitId, lv = offsetLv, minLv = minLv)
     } catch (e: Exception) {
+//        LogReportUtil.upload(e, "getUniqueEquipBonus#unitId:$unitId,offsetLv:$offsetLv,minLv:$minLv")
+//        Attr()
         equipmentDao.getUniqueEquipBonus(unitId = unitId, lv = offsetLv, minLv = minLv)
     }
 

@@ -75,8 +75,8 @@ class UniqueEquipListViewModel @Inject constructor(
      *
      * @param unitId 角色编号
      */
-    fun getCharacterBasicInfo(unitId: Int) = flow {
-        emit(unitRepository.getCharacterBasicInfo(unitId))
+    fun getCharacterInfo(unitId: Int) = flow {
+        emit(unitRepository.getCharacterInfo(unitId))
     }
 
     /**

@@ -164,15 +164,15 @@ fun SharedTransitionScope.UniqueEquipListScreen(
                         ) { uniqueEquip ->
                             //获取角色名
                             val flow = remember(uniqueEquip.unitId) {
-                                uniqueEquipListViewModel.getCharacterBasicInfo(uniqueEquip.unitId)
+                                uniqueEquipListViewModel.getCharacterInfo(uniqueEquip.unitId)
                             }
-                            val basicInfo by flow.collectAsState(initial = CharacterInfo())
+                            val characterInfo by flow.collectAsState(initial = CharacterInfo())
 
-                            basicInfo?.let {
+                            characterInfo?.let {
                                 UniqueEquipItem(
                                     animatedVisibilityScope = animatedVisibilityScope,
                                     equip = uniqueEquip,
-                                    basicInfo = it,
+                                    characterInfo = it,
                                     toUniqueEquipDetail = toUniqueEquipDetail
                                 )
                             }
@@ -198,7 +198,7 @@ fun SharedTransitionScope.UniqueEquipListScreen(
 private fun SharedTransitionScope.UniqueEquipItem(
     animatedVisibilityScope: AnimatedVisibilityScope,
     equip: UniqueEquipBasicData,
-    basicInfo: CharacterInfo,
+    characterInfo: CharacterInfo,
     toUniqueEquipDetail: (Int) -> Unit
 ) {
 
@@ -260,7 +260,7 @@ private fun SharedTransitionScope.UniqueEquipItem(
                 )
 
                 UnitIconAndTag(
-                    basicInfo = basicInfo,
+                    characterInfo = characterInfo,
                     showUniqueEquipType = false,
                     animatedVisibilityScope = animatedVisibilityScope
                 )
@@ -274,15 +274,17 @@ private fun SharedTransitionScope.UniqueEquipItem(
 
 /**
  * 角色图标和标签
+ *
+ * @param showUniqueEquipType 展示专武标识
  */
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SharedTransitionScope.UnitIconAndTag(
     animatedVisibilityScope: AnimatedVisibilityScope,
-    basicInfo: CharacterInfo?,
+    characterInfo: CharacterInfo?,
     showUniqueEquipType: Boolean
 ) {
-    basicInfo?.let {
+    characterInfo?.let {
         Row(
             modifier = Modifier
                 .padding(Dimen.mediumPadding)
@@ -290,7 +292,7 @@ fun SharedTransitionScope.UnitIconAndTag(
                     if (MainActivity.animOnFlag) {
                         Modifier.sharedElement(
                             state = rememberSharedContentState(
-                                key = "unit-${basicInfo.id}"
+                                key = "unit-${characterInfo.id}"
                             ),
                             animatedVisibilityScope = animatedVisibilityScope,
                         )
@@ -301,13 +303,13 @@ fun SharedTransitionScope.UnitIconAndTag(
             verticalAlignment = Alignment.CenterVertically
         ) {
             MainIcon(
-                data = ImageRequestHelper.getInstance().getMaxIconUrl(basicInfo.id)
+                data = ImageRequestHelper.getInstance().getMaxIconUrl(characterInfo.id)
             )
 
             Column(modifier = Modifier.padding(start = Dimen.smallPadding)) {
                 //名称
                 Subtitle2(
-                    text = basicInfo.name,
+                    text = characterInfo.name,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     modifier = Modifier.padding(Dimen.smallPadding),
@@ -316,7 +318,7 @@ fun SharedTransitionScope.UnitIconAndTag(
 
                 CharacterTagRow(
                     modifier = Modifier.padding(top = Dimen.smallPadding),
-                    basicInfo = basicInfo,
+                    characterInfo = characterInfo,
                     showUniqueEquipType = showUniqueEquipType
                 )
             }

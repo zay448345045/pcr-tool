@@ -230,13 +230,13 @@ private fun LeaderboardContent(
         ) { index, it ->
             //获取角色名
             val flow = remember(it.unitId) {
-                leaderBoardViewModel.getCharacterBasicInfo(it.unitId ?: 0)
+                leaderBoardViewModel.getCharacterInfo(it.unitId ?: 0)
             }
-            val basicInfo by flow.collectAsState(initial = null)
+            val characterInfo by flow.collectAsState(initial = null)
             LeaderboardItem(
                 leader = it,
                 index = index,
-                basicInfo = basicInfo,
+                characterInfo = characterInfo,
                 toCharacterDetail = toCharacterDetail
             )
         }
@@ -342,13 +342,13 @@ private fun SortTitleButton(
 private fun LeaderboardItem(
     leader: LeaderboardData,
     index: Int,
-    basicInfo: CharacterInfo?,
+    characterInfo: CharacterInfo?,
     toCharacterDetail: (Int) -> Unit
 ) {
     val placeholder = leader.unitId == 0
     val hasUnitId = leader.unitId != null && leader.unitId != 0
     //是否登场角色
-    val unknown = basicInfo == null || basicInfo.position == 0
+    val unknown = characterInfo == null || characterInfo.position == 0
 
     val textColor = if (!hasUnitId || unknown) {
         colorGray
@@ -399,7 +399,7 @@ private fun LeaderboardItem(
                     vertical = Dimen.smallPadding
                 ),
                 text = "${index + 1}." + if (hasUnitId && !unknown) {
-                    basicInfo!!.name
+                    characterInfo!!.name
                 } else {
                     leader.name
                 },
@@ -419,7 +419,7 @@ private fun LeaderboardItem(
             CharacterTagRow(
                 modifier = Modifier.padding(top = Dimen.largePadding, bottom = Dimen.smallPadding),
                 unknown = unknown,
-                basicInfo = basicInfo,
+                characterInfo = characterInfo,
                 tipText = tipText,
                 endText = if (leader.updateTime == null) {
                     stringResource(id = R.string.none)
@@ -562,7 +562,7 @@ private fun LeaderboardItemPreview() {
                 updateTime = "2023-02-02 22:33:44"
             ),
             index = 1,
-            basicInfo = CharacterInfo(
+            characterInfo = CharacterInfo(
                 id = 1,
                 name = stringResource(id = R.string.debug_name),
                 position = 100,
