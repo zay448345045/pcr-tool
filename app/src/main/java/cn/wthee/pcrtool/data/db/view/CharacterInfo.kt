@@ -17,6 +17,9 @@ data class CharacterInfo(
     @ColumnInfo(name = "race") var race: String = "",
     @ColumnInfo(name = "height_int") var height: String = "",
     @ColumnInfo(name = "weight_int") var weight: String = "",
+    @ColumnInfo(name = "voice") var voice: String = "",
+    @ColumnInfo(name = "blood_type") var bloodType: String = "?",
+    @ColumnInfo(name = "favorite") var favorite: String = "???",
     @ColumnInfo(name = "birth_month_int") var birthMonth: String = "",
     @ColumnInfo(name = "birth_day_int") var birthDay: String = "",
     @ColumnInfo(name = "search_area_width") var position: Int = 0,
@@ -28,7 +31,7 @@ data class CharacterInfo(
     @Ignore var talentId: Int = 0,
     @Ignore var uniqueEquipType: Int = 0,
 ) {
-    constructor() : this(-1, "", 3, "", "", "", "", "", "", "", "", 0, 1, "", 1, 0, 0)
+    constructor() : this(-1, "", 3, "", "", "", "", "", "", "", "", "", "", "", 0, 1, "", 1, 0, 0)
 
     /**
      * 获取名字，去除限定类型

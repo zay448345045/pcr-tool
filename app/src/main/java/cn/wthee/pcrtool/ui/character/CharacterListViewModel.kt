@@ -1,21 +1,27 @@
 package cn.wthee.pcrtool.ui.character
 
 import androidx.compose.runtime.Immutable
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cn.wthee.pcrtool.MyApplication
 import cn.wthee.pcrtool.data.db.repository.UnitRepository
 import cn.wthee.pcrtool.data.db.view.CharacterInfo
+import cn.wthee.pcrtool.data.enums.CharacterListShowType
 import cn.wthee.pcrtool.data.model.FilterCharacter
+import cn.wthee.pcrtool.data.preferences.MainPreferencesKeys
 import cn.wthee.pcrtool.navigation.NavRoute
 import cn.wthee.pcrtool.navigation.getData
 import cn.wthee.pcrtool.navigation.setData
 import cn.wthee.pcrtool.ui.LoadState
+import cn.wthee.pcrtool.ui.dataStoreMain
 import cn.wthee.pcrtool.ui.updateLoadState
 import cn.wthee.pcrtool.utils.JsonUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,7 +36,8 @@ data class CharacterListUiState(
     //收藏的角色编号
     val favoriteIdList: List<Int> = arrayListOf(),
     val loadState: LoadState = LoadState.Loading,
-    val openDialog: Boolean = false
+    val openDialog: Boolean = false,
+    val showType: CharacterListShowType = CharacterListShowType.CARD
 )
 
 /**
@@ -45,6 +52,19 @@ class CharacterListViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(CharacterListUiState())
     val uiState: StateFlow<CharacterListUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val showType = MyApplication.context.dataStoreMain.data
+                .first()[MainPreferencesKeys.SP_CHARACTER_LIST_SHOW_TYPE]
+                ?: CharacterListShowType.CARD.type
+            _uiState.update {
+                it.copy(
+                    showType = CharacterListShowType.getByValue(showType),
+                )
+            }
+        }
+    }
 
 
     /**
@@ -118,6 +138,27 @@ class CharacterListViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     openDialog = openDialog
+                )
+            }
+        }
+    }
+
+    /**
+     * 展示方式更新
+     */
+    fun changeShowType() {
+        viewModelScope.launch {
+            val showType = when (_uiState.value.showType) {
+                CharacterListShowType.CARD -> CharacterListShowType.ICON_TAG
+                CharacterListShowType.ICON_TAG -> CharacterListShowType.ICON
+                CharacterListShowType.ICON -> CharacterListShowType.CARD
+            }
+            MyApplication.context.dataStoreMain.edit { preferences ->
+                preferences[MainPreferencesKeys.SP_CHARACTER_LIST_SHOW_TYPE] = showType.type
+            }
+            _uiState.update {
+                it.copy(
+                    showType = showType
                 )
             }
         }

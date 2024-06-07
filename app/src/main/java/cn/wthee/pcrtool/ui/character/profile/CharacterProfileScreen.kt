@@ -67,7 +67,7 @@ fun CharacterBasicInfo(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 uiState.profile?.let {
-                    ProfileInfoContent(info = it)
+                    ProfileInfoContent(characterProfileInfo = it)
                     HomePageCommentContent(it.getSelf(), uiState.homePageCommentList)
                 }
                 RoomCommentContent(uiState.roomCommentList)
@@ -80,7 +80,7 @@ fun CharacterBasicInfo(
  * 角色基本信息
  */
 @Composable
-private fun ProfileInfoContent(info: CharacterProfileInfo) {
+private fun ProfileInfoContent(characterProfileInfo: CharacterProfileInfo) {
     Column(
         modifier = Modifier
             .padding(start = Dimen.largePadding, end = Dimen.largePadding)
@@ -88,7 +88,7 @@ private fun ProfileInfoContent(info: CharacterProfileInfo) {
     ) {
         //标题
         MainText(
-            text = info.catchCopy.deleteSpace,
+            text = characterProfileInfo.catchCopy.deleteSpace,
             modifier = Modifier
                 .padding(Dimen.largePadding)
                 .fillMaxWidth(),
@@ -96,48 +96,69 @@ private fun ProfileInfoContent(info: CharacterProfileInfo) {
         )
         //介绍
         Subtitle2(
-            text = info.getIntroText(),
+            text = characterProfileInfo.getIntroText(),
             selectable = true
         )
-        //角色
-        SingleRow(title = stringResource(id = R.string.character), content = info.unitName)
-        //现实名字
-        SingleRow(title = stringResource(id = R.string.name), content = info.actualName.fixedStr)
-        //编号
-        SingleRow(title = stringResource(id = R.string.id), content = info.unitId.toString())
-        //cv
-        SingleRow(title = stringResource(id = R.string.cv), content = info.voice)
-
-        //身高、体重
-        TwoColumn(
-            title0 = stringResource(id = R.string.title_height),
-            text0 = "${info.height.fixedStr} CM",
-            title1 = stringResource(id = R.string.title_weight),
-            text1 = "${info.weight.fixedStr} KG"
-        )
-        //生日、年龄
-        TwoColumn(
-            title0 = stringResource(id = R.string.title_birth),
-            text0 = stringResource(
-                id = R.string.date_m_d,
-                info.birthMonth.fixedStr,
-                info.birthDay.fixedStr
-            ),
-            title1 = stringResource(id = R.string.age),
-            text1 = info.age.fixedStr
-        )
-        //血型、种族
-        TwoColumn(
-            title0 = stringResource(id = R.string.title_blood),
-            text0 = info.bloodType.fixedStr,
-            title1 = stringResource(id = R.string.title_race),
-            text1 = info.race,
-        )
-        //公会
-        TwoRow(title = stringResource(id = R.string.title_guild), content = info.guild)
-        //兴趣
-        TwoRow(title = stringResource(id = R.string.title_fav), content = info.favorite)
+        CharacterProfileCommonContent(characterProfileInfo)
     }
+}
+
+/**
+ * 角色资料通用内容
+ */
+@Composable
+fun CharacterProfileCommonContent(characterProfileInfo: CharacterProfileInfo) {
+    //角色
+    SingleRow(
+        title = stringResource(id = R.string.character),
+        content = characterProfileInfo.unitName
+    )
+
+    if (characterProfileInfo.actualName != "") {
+        //现实名字
+        SingleRow(
+            title = stringResource(id = R.string.name),
+            content = characterProfileInfo.actualName.fixedStr
+        )
+    }
+
+    //编号
+    SingleRow(
+        title = stringResource(id = R.string.id),
+        content = characterProfileInfo.unitId.toString()
+    )
+    //cv
+    SingleRow(title = stringResource(id = R.string.cv), content = characterProfileInfo.voice)
+
+    //身高、体重
+    TwoColumn(
+        title0 = stringResource(id = R.string.title_height),
+        text0 = "${characterProfileInfo.height.fixedStr} CM",
+        title1 = stringResource(id = R.string.title_weight),
+        text1 = "${characterProfileInfo.weight.fixedStr} KG"
+    )
+    //生日、年龄
+    TwoColumn(
+        title0 = stringResource(id = R.string.title_birth),
+        text0 = stringResource(
+            id = R.string.date_m_d,
+            characterProfileInfo.birthMonth.fixedStr,
+            characterProfileInfo.birthDay.fixedStr
+        ),
+        title1 = stringResource(id = R.string.age),
+        text1 = characterProfileInfo.age.fixedStr
+    )
+    //血型、种族
+    TwoColumn(
+        title0 = stringResource(id = R.string.title_blood),
+        text0 = characterProfileInfo.bloodType.fixedStr,
+        title1 = stringResource(id = R.string.title_race),
+        text1 = characterProfileInfo.race,
+    )
+    //公会
+    TwoRow(title = stringResource(id = R.string.title_guild), content = characterProfileInfo.guild)
+    //兴趣
+    TwoRow(title = stringResource(id = R.string.title_fav), content = characterProfileInfo.favorite)
 }
 
 /**
@@ -283,7 +304,7 @@ private fun SingleRow(title: String, content: String) {
         MainContentText(
             text = content,
             modifier = Modifier.weight(CONTENT_WEIGHT),
-//            selectable = true
+            selectable = true
         )
     }
 }
@@ -312,7 +333,7 @@ private fun TwoRow(title: String, content: String) {
  * 两列信息
  */
 @Composable
-private fun TwoColumn(
+fun TwoColumn(
     title0: String,
     text0: String,
     title1: String,
@@ -379,7 +400,7 @@ private fun CommentText(index: Int? = null, text: String) {
 @Composable
 private fun ProfileInfoPreview() {
     PreviewLayout {
-        ProfileInfoContent(info = CharacterProfileInfo())
+        ProfileInfoContent(characterProfileInfo = CharacterProfileInfo())
     }
 }
 

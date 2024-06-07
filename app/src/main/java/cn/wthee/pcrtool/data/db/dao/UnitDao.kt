@@ -68,6 +68,9 @@ interface UnitDao {
             CAST((CASE WHEN unit_profile.age LIKE '%-%' OR unit_profile.age LIKE '%?%' OR  unit_profile.age LIKE '%？%' OR unit_profile.age = 0 THEN 999 ELSE unit_profile.age END) AS INTEGER) AS age_int,
             unit_profile.guild,
             unit_profile.race,
+            unit_profile.voice,
+            unit_profile.blood_type,
+            unit_profile.favorite,
             CAST((CASE WHEN unit_profile.height LIKE '%-%' OR unit_profile.height LIKE '%?%' OR  unit_profile.height LIKE '%？%' OR unit_profile.height = 0 THEN 999 ELSE unit_profile.height END) AS INTEGER) AS height_int,
             CAST((CASE WHEN unit_profile.weight LIKE '%-%' OR unit_profile.weight LIKE '%?%' OR  unit_profile.weight LIKE '%？%' OR unit_profile.weight = 0 THEN 999 ELSE unit_profile.weight END) AS INTEGER) AS weight_int,
             CAST((CASE WHEN unit_profile.birth_month LIKE '%-%' OR unit_profile.birth_month LIKE '%?%' OR  unit_profile.birth_month LIKE '%？%' OR unit_profile.birth_month = 0 THEN 999 ELSE unit_profile.birth_month END) AS INTEGER) AS birth_month_int,
@@ -226,6 +229,9 @@ interface UnitDao {
             CAST((CASE WHEN unit_profile.age LIKE '%-%' OR unit_profile.age LIKE '%?%' OR  unit_profile.age LIKE '%？%' OR unit_profile.age = 0 THEN 999 ELSE unit_profile.age END) AS INTEGER) AS age_int,
             unit_profile.guild,
             unit_profile.race,
+            unit_profile.voice,
+            unit_profile.blood_type,
+            unit_profile.favorite,
             CAST((CASE WHEN unit_profile.height LIKE '%-%' OR unit_profile.height LIKE '%?%' OR  unit_profile.height LIKE '%？%' OR unit_profile.height = 0 THEN 999 ELSE unit_profile.height END) AS INTEGER) AS height_int,
             CAST((CASE WHEN unit_profile.weight LIKE '%-%' OR unit_profile.weight LIKE '%?%' OR  unit_profile.weight LIKE '%？%' OR unit_profile.weight = 0 THEN 999 ELSE unit_profile.weight END) AS INTEGER) AS weight_int,
             CAST((CASE WHEN unit_profile.birth_month LIKE '%-%' OR unit_profile.birth_month LIKE '%?%' OR  unit_profile.birth_month LIKE '%？%' OR unit_profile.birth_month = 0 THEN 999 ELSE unit_profile.birth_month END) AS INTEGER) AS birth_month_int,
@@ -250,7 +256,7 @@ interface UnitDao {
             unit_data.unit_id = :unitId
         """
     )
-    suspend fun getCharacterBasicInfo(unitId: Int, exUnitIdList: List<Int>): CharacterInfo?
+    suspend fun getCharacterInfo(unitId: Int, exUnitIdList: List<Int>): CharacterInfo?
 
     /**
      * 获取角色详情基本资料

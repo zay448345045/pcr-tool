@@ -174,7 +174,7 @@ class UnitRepository @Inject constructor(
     /**
      * 获取角色基本信息
      */
-    suspend fun getCharacterBasicInfo(unitId: Int) = try {
+    suspend fun getCharacterInfo(unitId: Int) = try {
         //额外角色编号
         val exUnitIdList = try {
             unitDao.getExUnitIdList()
@@ -182,7 +182,7 @@ class UnitRepository @Inject constructor(
             arrayListOf()
         }
 
-        val data = unitDao.getCharacterBasicInfo(unitId = unitId, exUnitIdList = exUnitIdList)!!
+        val data = unitDao.getCharacterInfo(unitId = unitId, exUnitIdList = exUnitIdList)!!
         //获取专用装备信息
         val uniqueEquipList = equipmentRepository.getUniqueEquipList("", 0, unitId = data.id)
         data.uniqueEquipType = uniqueEquipList?.size ?: 0
@@ -197,11 +197,6 @@ class UnitRepository @Inject constructor(
         //返回数据
         data
     } catch (_: Exception) {
-        //移除异常上报，排行榜会多次触发异常
-//        LogReportUtil.upload(
-//            e,
-//            Constants.EXCEPTION_UNIT_NULL + "getCharacterBasicInfo#unitId:$unitId"
-//        )
         null
     }
 
