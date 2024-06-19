@@ -61,10 +61,6 @@ class DatabaseDownloadWorker(
         val fileName = inputData.getString(KEY_FILE)
         setForegroundAsync(createForegroundInfo())
         val result = download(version, region, fileName ?: "")
-        if (result == Result.failure()) {
-            //数据下载失败提示
-            ToastUtil.launchShort(getString(R.string.db_download_failure))
-        }
         return@coroutineScope result
     }
 
@@ -76,7 +72,7 @@ class DatabaseDownloadWorker(
      */
     private suspend fun download(version: String, region: Int, fileName: String): Result {
         val responseBody: ByteArray?
-        var progress = -2
+        var progress: Int
 
         //数据开始下载提示
         ToastUtil.launchShort(getString(R.string.title_db_downloading))
@@ -102,9 +98,8 @@ class DatabaseDownloadWorker(
             responseBody = httpResponse.body()!!
         } catch (e: Exception) {
             LogReportUtil.upload(e, Constants.EXCEPTION_DOWNLOAD_DB)
-            return Result.failure(
-                Data.Builder().putInt(KEY_PROGRESS, DbDownloadState.NORMAL.state).build()
-            )
+            ToastUtil.launchShort(getString(R.string.db_download_failure))
+            return Result.failure()
         }
 
         try {
@@ -131,9 +126,8 @@ class DatabaseDownloadWorker(
             return Result.success()
         } catch (e: Exception) {
             LogReportUtil.upload(e, Constants.EXCEPTION_SAVE_DB)
-            return Result.failure(
-                Data.Builder().putInt(KEY_PROGRESS, DbDownloadState.NORMAL.state).build()
-            )
+            ToastUtil.launchShort(getString(R.string.db_load_failure))
+            return Result.failure()
         }
     }
 

@@ -142,10 +142,8 @@ object DatabaseUpdater {
                                         updateDbDownloadState(value)
                                     }
 
-                                    WorkInfo.State.FAILED -> {
-                                        val value =
-                                            workInfo.outputData.getInt(Constants.KEY_PROGRESS, -1)
-                                        updateDbDownloadState(value)
+                                    WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> {
+                                        updateDbDownloadState(DbDownloadState.NORMAL.state)
                                     }
 
                                     else -> Unit
@@ -157,7 +155,7 @@ object DatabaseUpdater {
             } catch (e: Exception) {
                 WorkManager.getInstance(MyApplication.context).cancelAllWork()
                 LogReportUtil.upload(e, Constants.EXCEPTION_DOWNLOAD_WORK_DB)
-                ToastUtil.short(getString(R.string.db_download_failure))
+                ToastUtil.short(getString(R.string.db_download_exception))
                 updateDbDownloadState(DbDownloadState.NORMAL.state)
             }
         } else {
