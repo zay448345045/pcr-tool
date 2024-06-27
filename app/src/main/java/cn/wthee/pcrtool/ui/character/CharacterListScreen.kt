@@ -280,7 +280,7 @@ private fun CharacterListFabContent(
     }
     //展示类型
     MainSmallFab(
-        iconType = MainIconType.CHANGE_FILTER_TYPE,
+        iconType = MainIconType.VIEW_MODULE,
         onClick = {
             changeShowType()
         }
@@ -563,12 +563,18 @@ fun SharedTransitionScope.CharacterIconAndTextContent(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     //名称
                     MainTitleText(
-                        text = character.name,
+                        text = character.getNameF(),
                         modifier = Modifier.padding(start = Dimen.mediumPadding),
                         selectable = true,
                         maxLines = 1
                     )
-
+                    //限定类型名称
+                    MainTitleText(
+                        text = character.getNameL(),
+                        modifier = Modifier.padding(start = Dimen.mediumPadding),
+                        selectable = true,
+                        maxLines = 1
+                    )
                     Spacer(modifier = Modifier.weight(1f))
 
                     //收藏

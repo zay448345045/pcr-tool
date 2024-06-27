@@ -134,7 +134,8 @@ fun EnemyDetailContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         //图标，仅剧情活动boss显示
         if (enemyData.enemyId.toString()[0] == '6') {
@@ -217,7 +218,7 @@ fun EnemyDetailContent(
                 selectable = true
             )
             //属性
-            AttrList(attrs = it.attr.enemy())
+            AttrList(attrs = it.attr.enemy(context))
         }
         //技能，预览时隐藏
         if (!LocalInspectionMode.current) {
@@ -394,7 +395,7 @@ private fun EnemyDetailContentPreview() {
                 comment = stringResource(id = R.string.debug_long_text),
                 level = 100
             ),
-            partEnemyList = arrayListOf(),
+            partEnemyList = arrayListOf(EnemyParameterPro(name = stringResource(id = R.string.debug_short_text))),
             skillList = arrayListOf(),
             attackPatternList = arrayListOf(),
             weaknessData = EnemyTalentWeaknessData(),

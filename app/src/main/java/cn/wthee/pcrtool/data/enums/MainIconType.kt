@@ -89,6 +89,7 @@ import androidx.compose.material.icons.rounded.TrackChanges
 import androidx.compose.material.icons.rounded.UnfoldMore
 import androidx.compose.material.icons.rounded.Upcoming
 import androidx.compose.material.icons.rounded.Vibration
+import androidx.compose.material.icons.rounded.ViewModule
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material.icons.rounded.WorkspacePremium
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -564,4 +565,9 @@ enum class MainIconType(val icon: ImageVector) {
      * 暂停
      */
     VIDEO_PAUSE(Icons.Rounded.Pause),
+
+    /**
+     * 列表显示模式
+     */
+    VIEW_MODULE(Icons.Rounded.ViewModule),
 }
