@@ -24,11 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LifecycleOwner
@@ -49,6 +45,7 @@ import cn.wthee.pcrtool.ui.SettingCommonItem
 import cn.wthee.pcrtool.ui.SettingSwitchCompose
 import cn.wthee.pcrtool.ui.components.CaptionText
 import cn.wthee.pcrtool.ui.components.CircularProgressCompose
+import cn.wthee.pcrtool.ui.components.ColorText
 import cn.wthee.pcrtool.ui.components.HeaderText
 import cn.wthee.pcrtool.ui.components.IconTextButton
 import cn.wthee.pcrtool.ui.components.LinearProgressCompose
@@ -58,7 +55,6 @@ import cn.wthee.pcrtool.ui.components.MainIcon
 import cn.wthee.pcrtool.ui.components.MainText
 import cn.wthee.pcrtool.ui.components.SubButton
 import cn.wthee.pcrtool.ui.components.Subtitle2
-import cn.wthee.pcrtool.ui.skill.ColorTextIndex
 import cn.wthee.pcrtool.ui.theme.CombinedPreviews
 import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.ExpandAnimation
@@ -391,7 +387,7 @@ private fun UpdateContent(
         )
 
         //内容
-        ColorText(message = appNotice.message)
+        ColorText(text = appNotice.message)
 
         //前往更新
         if (appNotice.id == 0) {
@@ -509,47 +505,6 @@ private fun downloadApk(
     }
 }
 
-/**
- * 优化字体风格
- */
-@Composable
-private fun ColorText(modifier: Modifier = Modifier, message: String) {
-    val mark0 = arrayListOf<ColorTextIndex>()
-    message.forEachIndexed { index, c ->
-        if (c == '[') {
-            mark0.add(ColorTextIndex(start = index))
-        }
-        if (c == ']') {
-            mark0[mark0.size - 1].end = index
-        }
-    }
-
-    Text(
-        text = buildAnnotatedString {
-            message.forEachIndexed { index, char ->
-                //替换括号及括号内字体颜色
-                mark0.forEach {
-                    if (index >= it.start && index <= it.end) {
-                        withStyle(
-                            style = SpanStyle(
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold
-                            )
-                        ) {
-                            append(char)
-                        }
-                        return@forEachIndexed
-                    }
-                }
-                //添加非括号标记的参数
-                append(char)
-            }
-        },
-        textAlign = TextAlign.Start,
-        modifier = modifier.padding(top = Dimen.largePadding, bottom = Dimen.mediumPadding),
-        style = MaterialTheme.typography.bodyMedium,
-    )
-}
 
 /**
  * 异常内容
@@ -569,7 +524,7 @@ private fun ErrorContent() {
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
         //内容
-        ColorText(message = stringResource(id = R.string.content_api_request_error))
+        ColorText(text = stringResource(id = R.string.content_api_request_error))
 
         //网络异常设置
         SettingSwitchCompose(type = SettingSwitchType.USE_IP, showSummary = true)

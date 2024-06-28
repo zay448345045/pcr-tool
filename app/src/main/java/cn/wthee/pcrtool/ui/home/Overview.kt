@@ -64,6 +64,7 @@ import cn.wthee.pcrtool.ui.components.MainScaffold
 import cn.wthee.pcrtool.ui.components.MainText
 import cn.wthee.pcrtool.ui.components.SelectText
 import cn.wthee.pcrtool.ui.components.Subtitle2
+import cn.wthee.pcrtool.ui.components.getColorText
 import cn.wthee.pcrtool.ui.home.character.CharacterSection
 import cn.wthee.pcrtool.ui.home.equip.EquipSection
 import cn.wthee.pcrtool.ui.home.event.EventComingSoonSection
@@ -76,6 +77,7 @@ import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.FadeAnimation
 import cn.wthee.pcrtool.ui.theme.PreviewLayout
 import cn.wthee.pcrtool.ui.theme.ScaleBottomEndAnimation
+import cn.wthee.pcrtool.ui.theme.colorGreen
 import cn.wthee.pcrtool.ui.theme.colorRed
 import cn.wthee.pcrtool.ui.theme.colorWhite
 import cn.wthee.pcrtool.ui.theme.defaultSpring
@@ -540,13 +542,17 @@ private fun DbVersionOtherContent(
         ) {
             IconTextButton(
                 modifier = Modifier.padding(horizontal = Dimen.mediumPadding),
-                text = if (remoteDbSizeError) {
-                    stringResource(id = R.string.remote_db_file_error)
-                } else if (dbError) {
-                    stringResource(id = R.string.db_file_error_re_download)
-                } else {
-                    stringResource(id = R.string.re_download_db_file)
-                },
+                text = "",
+                textWithColor = getColorText(
+                    color = colorGreen,
+                    text = if (remoteDbSizeError) {
+                        stringResource(id = R.string.remote_db_file_error)
+                    } else if (dbError) {
+                        stringResource(id = R.string.db_file_error_re_download)
+                    } else {
+                        stringResource(id = R.string.re_download_db_file)
+                    }
+                ),
                 contentColor = color,
                 icon = MainIconType.DOWNLOAD,
                 textStyle = MaterialTheme.typography.bodySmall,

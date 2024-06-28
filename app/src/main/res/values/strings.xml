@@ -332,10 +332,10 @@
     <!--数据库文件下载相关-->
     <string name="change_failed">切换失败</string>
     <string name="check_db_error">数据版本获取失败</string>
-    <string name="db_file_error_re_download">数据文件已损坏\n请[点击此处]重新下载</string>
+    <string name="db_file_error_re_download">数据文件已损坏\n请此处[重新下载]</string>
     <string name="db_error">数据异常</string>
-    <string name="remote_db_file_error">数据异常\n请加群反馈</string>
-    <string name="re_download_db_file">若数据[加载]或[下载]异常\n请[点击此处]重新下载</string>
+    <string name="remote_db_file_error">远程数据异常\n请[加群反馈]</string>
+    <string name="re_download_db_file">若数据加载或下载异常，请点击[重新下载]</string>
     <string name="title_db_downloading">正在下载数据</string>
     <string name="update_database">数据更新</string>
     <string name="db_download_failure">数据下载失败，请重试</string>
