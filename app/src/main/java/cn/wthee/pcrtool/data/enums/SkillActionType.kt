@@ -481,6 +481,12 @@ enum class SkillActionType(val type: Int, val descId: Int) {
     SUM_CRITICAL(107, R.string.none),
 
     //fixme 110 技能描述
+    //fixme 111 技能描述
+    /**
+     * 111：
+     */
+    TRIGGER_V2(111, R.string.skill_type_17),
+
 }
 
 /**

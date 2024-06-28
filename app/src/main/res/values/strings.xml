@@ -332,10 +332,10 @@
     <!--数据库文件下载相关-->
     <string name="change_failed">切换失败</string>
     <string name="check_db_error">数据版本获取失败</string>
-    <string name="db_file_error_re_download">数据文件已损坏\n请点击重新下载</string>
+    <string name="db_file_error_re_download">数据文件已损坏\n请[点击此处]重新下载</string>
     <string name="db_error">数据异常</string>
     <string name="remote_db_file_error">数据异常\n请加群反馈</string>
-    <string name="re_download_db_file">若数据加载异常\n请点击重新下载</string>
+    <string name="re_download_db_file">若数据[加载]或[下载]异常\n请[点击此处]重新下载</string>
     <string name="title_db_downloading">正在下载数据</string>
     <string name="update_database">数据更新</string>
     <string name="db_download_failure">数据下载失败，请重试</string>
@@ -773,6 +773,7 @@
     <string name="skill_action_type_desc_106">赋予%s [%s] 状态，并代替其承受伤害%s</string>
     <string name="skill_action_type_desc_106_type_141">堕天使的守护</string>
     <string name="skill_action_type_desc_107">动作(%d)暴击率依据物理暴击与魔法暴击之和</string>
+    <string name="skill_action_type_desc_111">当%s标记数量 %s [%d] 时，使用动作(%d)</string>
 
     <!--异常状态-->
     <string name="skill_ailment_1">减速</string>
