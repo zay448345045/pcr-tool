@@ -29,7 +29,7 @@ data class CharacterListFilterUiState(
     val guildList: List<GuildData> = emptyList(),
     // 种族信息
     val raceList: List<String> = emptyList(),
-    val filter: FilterCharacter = FilterCharacter(),
+    val filter: FilterCharacter? = null,
     // 是否有天赋类型
     val hasTalent: Boolean = false
 )

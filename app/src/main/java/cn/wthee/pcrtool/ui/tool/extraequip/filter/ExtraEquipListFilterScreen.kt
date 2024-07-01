@@ -53,12 +53,14 @@ fun ExtraEquipListFilterScreen(
             }
         }
     ) {
-        ExtraEquipListFilterContent(
-            filter = uiState.filter,
-            colorNum = uiState.colorNum,
-            equipCategoryList = uiState.equipCategoryList,
-            updateFilter = equipListFilterViewModel::updateFilter
-        )
+        uiState.filter?.let {
+            ExtraEquipListFilterContent(
+                filter = it,
+                colorNum = uiState.colorNum,
+                equipCategoryList = uiState.equipCategoryList,
+                updateFilter = equipListFilterViewModel::updateFilter
+            )
+        }
     }
 }
 

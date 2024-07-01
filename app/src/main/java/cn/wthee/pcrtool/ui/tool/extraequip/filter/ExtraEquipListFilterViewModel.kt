@@ -25,7 +25,7 @@ import javax.inject.Inject
  */
 @Immutable
 data class ExtraEquipListFilterUiState(
-    val filter: FilterExtraEquipment = FilterExtraEquipment(),
+    val filter: FilterExtraEquipment? = null,
     //类型
     val equipCategoryList: List<ExtraEquipCategoryData> = emptyList(),
     //颜色类型

@@ -24,7 +24,7 @@ import javax.inject.Inject
  */
 @Immutable
 data class EquipListFilterUiState(
-    val filter: FilterEquip = FilterEquip(),
+    val filter: FilterEquip? = null,
     //rank颜色数量
     val colorNum: Int = 0
 )

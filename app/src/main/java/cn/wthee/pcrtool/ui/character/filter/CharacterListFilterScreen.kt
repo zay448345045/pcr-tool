@@ -59,13 +59,15 @@ fun CharacterListFilterScreen(
             }
         }
     ) {
-        CharacterListFilterContent(
-            filter = uiState.filter,
-            raceList = uiState.raceList,
-            guildList = uiState.guildList,
-            hasTalent = uiState.hasTalent,
-            updateFilter = characterListFilterViewModel::updateFilter
-        )
+        uiState.filter?.let {
+            CharacterListFilterContent(
+                filter = it,
+                raceList = uiState.raceList,
+                guildList = uiState.guildList,
+                hasTalent = uiState.hasTalent,
+                updateFilter = characterListFilterViewModel::updateFilter
+            )
+        }
     }
 }
 
