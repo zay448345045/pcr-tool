@@ -46,8 +46,10 @@ import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.CharacterInfo
 import cn.wthee.pcrtool.data.db.view.CharacterProfileInfo
 import cn.wthee.pcrtool.data.enums.CharacterListShowType
+import cn.wthee.pcrtool.data.enums.CharacterSortType
 import cn.wthee.pcrtool.data.enums.IconResourceType
 import cn.wthee.pcrtool.data.enums.MainIconType
+import cn.wthee.pcrtool.data.enums.TalentType
 import cn.wthee.pcrtool.data.model.FilterCharacter
 import cn.wthee.pcrtool.data.model.isFilter
 import cn.wthee.pcrtool.navigation.navigateUp
@@ -56,11 +58,13 @@ import cn.wthee.pcrtool.ui.character.profile.CharacterProfileCommonContent
 import cn.wthee.pcrtool.ui.components.CaptionText
 import cn.wthee.pcrtool.ui.components.CharacterTagRow
 import cn.wthee.pcrtool.ui.components.CommonSpacer
+import cn.wthee.pcrtool.ui.components.Dot
 import cn.wthee.pcrtool.ui.components.ExpandableFab
 import cn.wthee.pcrtool.ui.components.IconListContent
 import cn.wthee.pcrtool.ui.components.IconTextButton
 import cn.wthee.pcrtool.ui.components.LifecycleEffect
 import cn.wthee.pcrtool.ui.components.MainCard
+import cn.wthee.pcrtool.ui.components.MainContentText
 import cn.wthee.pcrtool.ui.components.MainIcon
 import cn.wthee.pcrtool.ui.components.MainImage
 import cn.wthee.pcrtool.ui.components.MainScaffold
@@ -167,6 +171,7 @@ fun SharedTransitionScope.CharacterListScreen(
                 scrollState = scrollState,
                 favoriteIdList = uiState.favoriteIdList,
                 showType = uiState.showType,
+                filter = uiState.filter,
                 toCharacterDetail = toCharacterDetail
             )
         }
@@ -181,13 +186,14 @@ private fun SharedTransitionScope.CharacterListContent(
     scrollState: LazyGridState,
     favoriteIdList: List<Int>,
     showType: CharacterListShowType,
+    filter: FilterCharacter?,
     toCharacterDetail: (Int) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(
             when (showType) {
                 CharacterListShowType.CARD, CharacterListShowType.ICON_TAG -> getItemWidth()
-                CharacterListShowType.ICON -> Dimen.iconSize + Dimen.largePadding * 2
+                CharacterListShowType.ICON -> Dimen.iconSize + Dimen.smallPadding * 2
             }
         ),
         state = scrollState
@@ -198,26 +204,26 @@ private fun SharedTransitionScope.CharacterListContent(
                 key = {
                     it.id
                 }
-            ) {
+            ) { character ->
                 when (showType) {
                     CharacterListShowType.CARD -> CharacterItemContent(
-                        unitId = it.id,
+                        unitId = character.id,
                         animatedVisibilityScope = animatedVisibilityScope,
-                        characterInfo = it,
-                        favorite = favoriteIdList.contains(it.id),
+                        characterInfo = character,
+                        favorite = favoriteIdList.contains(character.id),
                         modifier = Modifier.padding(Dimen.mediumPadding),
                         onClick = {
-                            toCharacterDetail(it.id)
+                            toCharacterDetail(character.id)
                         }
                     )
 
                     CharacterListShowType.ICON_TAG -> CharacterIconAndTextContent(
-                        unitId = it.id,
+                        unitId = character.id,
                         animatedVisibilityScope = animatedVisibilityScope,
-                        character = it,
-                        favorite = favoriteIdList.contains(it.id),
+                        character = character,
+                        favorite = favoriteIdList.contains(character.id),
                         onClick = {
-                            toCharacterDetail(it.id)
+                            toCharacterDetail(character.id)
                         }
                     )
 
@@ -225,12 +231,30 @@ private fun SharedTransitionScope.CharacterListContent(
                         modifier = Modifier.padding(Dimen.mediumPadding),
                         contentAlignment = Alignment.Center
                     ) {
-                        MainIcon(
-                            data = ImageRequestHelper.getInstance().getMaxIconUrl(it.id),
-                            onClick = {
-                                toCharacterDetail(it.id)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            MainIcon(
+                                data = ImageRequestHelper.getInstance().getMaxIconUrl(character.id),
+                                onClick = {
+                                    toCharacterDetail(character.id)
+                                }
+                            )
+
+                            // 根据筛选条件显示
+                            filter?.let {
+                                when (filter.sortType) {
+                                    CharacterSortType.SORT_AGE -> MainContentText(text = character.age.fixedStr)
+                                    CharacterSortType.SORT_HEIGHT -> MainContentText(text = character.height.fixedStr)
+                                    CharacterSortType.SORT_WEIGHT -> MainContentText(text = character.weight.fixedStr)
+                                    CharacterSortType.SORT_POSITION -> MainContentText(text = character.position.toString())
+                                    CharacterSortType.SORT_BIRTHDAY ->
+                                        MainContentText(text = "${character.birthMonth}/${character.birthDay}")
+
+                                    else -> {}
+                                }
                             }
-                        )
+                            Dot(color = TalentType.getByType(character.talentId).color)
+                        }
+
                     }
                 }
 
@@ -241,7 +265,7 @@ private fun SharedTransitionScope.CharacterListContent(
             when (showType) {
                 CharacterListShowType.CARD -> 2
                 CharacterListShowType.ICON_TAG -> 3
-                CharacterListShowType.ICON -> 5
+                CharacterListShowType.ICON -> 10
             }
         ) {
             CommonSpacer()
@@ -569,12 +593,15 @@ fun SharedTransitionScope.CharacterIconAndTextContent(
                         maxLines = 1
                     )
                     //限定类型名称
-                    MainTitleText(
-                        text = character.getNameL(),
-                        modifier = Modifier.padding(start = Dimen.mediumPadding),
-                        selectable = true,
-                        maxLines = 1
-                    )
+                    if (character.getNameL() != "") {
+                        MainTitleText(
+                            text = character.getNameL(),
+                            modifier = Modifier.padding(start = Dimen.mediumPadding),
+                            selectable = true,
+                            maxLines = 1
+                        )
+                    }
+
                     Spacer(modifier = Modifier.weight(1f))
 
                     //收藏
