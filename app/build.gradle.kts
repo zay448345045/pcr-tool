@@ -31,7 +31,7 @@ android {
 
     namespace = appId
     compileSdk = 34
-    buildToolsVersion = "35.0.0-rc04"
+    buildToolsVersion = "35.0.0"
     flavorDimensions += listOf("version")
 
     defaultConfig {
@@ -114,7 +114,7 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.9.0")
     implementation("androidx.multidex:multidex:2.0.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("androidx.fragment:fragment-ktx:1.7.1")
+    implementation("androidx.fragment:fragment-ktx:1.8.1")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:${rootProject.extra["kotlinVersion"]}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
@@ -127,7 +127,7 @@ dependencies {
 //    implementation("androidx.compose.runtime:runtime-livedata")
 //    implementation("androidx.compose.material3:material3")
     //compose unstable
-    val composeUnstableVersion = "1.7.0-beta02"
+    val composeUnstableVersion = "1.7.0-beta04"
     implementation("androidx.compose.animation:animation:${composeUnstableVersion}")
     implementation("androidx.compose.material:material:${composeUnstableVersion}")
     implementation("androidx.compose.material:material-navigation:1.7.0-beta01")
@@ -137,7 +137,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview:${composeUnstableVersion}")
     implementation("androidx.compose.material:material-icons-extended:${composeUnstableVersion}")
     implementation("androidx.compose.runtime:runtime-livedata:${composeUnstableVersion}")
-    implementation("androidx.compose.material3:material3:1.3.0-beta02")
+    implementation("androidx.compose.material3:material3:1.3.0-beta04")
 
     //Browser
     implementation("androidx.browser:browser:1.8.0")
@@ -145,7 +145,7 @@ dependencies {
     //Bugly
     implementation("com.tencent.bugly:crashreport:4.1.9.3")
 
-    //Coil
+    //Coil alpha07异常闪退
     val coilVersion = "3.0.0-alpha06"
     implementation("io.coil-kt.coil3:coil-compose:$coilVersion")
     implementation("io.coil-kt.coil3:coil-network-ktor:$coilVersion")
@@ -159,14 +159,14 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     //ktor
-    val ktorVersion = "2.3.11"
+    val ktorVersion = "2.3.12"
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("io.ktor:ktor-client-android:$ktorVersion")
 
     //Lifecycle
-    val lifecycleVersion = "2.8.1"
+    val lifecycleVersion = "2.8.2"
     implementation("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
@@ -180,7 +180,7 @@ dependencies {
     implementation("androidx.media3:media3-ui:$media3Version")
 
     //Navigation
-    implementation("androidx.navigation:navigation-compose:2.8.0-beta02")
+    implementation("androidx.navigation:navigation-compose:2.8.0-beta04")
 
     //Paging3
     val pagingVersion = "3.3.0"
