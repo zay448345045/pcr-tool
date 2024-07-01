@@ -506,6 +506,8 @@
     <string name="skill_status_1800">多目标状态</string>
     <string name="skill_status_1900">护盾展开</string>
     <string name="skill_status_3137">界雷</string>
+    <string name="skill_status_3162">妨魔塵</string>
+    <string name="skill_status_6160">黏着状态</string>
     <string name="skill_status_physical_atk">物理攻击</string>
     <string name="skill_status_magic_atk">魔法攻击</string>
 
@@ -541,6 +543,8 @@
     <string name="skill_target_42">多目标</string>
     <string name="skill_target_43">物理攻击力最高(自身除外)的</string>
     <string name="skill_target_44">剩余HP最低(自身除外)的</string>
+    <string name="skill_target_45">物理防御力最低的</string>
+    <string name="skill_target_46">魔法防御力最低的</string>
 
     <!--技能目标分配-->
     <string name="skill_target_assignment_0">自身</string>
@@ -643,6 +647,7 @@
     <string name="skill_action_type_desc_17_10">受到持续伤害时 [%d%%] 概率</string>
     <string name="skill_action_type_desc_17_11">所有部位 BREAK</string>
     <string name="skill_action_type_desc_17_13">HP减少 [%d] 时</string>
+    <string name="skill_action_type_desc_17_17">黏着时 [%d%%] 概率触发</string>
     <string name="skill_action_type_desc_18_19">蓄力 [%s] 秒</string>
     <string name="skill_action_type_desc_18_19_detail">，动作(%d)效果增加 %s * 蓄力中受到的伤害</string>
     <string name="skill_action_type_desc_20">使%s进入%s状态%s</string>
@@ -774,6 +779,8 @@
     <string name="skill_action_type_desc_106_type_141">堕天使的守护</string>
     <string name="skill_action_type_desc_107">动作(%d)暴击率依据物理暴击与魔法暴击之和</string>
     <string name="skill_action_type_desc_111">当%s标记数量 %s [%d] 时，使用动作(%d)</string>
+    <string name="skill_action_type_desc_114">对%s追加 [%d] 层标记，%s，受到伤害时，减少 [1] 层标记，并使用动作(%d)和动作(%d)%s</string>
+    <string name="skill_action_type_desc_114_aura">己方受到的伤害降低 [%d%%]</string>
 
     <!--异常状态-->
     <string name="skill_ailment_1">减速</string>

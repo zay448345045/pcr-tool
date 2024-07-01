@@ -9,6 +9,7 @@ import cn.wthee.pcrtool.utils.getTimeText
 fun SkillActionDetail.environment(): String {
     val type = when (actionDetail2) {
         137 -> getString(R.string.skill_status_3137)
+        162 -> getString(R.string.skill_status_3162)
         else -> getString(R.string.unknown)
     }
     val time = getTimeText(1, actionValue1)

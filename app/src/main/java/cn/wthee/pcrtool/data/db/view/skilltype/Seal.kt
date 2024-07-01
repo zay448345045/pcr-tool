@@ -84,3 +84,21 @@ fun SkillActionDetail.sealV2(): String {
         )
     }
 }
+
+// 114：特殊标记计数？
+fun SkillActionDetail.sealCount(): String {
+    val action1 = actionDetail1 % 100
+    val action2 = actionDetail2 % 100
+    val time = getTimeText(4, actionValue4, hideIndex = true)
+    val aura = getString(R.string.skill_action_type_desc_114_aura, actionValue3.toInt())
+
+    return getString(
+        R.string.skill_action_type_desc_114,
+        getTarget(),
+        actionValue2.toInt(),
+        aura,
+        action1,
+        action2,
+        time
+    )
+}

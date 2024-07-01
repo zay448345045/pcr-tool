@@ -22,12 +22,12 @@ fun SkillActionDetail.trigger(): String {
             actionValue1.toInt(),
             getTimeText(3, actionValue3)
         )
-
         10 -> getString(R.string.skill_action_type_desc_17_10, actionValue1.toInt())
         11 -> getString(R.string.skill_action_type_desc_17_11)
-        13 -> {
-            getString(R.string.skill_action_type_desc_17_13, actionValue3.toInt())
-        }
+        13 -> getString(R.string.skill_action_type_desc_17_13, actionValue3.toInt())
+        14 -> getString(R.string.skill_action_type_desc_17_17, actionValue1.toInt())
+
+
 
         else -> UNKNOWN
     }

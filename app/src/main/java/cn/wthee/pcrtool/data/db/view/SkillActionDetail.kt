@@ -66,6 +66,7 @@ import cn.wthee.pcrtool.data.db.view.skilltype.rateDamage
 import cn.wthee.pcrtool.data.db.view.skilltype.reindeer
 import cn.wthee.pcrtool.data.db.view.skilltype.revival
 import cn.wthee.pcrtool.data.db.view.skilltype.seal
+import cn.wthee.pcrtool.data.db.view.skilltype.sealCount
 import cn.wthee.pcrtool.data.db.view.skilltype.sealV2
 import cn.wthee.pcrtool.data.db.view.skilltype.skillCount
 import cn.wthee.pcrtool.data.db.view.skilltype.specialEffect
@@ -222,7 +223,7 @@ data class SkillActionDetail(
             // 9：持续伤害
             SkillActionType.DOT -> dot()
             // 10：buff/debuff
-            SkillActionType.AURA -> aura()
+            SkillActionType.AURA, SkillActionType.AURA_V2 -> aura()
             //11：魅惑/混乱12：黑暗 13：沉默
             SkillActionType.CHARM,
             SkillActionType.BLIND,
@@ -375,8 +376,10 @@ data class SkillActionDetail(
             SkillActionType.ENVIRONMENT -> environment()
             // 106：守护
             SkillActionType.GUARD -> guard()
-            //107：暴击率合计
+            // 107：暴击率合计
             SkillActionType.SUM_CRITICAL -> sumCritical()
+            // 114：特殊标记计数？
+            SkillActionType.SEAL_COUNT -> sealCount()
             else -> unknownType()
         }
     }

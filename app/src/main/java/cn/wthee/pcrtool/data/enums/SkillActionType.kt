@@ -487,6 +487,15 @@ enum class SkillActionType(val type: Int, val descId: Int) {
      */
     TRIGGER_V2(111, R.string.skill_type_17),
 
+    /**
+     * 114：特殊标记计数？
+     */
+    SEAL_COUNT(114, R.string.none),
+
+    /**
+     * 115：debuff？
+     */
+    AURA_V2(115, R.string.none),
 }
 
 /**

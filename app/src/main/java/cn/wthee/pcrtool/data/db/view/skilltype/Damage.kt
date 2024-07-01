@@ -68,12 +68,14 @@ fun SkillActionDetail.damage(): String {
 // 46：比例伤害
 fun SkillActionDetail.rateDamage(): String {
     val value = getValueText(1, actionValue1, actionValue2, percent = "%")
+    val limit =
+        getString(R.string.skill_action_damage_limit_int, actionValue3.toInt())
     return when (actionDetail1) {
         1 -> getString(R.string.skill_action_type_desc_46_1, getTarget(), value)
         2 -> getString(R.string.skill_action_type_desc_46_2, getTarget(), value)
         3 -> getString(R.string.skill_action_type_desc_46_3, getTarget(), value)
         else -> UNKNOWN
-    }
+    } + (if (actionValue3 != 0.0) limit else "")
 }
 
 // 34、102：伤害递增
