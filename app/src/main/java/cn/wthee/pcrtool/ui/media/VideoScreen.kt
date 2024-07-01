@@ -194,7 +194,9 @@ fun VideoPlayer(url: String) {
             vertical = Dimen.mediumPadding
         ),
         onClick = {
-            expanded = !expanded
+            if (!playError && !loading) {
+                expanded = !expanded
+            }
         }
     ) {
         //播放器组件
@@ -206,7 +208,7 @@ fun VideoPlayer(url: String) {
         )
 
         //功能按钮
-        ExpandAnimation(expanded) {
+        ExpandAnimation(expanded && !playError) {
             Column {
                 ToolButtonContent(
                     url = url,
@@ -289,37 +291,35 @@ private fun ToolButtonContent(
         mutableIntStateOf(0)
     }
 
-    //功能按钮
+
     Row(
         modifier = Modifier
             .padding(top = Dimen.smallPadding)
             .heightIn(min = Dimen.menuIconSize),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (!playError) {
-            //播放进度
-            val progress = "00:$current / 00:$duration"
+        //播放进度
+        val progress = "00:$current / 00:$duration"
 
-            //播放/暂停
-            if (play) {
-                IconTextButton(
-                    text = progress,
-                    icon = MainIconType.VIDEO_PAUSE,
-                    onClick = {
-                        play = false
-                        exoPlayer?.pause()
-                    }
-                )
-            } else {
-                IconTextButton(
-                    text = progress,
-                    icon = MainIconType.VIDEO_PLAY,
-                    onClick = {
-                        play = true
-                        exoPlayer?.play()
-                    }
-                )
-            }
+        //播放/暂停
+        if (play) {
+            IconTextButton(
+                text = progress,
+                icon = MainIconType.VIDEO_PAUSE,
+                onClick = {
+                    play = false
+                    exoPlayer?.pause()
+                }
+            )
+        } else {
+            IconTextButton(
+                text = progress,
+                icon = MainIconType.VIDEO_PLAY,
+                onClick = {
+                    play = true
+                    exoPlayer?.play()
+                }
+            )
         }
 
         //浏览器中查看
