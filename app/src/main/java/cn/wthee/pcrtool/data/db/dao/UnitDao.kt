@@ -323,33 +323,6 @@ interface UnitDao {
     suspend fun getMultiIds(unitId: Int): List<Int>
 
     /**
-     * 根据位置范围 [start] <= x <= [end] 获取角色列表
-     * @param start 开始位置
-     * @param end 结束位置
-     */
-    @SkipQueryVerification
-    @Query(
-        """
-        SELECT
-            a.unit_id,
-            b.search_area_width AS position, 
-            - 1 AS type 
-        FROM
-            unit_profile AS a
-            LEFT JOIN unit_data AS b ON a.unit_id = b.unit_id 
-        WHERE
-            search_area_width >= :start 
-            AND search_area_width <= :end
-            AND a.unit_id < $maxUnitId  
-            AND b.search_area_width > 0
-        ORDER BY
-            b.search_area_width,
-            a.unit_id
-    """
-    )
-    suspend fun getCharacterByPosition(start: Int, end: Int): List<PvpCharacterData>
-
-    /**
      * 获取角色列表
      * @param unitIds 角色编号
      */
@@ -359,20 +332,58 @@ interface UnitDao {
         SELECT
             a.unit_id,
             b.search_area_width AS position, 
-            - 1 AS type 
+            - 1 AS type ,
+            - 1 AS talent_id
         FROM
             unit_profile AS a
             LEFT JOIN unit_data AS b ON a.unit_id = b.unit_id 
         WHERE
-            a.unit_id IN (:unitIds) 
+            ((1 = :allUnit) OR (0 = :allUnit AND a.unit_id IN (:unitIds)))
             AND a.unit_id < $maxUnitId
             AND b.search_area_width > 0
         ORDER BY
-            b.search_area_width DESC,
+        CASE WHEN :desc = 1 THEN  b.search_area_width END DESC,
+        CASE WHEN :desc = 0 THEN  b.search_area_width END ASC,
+        a.unit_id
+    """
+    )
+    suspend fun getCharacterByIds(
+        unitIds: List<Int>,
+        allUnit: Int,
+        desc: Int
+    ): List<PvpCharacterData>
+
+    /**
+     * 获取角色列表V2 适配天赋
+     * @param unitIds 角色编号
+     */
+    @SkipQueryVerification
+    @Query(
+        """
+        SELECT
+            a.unit_id,
+            b.search_area_width AS position, 
+            - 1 AS type,
+            c.talent_id
+        FROM
+            unit_profile AS a
+            LEFT JOIN unit_data AS b ON a.unit_id = b.unit_id 
+            LEFT JOIN unit_talent AS c ON a.unit_id = c.unit_id 
+        WHERE
+            ((1 = :allUnit) OR (0 = :allUnit AND a.unit_id IN (:unitIds)))
+            AND a.unit_id < $maxUnitId
+            AND b.search_area_width > 0
+        ORDER BY
+            CASE WHEN :desc = 1 THEN  b.search_area_width END DESC,
+            CASE WHEN :desc = 0 THEN  b.search_area_width END ASC,
             a.unit_id
     """
     )
-    suspend fun getCharacterByIds(unitIds: List<Int>): List<PvpCharacterData>
+    suspend fun getCharacterByIdsV2(
+        unitIds: List<Int>,
+        allUnit: Int,
+        desc: Int
+    ): List<PvpCharacterData>
 
     /**
      * 获取角色所需装备数据

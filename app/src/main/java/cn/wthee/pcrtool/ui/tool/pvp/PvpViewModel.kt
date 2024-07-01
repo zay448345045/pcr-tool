@@ -9,7 +9,6 @@ import cn.wthee.pcrtool.data.db.entity.PvpHistoryData
 import cn.wthee.pcrtool.data.db.repository.PvpRepository
 import cn.wthee.pcrtool.data.db.repository.UnitRepository
 import cn.wthee.pcrtool.data.db.view.PvpCharacterData
-import cn.wthee.pcrtool.data.db.view.getIdStr
 import cn.wthee.pcrtool.data.model.PvpResultData
 import cn.wthee.pcrtool.data.model.ResponseData
 import cn.wthee.pcrtool.data.network.ApiRepository
@@ -19,6 +18,7 @@ import cn.wthee.pcrtool.utils.ToastUtil
 import cn.wthee.pcrtool.utils.calcDate
 import cn.wthee.pcrtool.utils.getString
 import cn.wthee.pcrtool.utils.getToday
+import cn.wthee.pcrtool.utils.intArrayList
 import cn.wthee.pcrtool.utils.second
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -180,18 +180,20 @@ class PvpViewModel @Inject constructor(
                 }
                 //角色数量限制
                 val limit = 50
-                var list = unitList.sortedByDescending { it.count }
-                if (list.size > limit) {
-                    list = list.subList(0, limit)
+                var sortedList = unitList.sortedByDescending { it.count }
+                if (sortedList.size > limit) {
+                    sortedList = sortedList.subList(0, limit)
                 }
-                //处理最近使用角色的站位信息
-                list.forEach {
-                    it.position =
-                        characterDataList.find { d -> d.unitId == it.unitId }!!.position
+                //处理最近使用角色的站位等信息
+                sortedList.forEach {
+                    characterDataList.find { d -> d.unitId == it.unitId }!!.apply {
+                        it.position = position
+                        it.talentId = talentId
+                    }
                 }
                 _uiState.update {
                     it.copy(
-                        recentlyUsedUnitList = list
+                        recentlyUsedUnitList = sortedList
                     )
                 }
             } catch (e: Exception) {
@@ -238,6 +240,21 @@ class PvpViewModel @Inject constructor(
                 }
                 val data = apiRepository.getPvpData(ids)
 
+                //处理天赋类型
+                val idList = arrayListOf<Int>()
+                data.data?.let { list ->
+                    list.forEach {
+                        idList.addAll(it.atk.intArrayList)
+                        idList.addAll(it.def.intArrayList)
+                    }
+                }
+                val unitList = unitRepository.getCharacterByIds(idList.distinct())
+                data.data?.forEach {
+                    it.atkTalent = getTalentIdStr(it.atk, unitList)
+                    it.defTalent = getTalentIdStr(it.def, unitList)
+                }
+
+
                 _uiState.update {
                     it.copy(
                         pvpResult = data,
@@ -247,6 +264,21 @@ class PvpViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    /**
+     * 处理天赋类型
+     */
+    private fun getTalentIdStr(ids: String, unitList: List<PvpCharacterData>): String {
+        var talentIdStr = ""
+        ids.intArrayList.forEach { unitId ->
+            val talentId =
+                unitList.find { unit -> unit.unitId == unitId && unit.talentId != -1 }
+                    ?.talentId?.toString()
+                    ?: ""
+            talentIdStr += "$talentId-"
+        }
+        return talentIdStr
     }
 
     /**
@@ -284,9 +316,9 @@ class PvpViewModel @Inject constructor(
             }
             resetResult()
             //加载数据
-            val defIds = list.getIdStr()
 
-            var unSplitDefIds = ""
+            var defIds = ""
+            var talentIds = ""
             var isError = false
 
             val idArray = buildJsonArray {
@@ -295,8 +327,9 @@ class PvpViewModel @Inject constructor(
                         isError = true
                         return@buildJsonArray
                     }
+                    defIds += "${sel.unitId}-"
+                    talentIds += "${sel.talentId}-"
                     add(sel.unitId)
-                    unSplitDefIds += "${sel.unitId}-"
                 }
             }
 
@@ -310,7 +343,8 @@ class PvpViewModel @Inject constructor(
                 insert(
                     PvpHistoryData(
                         id = UUID.randomUUID().toString(),
-                        defs = "${MainActivity.regionType.value}@$unSplitDefIds",
+                        defs = "${MainActivity.regionType.value}@$defIds",
+                        defTalentIds = talentIds,
                         date = getToday(),
                     )
                 )
@@ -325,7 +359,7 @@ class PvpViewModel @Inject constructor(
      */
     private fun getAllCharacter() {
         viewModelScope.launch {
-            val data = unitRepository.getCharacterByPosition(1, 999)
+            val data = unitRepository.getCharacterByIds(listOf(), allUnit = 1, desc = 0)
             _uiState.update {
                 it.copy(
                     allUnitList = data

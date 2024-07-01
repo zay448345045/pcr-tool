@@ -57,11 +57,13 @@ import cn.wthee.pcrtool.data.db.entity.PvpHistoryData
 import cn.wthee.pcrtool.data.db.view.PvpCharacterData
 import cn.wthee.pcrtool.data.enums.MainIconType
 import cn.wthee.pcrtool.data.enums.PositionType
+import cn.wthee.pcrtool.data.enums.TalentType
 import cn.wthee.pcrtool.data.model.PvpResultData
 import cn.wthee.pcrtool.data.model.ResponseData
 import cn.wthee.pcrtool.navigation.navigateUp
 import cn.wthee.pcrtool.ui.MainActivity.Companion.navViewModel
 import cn.wthee.pcrtool.ui.components.CommonSpacer
+import cn.wthee.pcrtool.ui.components.Dot
 import cn.wthee.pcrtool.ui.components.IconTextButton
 import cn.wthee.pcrtool.ui.components.MainIcon
 import cn.wthee.pcrtool.ui.components.MainScaffold
@@ -609,6 +611,13 @@ fun PvpIconItem(
             }
         )
 
+        //天赋（圆点显示）
+        if (pvpCharacterData.talentId != -1) {
+            Dot(
+                color = TalentType.getByType(pvpCharacterData.talentId).color
+            )
+        }
+
         //位置
         val position =
             if (pvpCharacterData != PvpCharacterData()) pvpCharacterData.position else 0
@@ -624,11 +633,15 @@ fun PvpIconItem(
 
 /**
  * 角色图标列表（5个/行）
+ *
+ * @param ids 角色id
+ * @param talentIdList 角色天赋类型
  */
 @Composable
 fun PvpUnitIconLine(
     modifier: Modifier = Modifier,
     ids: List<Int>,
+    talentIdList: List<Int>,
     floatWindow: Boolean,
     toCharacter: (Int) -> Unit
 ) {
@@ -644,16 +657,24 @@ fun PvpUnitIconLine(
             Dimen.largePadding
         },
         verticalContentPadding = 0.dp
-    ) {
-        MainIcon(
-            data = ImageRequestHelper.getInstance().getMaxIconUrl(ids[it]),
-            wrapSize = true,
-            onClick = {
-                if (!floatWindow) {
-                    toCharacter(ids[it])
+    ) { index ->
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            MainIcon(
+                data = ImageRequestHelper.getInstance().getMaxIconUrl(ids[index]),
+                wrapSize = true,
+                onClick = {
+                    if (!floatWindow) {
+                        toCharacter(ids[index])
+                    }
                 }
+            )
+            if (talentIdList.isNotEmpty()) {
+                Dot(
+                    color = TalentType.getByType(talentIdList[index]).color
+                )
             }
-        )
+        }
+
     }
 }
 

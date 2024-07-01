@@ -216,23 +216,17 @@ class UnitRepository @Inject constructor(
     }
 
     /**
-     * 根据站位获取角色列表
-     */
-    suspend fun getCharacterByPosition(start: Int, end: Int) = try {
-        unitDao.getCharacterByPosition(start, end)
-    } catch (e: Exception) {
-        LogReportUtil.upload(e, "getCharacterByPosition$start-$end")
-        emptyList()
-    }
-
-    /**
      * 根据id列表获取角色列表
      */
-    suspend fun getCharacterByIds(unitIds: List<Int>) = try {
-        unitDao.getCharacterByIds(unitIds)
+    suspend fun getCharacterByIds(unitIds: List<Int>, allUnit: Int = 0, desc: Int = 1) = try {
+        unitDao.getCharacterByIdsV2(unitIds, allUnit, desc)
     } catch (e: Exception) {
-        LogReportUtil.upload(e, "getCharacterByIds$unitIds")
-        emptyList()
+        try {
+            unitDao.getCharacterByIds(unitIds, allUnit, desc)
+        } catch (e: Exception) {
+            LogReportUtil.upload(e, "getCharacterByIds$unitIds")
+            emptyList()
+        }
     }
 
     suspend fun getMaxRank(unitId: Int) = try {

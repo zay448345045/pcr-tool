@@ -10,16 +10,6 @@ data class PvpCharacterData(
     @ColumnInfo(name = "unit_id") var unitId: Int = -1,
     @ColumnInfo(name = "position") var position: Int = 999,
     @ColumnInfo(name = "type") var type: Int = -1,
+    @ColumnInfo(name = "talent_id") var talentId: Int = -1,
     @Ignore var count: Int = 0
 )
-
-/**
- * 用 - 拼接角色id
- */
-fun ArrayList<PvpCharacterData>.getIdStr(): String {
-    var ids = ""
-    for (character in this) {
-        ids += "${character.unitId}-"
-    }
-    return ids
-}
