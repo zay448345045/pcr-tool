@@ -86,11 +86,10 @@ import cn.wthee.pcrtool.data.db.view.skilltype.triggerV2
 import cn.wthee.pcrtool.data.db.view.skilltype.unknownType
 import cn.wthee.pcrtool.data.db.view.skilltype.waveStart
 import cn.wthee.pcrtool.data.enums.SkillActionType
-import cn.wthee.pcrtool.data.enums.getAilment
-import cn.wthee.pcrtool.data.enums.toSkillActionType
 import cn.wthee.pcrtool.data.model.SkillActionText
 import cn.wthee.pcrtool.utils.Constants.UNKNOWN
 import cn.wthee.pcrtool.utils.LogReportUtil
+import cn.wthee.pcrtool.utils.getString
 
 
 /**
@@ -139,7 +138,7 @@ data class SkillActionDetail(
     fun getActionDesc(): SkillActionText {
         //召唤物编号
         var summonUnitId = 0
-        if (toSkillActionType(actionType) == SkillActionType.SUMMON) {
+        if (SkillActionType.getByType(actionType) == SkillActionType.SUMMON) {
             summonUnitId = actionDetail2
         }
         //生成技能效果文本
@@ -150,7 +149,7 @@ data class SkillActionDetail(
             UNKNOWN
         }
         //是否显示系数判断
-        val showCoe = when (toSkillActionType(actionType)) {
+        val showCoe = when (SkillActionType.getByType(actionType)) {
             SkillActionType.ADDITIVE,
             SkillActionType.MULTIPLE,
             SkillActionType.DIVIDE,
@@ -197,12 +196,12 @@ data class SkillActionDetail(
      */
     private fun formatDesc(): String {
         //设置状态标签
-        val ailmentName = getAilment(actionType)
+        val ailmentName = getString(SkillActionType.getByType(actionType).descId)
         if (ailmentName.isNotEmpty()) {
             tag = ailmentName
         }
 
-        return when (toSkillActionType(actionType)) {
+        return when (SkillActionType.getByType(actionType)) {
             SkillActionType.DAMAGE -> damage()
             // 2：位移
             SkillActionType.MOVE -> move()

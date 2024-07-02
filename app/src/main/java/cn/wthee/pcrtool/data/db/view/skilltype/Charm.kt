@@ -3,7 +3,6 @@ package cn.wthee.pcrtool.data.db.view.skilltype
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.SkillActionDetail
 import cn.wthee.pcrtool.data.enums.SkillActionType
-import cn.wthee.pcrtool.data.enums.toSkillActionType
 import cn.wthee.pcrtool.utils.getString
 import cn.wthee.pcrtool.utils.getTarget
 import cn.wthee.pcrtool.utils.getTimeText
@@ -20,7 +19,7 @@ fun SkillActionDetail.charm(): String {
             percent = "%"
         )
     val time = getTimeText(1, actionValue1, actionValue2)
-    if (toSkillActionType(actionType) == SkillActionType.CHARM) {
+    if (SkillActionType.getByType(actionType) == SkillActionType.CHARM) {
         tag = getString(
             when (actionDetail1) {
                 0 -> R.string.skill_charm_0

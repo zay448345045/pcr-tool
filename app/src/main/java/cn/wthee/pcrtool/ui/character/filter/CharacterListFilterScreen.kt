@@ -24,7 +24,6 @@ import cn.wthee.pcrtool.data.enums.CharacterSortType
 import cn.wthee.pcrtool.data.enums.MainIconType
 import cn.wthee.pcrtool.data.enums.PositionType
 import cn.wthee.pcrtool.data.enums.TalentType
-import cn.wthee.pcrtool.data.enums.getSortType
 import cn.wthee.pcrtool.data.model.ChipData
 import cn.wthee.pcrtool.data.model.FilterCharacter
 import cn.wthee.pcrtool.navigation.navigateUpSheet
@@ -88,7 +87,7 @@ private fun CharacterListFilterContent(
     val sortTypeIndex = remember {
         mutableIntStateOf(filter.sortType.type)
     }
-    filter.sortType = getSortType(sortTypeIndex.intValue)
+    filter.sortType = CharacterSortType.getByType(sortTypeIndex.intValue)
 
     //排序方式筛选
     val sortAscIndex = remember {

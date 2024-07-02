@@ -3,7 +3,6 @@ package cn.wthee.pcrtool.utils
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.SkillActionDetail
 import cn.wthee.pcrtool.data.enums.SkillActionType
-import cn.wthee.pcrtool.data.enums.toSkillActionType
 
 
 // 用于处理技能效果详情信息
@@ -27,7 +26,7 @@ fun SkillActionDetail.getAtkType() = getString(
 /**
  * 获取 %
  */
-fun SkillActionDetail.getPercent() = when (toSkillActionType(actionType)) {
+fun SkillActionDetail.getPercent() = when (SkillActionType.getByType(actionType)) {
     SkillActionType.AURA, SkillActionType.HEAL_DOWN -> {
         if (actionValue1.toInt() == 2 || actionDetail1 / 10 in setOf(
                 11,

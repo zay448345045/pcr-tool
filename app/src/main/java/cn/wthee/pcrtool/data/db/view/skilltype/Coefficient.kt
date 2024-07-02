@@ -3,7 +3,6 @@ package cn.wthee.pcrtool.data.db.view.skilltype
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.SkillActionDetail
 import cn.wthee.pcrtool.data.enums.SkillActionType
-import cn.wthee.pcrtool.data.enums.toSkillActionType
 import cn.wthee.pcrtool.utils.Constants.UNKNOWN
 import cn.wthee.pcrtool.utils.getString
 import cn.wthee.pcrtool.utils.getTarget
@@ -19,7 +18,7 @@ fun SkillActionDetail.coefficient(): String {
         10 -> getString(R.string.skill_magic_def)
         else -> UNKNOWN
     }
-    val changeType = when (toSkillActionType(actionType)) {
+    val changeType = when (SkillActionType.getByType(actionType)) {
         SkillActionType.ADDITIVE -> getString(R.string.skill_action_type_desc_additive)
         SkillActionType.MULTIPLE -> getString(R.string.skill_action_type_desc_multiple)
         SkillActionType.DIVIDE -> getString(R.string.skill_action_type_desc_divide)
