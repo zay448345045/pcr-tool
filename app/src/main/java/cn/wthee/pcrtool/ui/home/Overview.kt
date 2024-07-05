@@ -554,7 +554,6 @@ private fun DbVersionOtherContent(
                     }
                 ),
                 contentColor = color,
-                icon = MainIconType.DOWNLOAD,
                 textStyle = MaterialTheme.typography.bodySmall,
                 maxLines = 2
             )

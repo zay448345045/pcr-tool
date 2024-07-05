@@ -57,7 +57,7 @@ class DatabaseDownloadWorker(
         val inputData: Data = inputData
         //版本号
         val version = inputData.getString(KEY_VERSION) ?: return@coroutineScope Result.failure()
-        val region = inputData.getInt(KEY_REGION, 2)
+        val region = inputData.getInt(KEY_REGION, RegionType.CN.value)
         val fileName = inputData.getString(KEY_FILE)
         setForegroundAsync(createForegroundInfo())
         val result = download(version, region, fileName ?: "")
@@ -97,6 +97,7 @@ class DatabaseDownloadWorker(
                 }
             responseBody = httpResponse.body()!!
         } catch (e: Exception) {
+            // fixme 异常问题排查
             LogReportUtil.upload(e, Constants.EXCEPTION_DOWNLOAD_DB)
             ToastUtil.launchShort(getString(R.string.db_download_failure))
             return Result.failure()
