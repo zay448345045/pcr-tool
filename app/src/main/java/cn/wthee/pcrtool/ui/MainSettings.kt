@@ -129,9 +129,7 @@ fun MainSettings() {
                 SettingSwitchCompose(type = SettingSwitchType.DYNAMIC_COLOR, showSummary = true)
             }
             //- 使用ip访问
-            if (useIpOnFlag) {
-                SettingSwitchCompose(type = SettingSwitchType.USE_IP, showSummary = true)
-            }
+            SettingSwitchCompose(type = SettingSwitchType.USE_IP, showSummary = true)
             //- 清除图片缓存
             SettingCommonItem(
                 iconType = MainIconType.DELETE,
