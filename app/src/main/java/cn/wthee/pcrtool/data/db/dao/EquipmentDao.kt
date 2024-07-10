@@ -11,7 +11,6 @@ import cn.wthee.pcrtool.data.db.view.EquipmentCraft
 import cn.wthee.pcrtool.data.db.view.EquipmentEnhanceRate
 import cn.wthee.pcrtool.data.db.view.EquipmentMaxData
 import cn.wthee.pcrtool.data.db.view.UniqueEquipBasicData
-import cn.wthee.pcrtool.data.db.view.UniqueEquipCount
 import cn.wthee.pcrtool.data.db.view.UniqueEquipmentMaxData
 import cn.wthee.pcrtool.data.db.view.UnitPromotion
 
@@ -191,7 +190,7 @@ interface EquipmentDao {
         FROM
             unit_unique_equip AS r
             LEFT OUTER JOIN unique_equipment_data AS a ON r.equip_id = a.equipment_id
-            LEFT OUTER JOIN unique_equipment_enhance_rate AS b ON a.equipment_id = b.equipment_id
+            LEFT OUTER JOIN unique_equip_enhance_rate AS b ON a.equipment_id = b.equipment_id
         WHERE
             a.equipment_id IS NOT NULL AND r.unit_id = :unitId
     """
@@ -530,41 +529,4 @@ interface EquipmentDao {
         unitId: Int
     ): List<UniqueEquipBasicData>
 
-
-    /**
-     * 获取专用装备数量
-     */
-    @SkipQueryVerification
-    @Query(
-        """
-        SELECT
-            equip_slot,
-            COUNT( equip_slot ) AS count 
-        FROM
-            unit_unique_equip 
-        GROUP BY
-            equip_slot
-        ORDER BY equip_slot
-        """
-    )
-    suspend fun getUniqueEquipCount(): List<UniqueEquipCount>
-
-
-    /**
-     * 获取专用装备数量
-     */
-    @SkipQueryVerification
-    @Query(
-        """
-        SELECT
-            equip_slot,
-            COUNT( equip_slot ) AS count 
-        FROM
-            unit_unique_equipment 
-        GROUP BY
-            equip_slot
-        ORDER BY equip_slot
-        """
-    )
-    suspend fun getUniqueEquipCountV2(): List<UniqueEquipCount>
 }
