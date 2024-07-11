@@ -11,7 +11,7 @@ import androidx.work.WorkerParameters
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.enums.RegionType
 import cn.wthee.pcrtool.database.AppBasicDatabase
-import cn.wthee.pcrtool.database.updateLocalDataBaseVersion
+import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.ui.home.DbDownloadState
 import cn.wthee.pcrtool.utils.Constants
 import cn.wthee.pcrtool.utils.Constants.KEY_PROGRESS
@@ -21,11 +21,14 @@ import cn.wthee.pcrtool.utils.NotificationUtil
 import cn.wthee.pcrtool.utils.ToastUtil
 import cn.wthee.pcrtool.utils.UnzippedUtil
 import cn.wthee.pcrtool.utils.getString
+import com.tencent.bugly.crashreport.CrashReport
 import io.ktor.client.call.body
 import io.ktor.client.plugins.onDownload
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 /**
@@ -37,6 +40,7 @@ class DatabaseDownloadWorker(
 ) : CoroutineWorker(context, parameters!!) {
 
     private val downloadNotice = getString(R.string.title_db_downloading)
+
     //通知栏
     private val notificationManager: NotificationManager =
         context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -49,28 +53,25 @@ class DatabaseDownloadWorker(
 
     companion object {
         const val KEY_FILE = "KEY_FILE"
-        const val KEY_VERSION = "KEY_VERSION"
         const val KEY_REGION = "KEY_REGION"
     }
 
     override suspend fun doWork(): Result = coroutineScope {
         val inputData: Data = inputData
         //版本号
-        val version = inputData.getString(KEY_VERSION) ?: return@coroutineScope Result.failure()
         val region = inputData.getInt(KEY_REGION, RegionType.CN.value)
         val fileName = inputData.getString(KEY_FILE)
         setForegroundAsync(createForegroundInfo())
-        val result = download(version, region, fileName ?: "")
+        val result = download(region, fileName ?: "")
         return@coroutineScope result
     }
 
     /**
      * 下载数据并保存
-     * @param version 版本字符串 "$truthVersion/$hash/${SQLITE_VERSION}"
-     * @param region 游戏区域版本
+     * @param region 数据区域版本
      * @param fileName 需下载的文件名
      */
-    private suspend fun download(version: String, region: Int, fileName: String): Result {
+    private suspend fun download(region: Int, fileName: String): Result {
         val responseBody: ByteArray?
         var progress: Int
 
@@ -97,9 +98,16 @@ class DatabaseDownloadWorker(
                 }
             responseBody = httpResponse.body()!!
         } catch (e: Exception) {
-            // fixme 异常问题排查
-            LogReportUtil.upload(e, Constants.EXCEPTION_DOWNLOAD_DB)
+            // fixme 异常问题排查 job was cancel
+//            LogReportUtil.upload(e, Constants.EXCEPTION_DOWNLOAD_DB)
             ToastUtil.launchShort(getString(R.string.db_download_failure))
+//            ToastUtil.launchShort(e.message)
+            MainScope().launch {
+                val exception =
+                    Exception("${getString(R.string.db_download_failure)}; dbVersion: ${MainActivity.regionType.name}\n${e.message}")
+                exception.stackTrace = e.stackTrace
+                CrashReport.postCatchedException(exception)
+            }
             return Result.failure()
         }
 
@@ -110,20 +118,23 @@ class DatabaseDownloadWorker(
                 file.mkdir()
             }
             //br压缩包路径
-            val dbZipPath = FileUtil.getDatabaseDir() + File.separator + fileName
-            val db = File(dbZipPath)
-            if (db.exists()) {
-                //删除已有数据库文件
-                FileUtil.deleteBr(RegionType.getByValue(region))
+            val dbBrPath = FileUtil.getDatabaseDir() + File.separator + fileName
+            val dbBr = File(dbBrPath)
+            if (dbBr.exists()) {
+                //删除已有数据库br压缩文件
+                FileUtil.delete(
+                    FileUtil.getDatabasePath(
+                        RegionType.getByValue(region),
+                        Constants.DATABASE_BR
+                    )
+                )
             }
-            //保存
-            db.writeBytes(responseBody)
+            //保存br文件
+            dbBr.writeBytes(responseBody)
             //关闭数据库
             AppBasicDatabase.close()
             //解压
-            UnzippedUtil.deCompress(db, true)
-            //更新数据库版本号
-            updateLocalDataBaseVersion(version)
+            UnzippedUtil.deCompress(dbBr, true)
             return Result.success()
         } catch (e: Exception) {
             LogReportUtil.upload(e, Constants.EXCEPTION_SAVE_DB)

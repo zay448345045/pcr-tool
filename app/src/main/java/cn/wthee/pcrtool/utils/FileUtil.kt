@@ -37,22 +37,12 @@ object FileUtil {
     /**
      * 数据库路径
      */
-    private fun getDatabasePath(region: RegionType) =
+    fun getDatabasePath(region: RegionType, extraName: String = "") =
         getDatabaseDir() + "/" + when (region) {
             RegionType.CN -> Constants.DATABASE_NAME_CN
             RegionType.TW -> Constants.DATABASE_NAME_TW
             RegionType.JP -> Constants.DATABASE_NAME_JP
-        }
-
-    /**
-     * 数据库压缩包路径
-     */
-    private fun getDatabaseBrPath(region: RegionType) =
-        getDatabaseDir() + "/" + when (region) {
-            RegionType.CN -> Constants.DATABASE_DOWNLOAD_FILE_NAME_CN
-            RegionType.TW -> Constants.DATABASE_DOWNLOAD_FILE_NAME_TW
-            RegionType.JP -> Constants.DATABASE_DOWNLOAD_FILE_NAME_JP
-        }
+        } + extraName
 
     /**
      * 数据库是否需要判断
@@ -60,16 +50,6 @@ object FileUtil {
     fun dbNotExist(type: RegionType): Boolean {
         val dbFile = File(getDatabasePath(type))
         return !dbFile.exists()
-    }
-
-    /**
-     * 删除数据库文件
-     */
-    fun deleteBr(type: RegionType) {
-        val db = File(getDatabaseBrPath(type))
-        if (db.exists()) {
-            db.delete()
-        }
     }
 
     /**

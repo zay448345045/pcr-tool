@@ -77,7 +77,6 @@ import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.FadeAnimation
 import cn.wthee.pcrtool.ui.theme.PreviewLayout
 import cn.wthee.pcrtool.ui.theme.ScaleBottomEndAnimation
-import cn.wthee.pcrtool.ui.theme.colorGreen
 import cn.wthee.pcrtool.ui.theme.colorRed
 import cn.wthee.pcrtool.ui.theme.colorWhite
 import cn.wthee.pcrtool.ui.theme.defaultSpring
@@ -120,7 +119,7 @@ fun SharedTransitionScope.Overview(
                 downloadState = uiState.dbDownloadState,
                 closeAllDialog = overviewScreenViewModel::closeAllDialog,
                 updateDbDownloadState = overviewScreenViewModel::updateDbDownloadState,
-                updateDbVersionText = overviewScreenViewModel::updateDbVersionText
+                updateDbVersion = overviewScreenViewModel::updateDbVersion
             ) {
                 overviewScreenViewModel.changeDbClick()
             }
@@ -308,7 +307,7 @@ private fun ChangeDbCompose(
     downloadState: Int,
     updateDbDownloadState: (Int) -> Unit,
     closeAllDialog: () -> Unit,
-    updateDbVersionText: (DatabaseVersion?) -> Unit,
+    updateDbVersion: (DatabaseVersion?) -> Unit,
     onClick: () -> Unit
 ) {
 
@@ -332,7 +331,7 @@ private fun ChangeDbCompose(
                 color = tintColor,
                 updateDbDownloadState = updateDbDownloadState,
                 closeAllDialog = closeAllDialog,
-                updateDbVersionText = updateDbVersionText
+                updateDbVersion = updateDbVersion
             )
         }
 
@@ -454,7 +453,7 @@ private fun DbVersionOtherContent(
     color: Color,
     updateDbDownloadState: (Int) -> Unit,
     closeAllDialog: () -> Unit,
-    updateDbVersionText: (DatabaseVersion?) -> Unit
+    updateDbVersion: (DatabaseVersion?) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -533,7 +532,7 @@ private fun DbVersionOtherContent(
                         DatabaseUpdater.checkDBVersion(
                             fixDb = true,
                             updateDbDownloadState = updateDbDownloadState,
-                            updateDbVersionText = updateDbVersionText,
+                            updateDbVersion = updateDbVersion,
                         )
                     }
                 }
@@ -544,7 +543,7 @@ private fun DbVersionOtherContent(
                 modifier = Modifier.padding(horizontal = Dimen.mediumPadding),
                 text = "",
                 textWithColor = getColorText(
-                    color = colorGreen,
+                    color = MaterialTheme.colorScheme.primary,
                     text = if (remoteDbSizeError) {
                         stringResource(id = R.string.remote_db_file_error)
                     } else if (dbError) {
@@ -816,7 +815,7 @@ private fun ChangeDbComposePreview() {
             downloadState = -2,
             updateDbDownloadState = {},
             closeAllDialog = {},
-            updateDbVersionText = {}
+            updateDbVersion = {}
         ) {
 
         }
@@ -840,7 +839,7 @@ private fun ChangeDbCompose2Preview() {
             downloadState = -2,
             updateDbDownloadState = {},
             closeAllDialog = {},
-            updateDbVersionText = {}
+            updateDbVersion = {}
         ) {
 
         }
@@ -856,7 +855,7 @@ private fun ChangeDbCompose2Preview() {
             downloadState = -2,
             updateDbDownloadState = {},
             closeAllDialog = {},
-            updateDbVersionText = {}
+            updateDbVersion = {}
         ) {
 
         }

@@ -1,6 +1,5 @@
 package cn.wthee.pcrtool.database
 
-import android.annotation.SuppressLint
 import androidx.datastore.preferences.core.edit
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
@@ -51,11 +50,11 @@ object DatabaseUpdater {
      * 检查是否需要更新
      * @param fixDb 修复数据库（强制重新下载）
      * @param updateDbDownloadState 状态更新
-     * @param updateDbVersionText 版本文本更新
+     * @param updateDbVersion 版本文本更新
      */
     suspend fun checkDBVersion(
         fixDb: Boolean = false,
-        updateDbVersionText: (DatabaseVersion?) -> Unit,
+        updateDbVersion: (DatabaseVersion?) -> Unit,
         updateDbDownloadState: (Int) -> Unit
     ) {
         //加载中
@@ -67,10 +66,8 @@ object DatabaseUpdater {
             updateDbDownloadState(DbDownloadState.NORMAL.state)
             return
         }
-        //更新版本文本内容
-        updateDbVersionText(version.data)
         //下载数据库
-        downloadDB(version.data!!, fixDb, updateDbDownloadState)
+        downloadDB(version.data!!, fixDb, updateDbVersion, updateDbDownloadState)
     }
 
     /**
@@ -78,10 +75,10 @@ object DatabaseUpdater {
      * @param versionData 版本信息
      * @param fixDb 修复数据库（强制重新下载）
      */
-    @SuppressLint("UnsafeOptInUsageError")
     private suspend fun downloadDB(
         versionData: DatabaseVersion,
         fixDb: Boolean,
+        updateDbVersion: (DatabaseVersion?) -> Unit,
         updateDbDownloadState: (Int) -> Unit
     ) {
         val region = MainActivity.regionType
@@ -108,10 +105,17 @@ object DatabaseUpdater {
                 RegionType.TW -> Constants.DATABASE_DOWNLOAD_FILE_NAME_TW
                 RegionType.JP -> Constants.DATABASE_DOWNLOAD_FILE_NAME_JP
             }
+            val workName = region.code + DOWNLOAD_DB_WORK
             //开始下载
             try {
+                //强制加载时，删除wal和shm
+                if (fixDb) {
+                    FileUtil.delete(FileUtil.getDatabasePath(region, Constants.DATABASE_WAL))
+                    FileUtil.delete(FileUtil.getDatabasePath(region, Constants.DATABASE_SHM))
+                }
+
+                //设置下载文件名
                 val data = Data.Builder()
-                    .putString(DatabaseDownloadWorker.KEY_VERSION, versionData.toString())
                     .putString(DatabaseDownloadWorker.KEY_FILE, fileName)
                     .putInt(DatabaseDownloadWorker.KEY_REGION, region.value)
                     .build()
@@ -122,8 +126,8 @@ object DatabaseUpdater {
                         .build()
                 val workManager = WorkManager.getInstance(MyApplication.context)
                 workManager.enqueueUniqueWork(
-                    DOWNLOAD_DB_WORK,
-                    ExistingWorkPolicy.REPLACE,
+                    workName,
+                    ExistingWorkPolicy.KEEP,
                     updateDbRequest
                 )
                 //监听下载进度
@@ -133,16 +137,23 @@ object DatabaseUpdater {
                             if (workInfo != null) {
                                 when (workInfo.state) {
                                     WorkInfo.State.SUCCEEDED -> {
-                                        handler.sendEmptyMessage(region.value)
+                                        //下载成功，更新版本号，并重新加载
+                                        MainScope().launch {
+                                            //更新版本文本内容
+                                            updateDbVersion(versionData)
+                                            handler.sendEmptyMessage(region.value)
+                                        }
                                     }
 
                                     WorkInfo.State.RUNNING -> {
+                                        //更新下载进度
                                         val value =
                                             workInfo.progress.getInt(Constants.KEY_PROGRESS, -1)
                                         updateDbDownloadState(value)
                                     }
 
                                     WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> {
+                                        //下载失败
                                         updateDbDownloadState(DbDownloadState.NORMAL.state)
                                     }
 
@@ -153,37 +164,16 @@ object DatabaseUpdater {
                 }
 
             } catch (e: Exception) {
-                WorkManager.getInstance(MyApplication.context).cancelAllWork()
+                WorkManager.getInstance(MyApplication.context).cancelUniqueWork(workName)
                 LogReportUtil.upload(e, Constants.EXCEPTION_DOWNLOAD_WORK_DB)
                 ToastUtil.short(getString(R.string.db_download_exception))
                 updateDbDownloadState(DbDownloadState.NORMAL.state)
             }
         } else {
             //更新数据库版本号
-            try {
-                updateLocalDataBaseVersion(versionData.toString())
-            } catch (_: Exception) {
-            }
+            updateDbVersion(versionData)
             updateDbDownloadState(DbDownloadState.NORMAL.state)
         }
     }
 
 }
-
-/**
- * 更新本地数据库版本、哈希值
- */
-fun updateLocalDataBaseVersion(ver: String) {
-    val key = when (MainActivity.regionType) {
-        RegionType.CN -> SettingPreferencesKeys.SP_DATABASE_VERSION_CN
-        RegionType.TW -> SettingPreferencesKeys.SP_DATABASE_VERSION_TW
-        RegionType.JP -> SettingPreferencesKeys.SP_DATABASE_VERSION_JP
-    }
-
-    MainScope().launch {
-        MyApplication.context.dataStoreSetting.edit {
-            it[key] = ver
-        }
-    }
-}
-
