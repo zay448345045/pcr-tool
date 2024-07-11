@@ -15,6 +15,8 @@ data class PvpFavoriteData(
     @ColumnInfo(name = "defs") val defs: String = "",
     @ColumnInfo(name = "atkTalentIds") val atkTalentIds: String = "",
     @ColumnInfo(name = "defTalentIds") val defTalentIds: String = "",
+    @ColumnInfo(name = "atkPositions") val atkPositions: String = "",
+    @ColumnInfo(name = "defPositions") val defPositions: String = "",
     @ColumnInfo(name = "date") val date: String = "",
     @ColumnInfo(name = "region") val region: Int = 0,
 )

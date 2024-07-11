@@ -70,6 +70,7 @@ import cn.wthee.pcrtool.ui.components.MainScaffold
 import cn.wthee.pcrtool.ui.components.MainSmallFab
 import cn.wthee.pcrtool.ui.components.MainTabRow
 import cn.wthee.pcrtool.ui.components.MainTitleText
+import cn.wthee.pcrtool.ui.components.PositionIcon
 import cn.wthee.pcrtool.ui.components.TabData
 import cn.wthee.pcrtool.ui.components.VerticalGridList
 import cn.wthee.pcrtool.ui.theme.CombinedPreviews
@@ -612,7 +613,7 @@ fun PvpIconItem(
         )
 
         //天赋（圆点显示）
-        if (pvpCharacterData.talentId != -1) {
+        if (pvpCharacterData.talentId != 0) {
             Dot(
                 color = TalentType.getByType(pvpCharacterData.talentId).color
             )
@@ -636,12 +637,14 @@ fun PvpIconItem(
  *
  * @param ids 角色id
  * @param talentIdList 角色天赋类型
+ * @param positionList 角色站位
  */
 @Composable
 fun PvpUnitIconLine(
     modifier: Modifier = Modifier,
     ids: List<Int>,
     talentIdList: List<Int>,
+    positionList: List<Int>,
     floatWindow: Boolean,
     toCharacter: (Int) -> Unit
 ) {
@@ -659,16 +662,31 @@ fun PvpUnitIconLine(
         verticalContentPadding = 0.dp
     ) { index ->
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            MainIcon(
-                data = ImageRequestHelper.getInstance().getMaxIconUrl(ids[index]),
-                wrapSize = true,
-                onClick = {
-                    if (!floatWindow) {
-                        toCharacter(ids[index])
+            Box(contentAlignment = Alignment.Center) {
+                MainIcon(
+                    data = ImageRequestHelper.getInstance().getMaxIconUrl(ids[index]),
+                    wrapSize = true,
+                    onClick = {
+                        if (!floatWindow) {
+                            toCharacter(ids[index])
+                        }
                     }
+                )
+                if (positionList.isNotEmpty()) {
+                    PositionIcon(
+                        position = positionList[index],
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(
+                                bottom = Dimen.linePadding,
+                                end = Dimen.linePadding
+                            ),
+                        size = if (floatWindow) Dimen.exSmallIconSize else Dimen.smallIconSize
+                    )
                 }
-            )
-            if (talentIdList.isNotEmpty()) {
+            }
+
+            if (talentIdList.isNotEmpty() && talentIdList[index] != 0) {
                 Dot(
                     color = TalentType.getByType(talentIdList[index]).color
                 )

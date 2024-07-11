@@ -37,6 +37,8 @@ object Dimen {
 
     val textFabMargin = 3.dp
 
+    val exSmallIconSize = 14.dp
+
     val smallIconSize = 18.dp
 
     val textIconSize = 20.dp

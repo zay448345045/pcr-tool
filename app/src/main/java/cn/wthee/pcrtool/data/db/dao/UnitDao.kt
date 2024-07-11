@@ -334,7 +334,7 @@ interface UnitDao {
             a.unit_id,
             b.search_area_width AS position, 
             - 1 AS type ,
-            - 1 AS talent_id
+            0 AS talent_id
         FROM
             unit_profile AS a
             LEFT JOIN unit_data AS b ON a.unit_id = b.unit_id 

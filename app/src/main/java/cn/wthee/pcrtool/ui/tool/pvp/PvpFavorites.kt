@@ -147,6 +147,7 @@ private fun PvpFavoriteItem(
             PvpUnitIconLine(
                 ids = itemData.atks.intArrayList,
                 talentIdList = itemData.atkTalentIds.intArrayList,
+                positionList = itemData.atkPositions.intArrayList,
                 floatWindow = floatWindow,
                 toCharacter = toCharacter
             )
@@ -160,6 +161,7 @@ private fun PvpFavoriteItem(
                 modifier = Modifier.padding(bottom = mediumPadding),
                 ids = itemData.defs.intArrayList,
                 talentIdList = itemData.defTalentIds.intArrayList,
+                positionList = itemData.defPositions.intArrayList,
                 floatWindow = floatWindow,
                 toCharacter = toCharacter
             )

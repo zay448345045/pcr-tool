@@ -14,6 +14,7 @@ data class PvpHistoryData(
     @ColumnInfo(name = "id") val id: String,
     @ColumnInfo(name = "defs") val defs: String,
     @ColumnInfo(name = "defTalentIds") val defTalentIds: String,
+    @ColumnInfo(name = "defPositions") val defPositions: String,
     @ColumnInfo(name = "date") val date: String
 ) {
     fun getDefIds() = defs.split("@")[1].intArrayList

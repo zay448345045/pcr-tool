@@ -13,6 +13,8 @@ data class PvpResultData(
     val region: Int = 2,
     val up: Int = 0,
     val down: Int = 0,
-    var atkTalent: String = "",
-    var defTalent: String = "",
+    var atkTalents: String = "",
+    var defTalents: String = "",
+    var atkPositions: String = "",
+    var defPositions: String = "",
 )

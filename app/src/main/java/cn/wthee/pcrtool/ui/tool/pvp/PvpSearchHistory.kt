@@ -118,6 +118,7 @@ private fun PvpHistoryItem(
                 modifier = Modifier.padding(top = mediumPadding, bottom = mediumPadding),
                 ids = itemData.getDefIds(),
                 talentIdList = itemData.defTalentIds.intArrayList,
+                positionList = itemData.defPositions.intArrayList,
                 floatWindow = floatWindow,
                 toCharacter = toCharacter
             )
@@ -131,7 +132,7 @@ private fun PvpHistoryItem(
 @Composable
 private fun PvpHistoryItemPreview() {
     val data = PvpHistoryData(
-        "id", "2@1-2-3-4-5", "1-2-3-4-5", "2020/01/01 00:00:00"
+        "id", "2@1-2-3-4-5", "1-2-3-4-5", "1-2-3-4-5", "2020/01/01 00:00:00"
     )
     PreviewLayout {
         PvpHistoryItem(

@@ -250,8 +250,8 @@ class PvpViewModel @Inject constructor(
                 }
                 val unitList = unitRepository.getCharacterByIds(idList.distinct())
                 data.data?.forEach {
-                    it.atkTalent = getTalentIdStr(it.atk, unitList)
-                    it.defTalent = getTalentIdStr(it.def, unitList)
+                    initTalentAndPosition(it, true, unitList)
+                    initTalentAndPosition(it, false, unitList)
                 }
 
 
@@ -269,17 +269,37 @@ class PvpViewModel @Inject constructor(
     /**
      * 处理天赋类型
      */
-    private fun getTalentIdStr(ids: String, unitList: List<PvpCharacterData>): String {
+    private fun initTalentAndPosition(
+        pvpResultData: PvpResultData,
+        isAtk: Boolean,
+        unitList: List<PvpCharacterData>
+    ) {
         var talentIdStr = ""
+        var positionStr = ""
+        val ids = if (isAtk) pvpResultData.atk else pvpResultData.def
         ids.intArrayList.forEach { unitId ->
             val talentId =
                 unitList.find { unit -> unit.unitId == unitId && unit.talentId != -1 }
                     ?.talentId?.toString()
                     ?: ""
             talentIdStr += "$talentId-"
+
+            val position =
+                unitList.find { unit -> unit.unitId == unitId && unit.position != 999 }
+                    ?.position?.toString()
+                    ?: ""
+            positionStr += "$position-"
         }
-        return talentIdStr
+
+        if (isAtk) {
+            pvpResultData.atkTalents = talentIdStr
+            pvpResultData.atkPositions = positionStr
+        } else {
+            pvpResultData.defTalents = talentIdStr
+            pvpResultData.defPositions = positionStr
+        }
     }
+
 
     /**
      * 重新查询
@@ -319,6 +339,7 @@ class PvpViewModel @Inject constructor(
 
             var defIds = ""
             var talentIds = ""
+            var defPositions = ""
             var isError = false
 
             val idArray = buildJsonArray {
@@ -329,6 +350,7 @@ class PvpViewModel @Inject constructor(
                     }
                     defIds += "${sel.unitId}-"
                     talentIds += "${sel.talentId}-"
+                    defPositions += "${sel.position}-"
                     add(sel.unitId)
                 }
             }
@@ -345,6 +367,7 @@ class PvpViewModel @Inject constructor(
                         id = UUID.randomUUID().toString(),
                         defs = "${MainActivity.regionType.value}@$defIds",
                         defTalentIds = talentIds,
+                        defPositions = defPositions,
                         date = getToday(),
                     )
                 )
