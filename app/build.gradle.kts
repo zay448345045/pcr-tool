@@ -127,7 +127,7 @@ dependencies {
 //    implementation("androidx.compose.runtime:runtime-livedata")
 //    implementation("androidx.compose.material3:material3")
     //compose unstable
-    val composeUnstableVersion = "1.7.0-beta04"
+    val composeUnstableVersion = "1.7.0-beta05"
     implementation("androidx.compose.animation:animation:${composeUnstableVersion}")
     implementation("androidx.compose.material:material:${composeUnstableVersion}")
     implementation("androidx.compose.material:material-navigation:1.7.0-beta01")
@@ -145,8 +145,8 @@ dependencies {
     //Bugly
     implementation("com.tencent.bugly:crashreport:4.1.9.3")
 
-    //Coil alpha07异常闪退
-    val coilVersion = "3.0.0-alpha06"
+    //Coil
+    val coilVersion = "3.0.0-alpha08"
     implementation("io.coil-kt.coil3:coil-compose:$coilVersion")
     implementation("io.coil-kt.coil3:coil-network-ktor:$coilVersion")
 
@@ -166,7 +166,7 @@ dependencies {
     implementation("io.ktor:ktor-client-android:$ktorVersion")
 
     //Lifecycle
-    val lifecycleVersion = "2.8.2"
+    val lifecycleVersion = "2.8.3"
     implementation("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
@@ -180,7 +180,7 @@ dependencies {
     implementation("androidx.media3:media3-ui:$media3Version")
 
     //Navigation
-    implementation("androidx.navigation:navigation-compose:2.8.0-beta04")
+    implementation("androidx.navigation:navigation-compose:2.8.0-beta05")
 
     //Paging3
     val pagingVersion = "3.3.0"
