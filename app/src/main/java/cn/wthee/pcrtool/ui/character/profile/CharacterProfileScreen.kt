@@ -209,11 +209,13 @@ private fun HomePageCommentContent(
         homePageCommentList.forEach {
             tabs.add(
                 TabData(
-                    tab = "★" + if (it.unitId % 100 / 10 == 0) {
-                        "1"
-                    } else {
-                        "${it.unitId % 100 / 10}"
-                    }
+                    tab = stringResource(
+                        id = R.string.star, if (it.unitId % 100 / 10 == 0) {
+                            1
+                        } else {
+                            it.unitId % 100 / 10
+                        }
+                    )
                 )
             )
         }

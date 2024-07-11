@@ -183,7 +183,6 @@ private fun CalendarEventOperation(
 }
 
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @CombinedPreviews
 @Composable
 private fun CalendarEventLayoutPreview() {

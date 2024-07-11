@@ -25,7 +25,7 @@ data class CharacterInfo(
     @ColumnInfo(name = "search_area_width") var position: Int = 0,
     @ColumnInfo(name = "atk_type") var atkType: Int = 1,
     @ColumnInfo(name = "unit_start_time") var startTime: String = "",
-    @ColumnInfo(name = "r6Id") var r6Id: Int = 1,
+    @ColumnInfo(name = "r6Id") var r6Id: Int = 0,
     @ColumnInfo(name = "limit_type") var limitType: Int = 0,
     @ColumnInfo(name = "gacha_id") var gachaId: Int = 0,
     @Ignore var talentId: Int = 0,

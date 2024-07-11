@@ -1,4 +1,4 @@
-package cn.wthee.pcrtool.data.enums;
+package cn.wthee.pcrtool.data.enums
 
 /**
  * 查询关键词

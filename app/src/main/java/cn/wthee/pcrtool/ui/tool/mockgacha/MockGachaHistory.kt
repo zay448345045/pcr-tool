@@ -152,7 +152,7 @@ private fun MockGachaHistoryItem(
                     modifier = Modifier
                         .padding(start = Dimen.smallPadding)
                         .align(Alignment.CenterVertically),
-                    text = "★3：$start3Count",
+                    text = stringResource(id = R.string.star, 3) + "：$start3Count",
                     backgroundColor = colorGold,
                 )
             }

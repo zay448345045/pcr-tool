@@ -22,8 +22,6 @@ import io.ktor.client.call.body
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -54,12 +52,10 @@ class ApiRepository {
             if (e is CancellationException) {
                 return cancel()
             } else {
-                MainScope().launch {
-                    LogReportUtil.upload(
-                        e,
-                        Constants.EXCEPTION_API + urlString
-                    )
-                }
+                LogReportUtil.upload(
+                    e,
+                    Constants.EXCEPTION_API + urlString
+                )
             }
         }
         return error()

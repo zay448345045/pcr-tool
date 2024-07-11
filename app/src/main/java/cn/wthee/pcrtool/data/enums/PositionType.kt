@@ -1,4 +1,4 @@
-package cn.wthee.pcrtool.data.enums;
+package cn.wthee.pcrtool.data.enums
 
 import androidx.compose.ui.graphics.Color
 import cn.wthee.pcrtool.R

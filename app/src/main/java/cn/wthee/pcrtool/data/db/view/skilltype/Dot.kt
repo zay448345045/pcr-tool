@@ -45,15 +45,15 @@ fun SkillActionDetail.actionDot(): String {
     val type: String
     val limit: String
     if (actionDetail1 == 10) {
-        type = getString(cn.wthee.pcrtool.R.string.skill_hp_max)
+        type = getString(R.string.skill_hp_max)
         limit =
-            getString(cn.wthee.pcrtool.R.string.skill_action_damage_limit_int, actionValue5.toInt())
+            getString(R.string.skill_action_damage_limit_int, actionValue5.toInt())
     } else {
         type = ""
         limit = ""
     }
     return getString(
-        cn.wthee.pcrtool.R.string.skill_action_type_desc_79,
+        R.string.skill_action_type_desc_79,
         getTarget(),
         type,
         value,

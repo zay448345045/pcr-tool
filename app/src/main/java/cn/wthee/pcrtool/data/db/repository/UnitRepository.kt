@@ -83,9 +83,9 @@ class UnitRepository @Inject constructor(
             //筛选专用装备
             val uniqueEquipList = equipmentRepository.getUniqueEquipList("", 0)
             filterList.forEach {
-                val uniqueEquipType = uniqueEquipList?.count { equip ->
+                val uniqueEquipType = uniqueEquipList.count { equip ->
                     equip.unitId == it.id
-                } ?: 0
+                }
                 it.uniqueEquipType = uniqueEquipType
             }
             filterList = when (filter.uniqueEquipType) {
@@ -185,7 +185,8 @@ class UnitRepository @Inject constructor(
         val data = unitDao.getCharacterInfo(unitId = unitId, exUnitIdList = exUnitIdList)!!
         //获取专用装备信息
         val uniqueEquipList = equipmentRepository.getUniqueEquipList("", 0, unitId = data.id)
-        data.uniqueEquipType = uniqueEquipList?.size ?: 0
+        //根据专用装备数量，设置类型
+        data.uniqueEquipType = uniqueEquipList.size
         //获取天赋类型
         val talentIdList = getTalentIdList(unitId)
         data.talentId = if (talentIdList.isNotEmpty()) {

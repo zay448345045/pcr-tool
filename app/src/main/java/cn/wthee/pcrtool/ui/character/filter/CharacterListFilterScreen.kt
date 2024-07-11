@@ -258,7 +258,7 @@ private fun CharacterListFilterContent(
         //六星
         val r6ChipData = arrayListOf(
             ChipData(stringResource(id = R.string.all)),
-            ChipData(text = stringResource(id = R.string.six_star), color = colorPink),
+            ChipData(text = stringResource(id = R.string.star, 6), color = colorPink),
             ChipData(stringResource(id = R.string.six_locked)),
         )
         //是否选择了六星解放排序

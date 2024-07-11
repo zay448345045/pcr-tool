@@ -99,7 +99,11 @@ fun MainImage(
  * 角色位置图标
  */
 @Composable
-fun PositionIcon(modifier: Modifier = Modifier, position: Int, size: Dp = Dimen.smallIconSize) {
+fun PositionIcon(
+    modifier: Modifier = Modifier,
+    position: Int,
+    size: Dp = Dimen.smallIconSize
+) {
     val positionIconId = PositionType.getPositionType(position).iconId
 
     MainIcon(
