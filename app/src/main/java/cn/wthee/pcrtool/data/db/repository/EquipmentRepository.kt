@@ -1,6 +1,7 @@
 package cn.wthee.pcrtool.data.db.repository
 
 import cn.wthee.pcrtool.data.db.dao.EquipmentDao
+import cn.wthee.pcrtool.data.db.view.Attr
 import cn.wthee.pcrtool.data.db.view.EquipmentBasicInfo
 import cn.wthee.pcrtool.data.db.view.UniqueEquipmentMaxData
 import cn.wthee.pcrtool.data.enums.RegionType
@@ -118,17 +119,12 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
         val list = arrayListOf<UniqueEquipmentMaxData>()
         try {
             //专用装备1
-            equipmentDao.getUniqueEquipInfoV2(unitId = unitId, lv = lv, slot = 1)?.let {
+            equipmentDao.getUniqueEquipInfo(unitId = unitId, lv = lv, slot = 1)?.let {
                 list.add(it)
             }
             //专用装备2
-            equipmentDao.getUniqueEquipInfoV2(unitId = unitId, lv = lv2 + 1, slot = 2)?.let {
+            equipmentDao.getUniqueEquipInfo(unitId = unitId, lv = lv2 + 1, slot = 2)?.let {
                 list.add(it)
-            }
-            if (list.isEmpty()) {
-                equipmentDao.getUniqueEquipInfo(unitId = unitId, lv = lv)?.let {
-                    list.add(it)
-                }
             }
         } catch (e: Exception) {
             LogReportUtil.upload(e, "getUniqueEquip#unitId:$unitId")
@@ -140,11 +136,13 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
      * 查询两张专武关联表，适配不同游戏版本
      */
     private suspend fun getUniqueEquipBonus(unitId: Int, offsetLv: Int, minLv: Int) = try {
-        equipmentDao.getUniqueEquipBonusV2(unitId = unitId, lv = offsetLv, minLv = minLv)
-    } catch (e: Exception) {
-//        LogReportUtil.upload(e, "getUniqueEquipBonus#unitId:$unitId,offsetLv:$offsetLv,minLv:$minLv")
-//        Attr()
         equipmentDao.getUniqueEquipBonus(unitId = unitId, lv = offsetLv, minLv = minLv)
+    } catch (e: Exception) {
+        LogReportUtil.upload(
+            e,
+            "getUniqueEquipBonus#unitId:$unitId,offsetLv:$offsetLv,minLv:$minLv"
+        )
+        Attr()
     }
 
     suspend fun getUniqueEquipMaxLv(slot: Int) = equipmentDao.getUniqueEquipMaxLv(slot)
@@ -223,10 +221,7 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
      */
     suspend fun getUniqueEquipList(name: String, slot: Int, unitId: Int = 0) = try {
         val data = (try {
-            val data = equipmentDao.getUniqueEquipList(name = name, slot = slot, unitId = unitId)
-            val dataV2 =
-                equipmentDao.getUniqueEquipListV2(name = name, slot = slot, unitId = unitId)
-            if (data.size > dataV2.size) data else dataV2
+            equipmentDao.getUniqueEquipList(name = name, slot = slot, unitId = unitId)
         } catch (_: Exception) {
             emptyList()
         }).reversed()

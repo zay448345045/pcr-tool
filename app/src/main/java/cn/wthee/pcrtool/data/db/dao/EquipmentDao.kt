@@ -185,93 +185,18 @@ interface EquipmentDao {
             ( a.hp_recovery_rate + b.hp_recovery_rate * COALESCE( :lv - 1, 0 ) ) AS hp_recovery_rate,
             ( a.energy_recovery_rate + b.energy_recovery_rate * COALESCE( :lv - 1, 0 ) ) AS energy_recovery_rate,
             ( a.energy_reduce_rate + b.energy_reduce_rate * COALESCE( :lv - 1, 0 ) ) AS energy_reduce_rate,
-            ( a.accuracy + b.accuracy * COALESCE( :lv - 1, 0 ) ) AS accuracy ,
-            0 AS isTpLimitAction
-        FROM
-            unit_unique_equip AS r
-            LEFT OUTER JOIN unique_equipment_data AS a ON r.equip_id = a.equipment_id
-            LEFT OUTER JOIN unique_equip_enhance_rate AS b ON a.equipment_id = b.equipment_id
-        WHERE
-            a.equipment_id IS NOT NULL AND r.unit_id = :unitId
-    """
-    )
-    suspend fun getUniqueEquipInfo(unitId: Int, lv: Int): UniqueEquipmentMaxData?
-
-    /**
-     * 获取专武信息V2，日服专武提升表已更新：unique_equipment_enhance_rate -> unique_equip_enhance_rate
-     * @param unitId 角色编号
-     * @param lv 装备等级
-     */
-    @SkipQueryVerification
-    @Transaction
-    @Query(
-        """
-        SELECT
-            r.unit_id,
-            a.equipment_id,
-            a.equipment_name,
-            a.description,
-            (a.hp + b.hp * COALESCE( :lv - 1, 0 )) AS hp,
-            ( a.atk + b.atk * COALESCE( :lv - 1, 0 ) ) AS atk,
-            ( a.magic_str + b.magic_str * COALESCE( :lv - 1, 0 ) ) AS magic_str,
-            ( a.def + b.def * COALESCE( :lv - 1, 0 ) ) AS def,
-            ( a.magic_def + b.magic_def * COALESCE( :lv - 1, 0 ) ) AS magic_def,
-            ( a.physical_critical + b.physical_critical * COALESCE( :lv - 1, 0 ) ) AS physical_critical,
-            ( a.magic_critical + b.magic_critical * COALESCE( :lv - 1, 0 ) ) AS magic_critical,
-            ( a.wave_hp_recovery + b.wave_hp_recovery * COALESCE( :lv - 1, 0 ) ) AS wave_hp_recovery,
-            ( a.wave_energy_recovery + b.wave_energy_recovery * COALESCE( :lv - 1, 0 ) ) AS wave_energy_recovery,
-            ( a.dodge + b.dodge * COALESCE( :lv - 1, 0 ) ) AS dodge,
-            ( a.physical_penetrate + b.physical_penetrate * COALESCE( :lv - 1, 0 ) ) AS physical_penetrate,
-            ( a.magic_penetrate + b.magic_penetrate * COALESCE( :lv - 1, 0 ) ) AS magic_penetrate,
-            ( a.life_steal + b.life_steal * COALESCE( :lv - 1, 0 ) ) AS life_steal,
-            ( a.hp_recovery_rate + b.hp_recovery_rate * COALESCE( :lv - 1, 0 ) ) AS hp_recovery_rate,
-            ( a.energy_recovery_rate + b.energy_recovery_rate * COALESCE( :lv - 1, 0 ) ) AS energy_recovery_rate,
-            ( a.energy_reduce_rate + b.energy_reduce_rate * COALESCE( :lv - 1, 0 ) ) AS energy_reduce_rate,
             ( a.accuracy + b.accuracy * COALESCE( :lv - 1, 0 ) ) AS accuracy,
             0 AS isTpLimitAction
         FROM
-            unit_unique_equipment AS r
+            ( SELECT unit_id, equip_id FROM unit_unique_equipment UNION SELECT unit_id, equip_id FROM unit_unique_equip ) AS r
+            LEFT OUTER JOIN unit_unique_equip AS s ON r.equip_id = s.equip_id
             LEFT OUTER JOIN unique_equipment_data AS a ON r.equip_id = a.equipment_id
             LEFT OUTER JOIN unique_equip_enhance_rate AS b ON a.equipment_id = b.equipment_id
         WHERE
-            a.equipment_id IS NOT NULL AND r.unit_id = :unitId AND b.min_lv <= 2 AND a.equipment_id % 10 = :slot
+            a.equipment_id IS NOT NULL AND (r.unit_id = :unitId OR s.unit_id = :unitId) AND b.min_lv <= 2 AND a.equipment_id % 10 = :slot
     """
     )
-    suspend fun getUniqueEquipInfoV2(unitId: Int, lv: Int, slot: Int): UniqueEquipmentMaxData?
-
-    /**
-     * 获取专武信息（等级大于260或300）
-     * @param unitId 角色编号
-     */
-    @SkipQueryVerification
-    @Transaction
-    @Query(
-        """
-        SELECT
-            ( a.hp * COALESCE( :lv, 0 ) ) AS hp,
-            ( a.atk * COALESCE( :lv, 0 ) ) AS atk,
-            ( a.magic_str * COALESCE( :lv, 0 ) ) AS magic_str,
-            ( a.def * COALESCE( :lv, 0 ) ) AS def,
-            ( a.magic_def * COALESCE( :lv, 0 ) ) AS magic_def,
-            ( a.physical_critical * COALESCE( :lv, 0 ) ) AS physical_critical,
-            ( a.magic_critical * COALESCE( :lv, 0 ) ) AS magic_critical,
-            ( a.wave_hp_recovery * COALESCE( :lv, 0 ) ) AS wave_hp_recovery,
-            ( a.wave_energy_recovery * COALESCE( :lv, 0 ) ) AS wave_energy_recovery,
-            ( a.dodge * COALESCE( :lv, 0 ) ) AS dodge,
-            ( a.physical_penetrate * COALESCE( :lv, 0 ) ) AS physical_penetrate,
-            ( a.magic_penetrate * COALESCE( :lv, 0 ) ) AS magic_penetrate,
-            ( a.life_steal * COALESCE( :lv, 0 ) ) AS life_steal,
-            ( a.hp_recovery_rate * COALESCE( :lv, 0 ) ) AS hp_recovery_rate,
-            ( a.energy_recovery_rate * COALESCE( :lv, 0 ) ) AS energy_recovery_rate,
-            ( a.energy_reduce_rate * COALESCE( :lv, 0 ) ) AS energy_reduce_rate,
-            ( a.accuracy * COALESCE( :lv, 0 ) ) AS accuracy
-        FROM
-            unique_equip_enhance_rate AS a
-            LEFT JOIN unit_unique_equip AS r ON r.equip_id = a.equipment_id
-        WHERE r.unit_id = :unitId AND a.min_lv = :minLv + 1
-    """
-    )
-    suspend fun getUniqueEquipBonus(unitId: Int, lv: Int, minLv: Int): Attr?
+    suspend fun getUniqueEquipInfo(unitId: Int, lv: Int, slot: Int): UniqueEquipmentMaxData?
 
     /**
      * 获取专武信息（等级大于260或300）
@@ -302,10 +227,11 @@ interface EquipmentDao {
         FROM
             unique_equip_enhance_rate AS a
             LEFT JOIN unit_unique_equipment AS r ON r.equip_id = a.equipment_id
-        WHERE r.unit_id = :unitId AND a.min_lv = :minLv + 1
+            LEFT JOIN unit_unique_equip AS s ON s.equip_id = a.equipment_id
+        WHERE (r.unit_id = :unitId OR s.unit_id = :unitId) AND a.min_lv = :minLv + 1
     """
     )
-    suspend fun getUniqueEquipBonusV2(unitId: Int, lv: Int, minLv: Int): Attr?
+    suspend fun getUniqueEquipBonus(unitId: Int, lv: Int, minLv: Int): Attr?
 
     /**
      * 根获取专武最大强化等级
@@ -492,38 +418,27 @@ interface EquipmentDao {
             ud.unit_name,
             uue.equip_slot
         FROM
-            unit_unique_equip AS uue
+            ( 
+            -- fixme 兼容国服，后续优化
+            SELECT unit_id, equip_id,equip_slot FROM unit_unique_equipment 
+            UNION ALL
+            SELECT
+                unit_unique_equip.unit_id,
+                unit_unique_equip.equip_id,
+                unit_unique_equip.equip_slot
+            FROM
+                unit_unique_equip
+                LEFT JOIN unit_unique_equipment ON unit_unique_equipment.unit_id = unit_unique_equip.unit_id 
+            WHERE
+                unit_unique_equipment.unit_id IS NULL
+            ) AS uue
             LEFT JOIN unit_data AS ud ON ud.unit_id = uue.unit_id
             LEFT JOIN unique_equipment_data as ued ON ued.equipment_id = uue.equip_id
         WHERE (equipment_name LIKE '%' || :name || '%'  OR  unit_name LIKE '%' || :name || '%') AND  (0 = :slot OR ued.equipment_id % 10 = :slot)
             AND  (0 = :unitId OR ud.unit_id = :unitId)
         """
     )
-    suspend fun getUniqueEquipList(name: String, slot: Int, unitId: Int): List<UniqueEquipBasicData>
-
-    /**
-     * 获取专用装备列表
-     * @param name 装备或角色名称
-     */
-    @SkipQueryVerification
-    @Query(
-        """
-        SELECT
-            ued.equipment_id,
-            ued.equipment_name,
-            ued.description,
-            ud.unit_id,
-            ud.unit_name,
-            uue.equip_slot
-        FROM
-            unit_unique_equipment AS uue
-            LEFT JOIN unit_data AS ud ON ud.unit_id = uue.unit_id
-            LEFT JOIN unique_equipment_data as ued ON ued.equipment_id = uue.equip_id
-        WHERE (equipment_name LIKE '%' || :name || '%'  OR  unit_name LIKE '%' || :name || '%') AND  (0 = :slot OR ued.equipment_id % 10 = :slot)
-            AND  (0 = :unitId OR ud.unit_id = :unitId)
-        """
-    )
-    suspend fun getUniqueEquipListV2(
+    suspend fun getUniqueEquipList(
         name: String,
         slot: Int,
         unitId: Int
