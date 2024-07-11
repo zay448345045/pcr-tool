@@ -238,7 +238,7 @@ interface UnitDao {
             CAST((CASE WHEN unit_profile.birth_day LIKE '%-%' OR unit_profile.birth_day LIKE '%?%' OR  unit_profile.birth_day LIKE '%？%' OR unit_profile.birth_day = 0 THEN 999 ELSE unit_profile.birth_day END) AS INTEGER) AS birth_day_int,
             unit_data.search_area_width,
             unit_data.atk_type,
-            0 AS r6Id,
+            COALESCE(quest_data.quest_id, 0 ) AS r6Id,
             COALESCE(unit_data.start_time, '2015/04/01') AS unit_start_time,
             (
                 CASE
@@ -252,6 +252,7 @@ interface UnitDao {
         FROM
             unit_profile
             LEFT JOIN unit_data ON unit_data.unit_id = unit_profile.unit_id
+            LEFT JOIN quest_data ON quest_data.quest_id LIKE '13%' AND quest_data.daily_limit <> 0 AND quest_data.reward_image_1 = 32000 + unit_data.unit_id / 100 % 1000
         WHERE 
             unit_data.unit_id = :unitId
         """

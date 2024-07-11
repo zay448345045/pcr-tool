@@ -13,6 +13,8 @@ object Dimen {
 
     val textElevation = 2.dp
 
+    val linePadding = 1.dp
+
     val exSmallPadding = 3.dp
 
     val smallPadding = 4.dp

@@ -292,7 +292,7 @@ fun SharedTransitionScope.UnitIconAndTag(
                     if (MainActivity.animOnFlag) {
                         Modifier.sharedElement(
                             state = rememberSharedContentState(
-                                key = "unit-${characterInfo.id}"
+                                key = "UnitIconAndTag-${characterInfo.id}"
                             ),
                             animatedVisibilityScope = animatedVisibilityScope,
                         )

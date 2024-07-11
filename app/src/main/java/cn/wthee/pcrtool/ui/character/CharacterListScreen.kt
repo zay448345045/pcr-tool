@@ -71,6 +71,7 @@ import cn.wthee.pcrtool.ui.components.MainScaffold
 import cn.wthee.pcrtool.ui.components.MainSmallFab
 import cn.wthee.pcrtool.ui.components.MainText
 import cn.wthee.pcrtool.ui.components.MainTitleText
+import cn.wthee.pcrtool.ui.components.PositionIcon
 import cn.wthee.pcrtool.ui.components.RATIO
 import cn.wthee.pcrtool.ui.components.StateBox
 import cn.wthee.pcrtool.ui.components.Subtitle1
@@ -79,10 +80,12 @@ import cn.wthee.pcrtool.ui.components.getItemWidth
 import cn.wthee.pcrtool.ui.components.placeholder
 import cn.wthee.pcrtool.ui.theme.CombinedPreviews
 import cn.wthee.pcrtool.ui.theme.Dimen
+import cn.wthee.pcrtool.ui.theme.ExpandAnimation
 import cn.wthee.pcrtool.ui.theme.FadeAnimation
 import cn.wthee.pcrtool.ui.theme.PreviewLayout
 import cn.wthee.pcrtool.ui.theme.RATIO_GOLDEN
 import cn.wthee.pcrtool.ui.theme.TrapezoidShape
+import cn.wthee.pcrtool.ui.theme.colorPink
 import cn.wthee.pcrtool.ui.theme.colorWhite
 import cn.wthee.pcrtool.utils.ImageRequestHelper
 import cn.wthee.pcrtool.utils.fixedStr
@@ -119,6 +122,7 @@ fun SharedTransitionScope.CharacterListScreen(
             CharacterListFabContent(
                 count = uiState.characterList?.size ?: 0,
                 scrollState = scrollState,
+                showType = uiState.showType,
                 filter = uiState.filter,
                 resetFilter = characterListViewModel::resetFilter,
                 changeShowType = characterListViewModel::changeShowType,
@@ -193,7 +197,7 @@ private fun SharedTransitionScope.CharacterListContent(
         columns = GridCells.Adaptive(
             when (showType) {
                 CharacterListShowType.CARD, CharacterListShowType.ICON_TAG -> getItemWidth()
-                CharacterListShowType.ICON -> Dimen.iconSize + Dimen.smallPadding * 2
+                CharacterListShowType.ICON -> Dimen.iconSize + Dimen.mediumPadding * 2
             }
         ),
         state = scrollState
@@ -227,35 +231,13 @@ private fun SharedTransitionScope.CharacterListContent(
                         }
                     )
 
-                    CharacterListShowType.ICON -> Box(
-                        modifier = Modifier.padding(Dimen.mediumPadding),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            MainIcon(
-                                data = ImageRequestHelper.getInstance().getMaxIconUrl(character.id),
-                                onClick = {
-                                    toCharacterDetail(character.id)
-                                }
-                            )
-
-                            // 根据筛选条件显示
-                            filter?.let {
-                                when (filter.sortType) {
-                                    CharacterSortType.SORT_AGE -> MainContentText(text = character.age.fixedStr)
-                                    CharacterSortType.SORT_HEIGHT -> MainContentText(text = character.height.fixedStr)
-                                    CharacterSortType.SORT_WEIGHT -> MainContentText(text = character.weight.fixedStr)
-                                    CharacterSortType.SORT_POSITION -> MainContentText(text = character.position.toString())
-                                    CharacterSortType.SORT_BIRTHDAY ->
-                                        MainContentText(text = "${character.birthMonth}/${character.birthDay}")
-
-                                    else -> {}
-                                }
-                            }
-                            Dot(color = TalentType.getByType(character.talentId).color)
-                        }
-
-                    }
+                    CharacterListShowType.ICON -> CharacterIcon(
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        character = character,
+                        filter = filter,
+                        favorite = favoriteIdList.contains(character.id),
+                        toCharacterDetail = toCharacterDetail
+                    )
                 }
 
             }
@@ -273,11 +255,13 @@ private fun SharedTransitionScope.CharacterListContent(
     }
 }
 
+
 @Composable
 private fun CharacterListFabContent(
     count: Int,
     scrollState: LazyGridState,
     filter: FilterCharacter?,
+    showType: CharacterListShowType,
     resetFilter: () -> Unit,
     changeShowType: () -> Unit,
     toFilterCharacter: (String) -> Unit
@@ -304,7 +288,11 @@ private fun CharacterListFabContent(
     }
     //展示类型
     MainSmallFab(
-        iconType = MainIconType.VIEW_MODULE,
+        iconType = when (showType) {
+            CharacterListShowType.CARD -> MainIconType.VIEW_CARD
+            CharacterListShowType.ICON_TAG -> MainIconType.VIEW_LIST
+            CharacterListShowType.ICON -> MainIconType.VIEW_ICON
+        },
         onClick = {
             changeShowType()
         }
@@ -397,8 +385,7 @@ fun SharedTransitionScope.CharacterItemContent(
                 if (imageLoadSuccess) {
                     CharacterName(
                         color = MaterialTheme.colorScheme.primary,
-                        name = characterInfo.getNameF(),
-                        nameExtra = characterInfo.getNameL(),
+                        character = characterInfo,
                         isBorder = true,
                         modifier = Modifier.align(Alignment.BottomStart)
                     )
@@ -406,8 +393,7 @@ fun SharedTransitionScope.CharacterItemContent(
                 //名称
                 CharacterName(
                     color = textColor,
-                    name = characterInfo.getNameF(),
-                    nameExtra = characterInfo.getNameL(),
+                    character = characterInfo,
                     isBorder = false,
                     modifier = Modifier.align(Alignment.BottomStart)
                 )
@@ -416,8 +402,7 @@ fun SharedTransitionScope.CharacterItemContent(
                 if (imageLoadSuccess) {
                     CharacterName(
                         color = MaterialTheme.colorScheme.primary,
-                        name = stringResource(id = R.string.unknown_character),
-                        nameExtra = "",
+                        character = null,
                         isBorder = true,
                         modifier = Modifier.align(Alignment.BottomStart)
                     )
@@ -425,8 +410,7 @@ fun SharedTransitionScope.CharacterItemContent(
                 //名称
                 CharacterName(
                     color = textColor,
-                    name = stringResource(id = R.string.unknown_character),
-                    nameExtra = "",
+                    character = null,
                     isBorder = false,
                     modifier = Modifier.align(Alignment.BottomStart)
                 )
@@ -566,7 +550,7 @@ fun SharedTransitionScope.CharacterIconAndTextContent(
                 if (MainActivity.animOnFlag) {
                     Modifier.sharedElement(
                         state = rememberSharedContentState(
-                            key = "CharacterItemContent-$unitId"
+                            key = "UnitIconAndTag-$unitId"
                         ),
                         animatedVisibilityScope = animatedVisibilityScope,
                     )
@@ -575,13 +559,19 @@ fun SharedTransitionScope.CharacterIconAndTextContent(
                 }
             )
     ) {
-        //图标
-        MainIcon(
-            modifier = Modifier,
-            data = ImageRequestHelper.getInstance().getMaxIconUrl(unitId),
-            onClick = onClick
-        )
-
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            //图标
+            MainIcon(
+                modifier = Modifier,
+                data = ImageRequestHelper.getInstance().getMaxIconUrl(unitId),
+                onClick = onClick
+            )
+            //星级
+            if (character != null) {
+                StarText(character)
+            }
+        }
+        //其他信息
         if (character != null) {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -667,7 +657,8 @@ fun SharedTransitionScope.CharacterIconAndTextContent(
                         guild = character.guild,
                         favorite = character.favorite,
                     )
-                    if (expand) {
+                    //展开详情资料
+                    ExpandAnimation(expand) {
                         Column(
                             modifier = Modifier.padding(Dimen.mediumPadding),
                         ) {
@@ -682,17 +673,120 @@ fun SharedTransitionScope.CharacterIconAndTextContent(
 }
 
 /**
+ * 角色星级
+ */
+@Composable
+private fun StarText(character: CharacterInfo, color: Color = Color.Unspecified) {
+    Subtitle1(
+        text = stringResource(
+            id = R.string.star, if (character.r6Id != 0) 6 else character.rarity
+        ),
+        color = if (character.r6Id != 0) {
+            colorPink
+        } else {
+            color
+        }
+    )
+}
+
+/**
+ * 角色图标
+ */
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+private fun SharedTransitionScope.CharacterIcon(
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    character: CharacterInfo,
+    filter: FilterCharacter?,
+    favorite: Boolean,
+    toCharacterDetail: (Int) -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .padding(
+                horizontal = Dimen.mediumPadding,
+                vertical = Dimen.smallPadding
+            )
+            .then(
+                if (MainActivity.animOnFlag) {
+                    Modifier.sharedElement(
+                        state = rememberSharedContentState(
+                            key = "UnitIconAndTag-${character.id}"
+                        ),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                    )
+                } else {
+                    Modifier
+                }
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Box {
+                //角色图标
+                MainIcon(
+                    data = ImageRequestHelper.getInstance().getMaxIconUrl(character.id),
+                    onClick = {
+                        toCharacterDetail(character.id)
+                    }
+                )
+                //收藏
+                if (favorite) {
+                    MainIcon(
+                        data = MainIconType.FAVORITE_FILL,
+                        size = Dimen.smallIconSize,
+                        modifier = Modifier
+                            .padding(
+                                top = Dimen.linePadding,
+                                start = Dimen.linePadding
+                            )
+                            .align(Alignment.TopStart)
+                    )
+                }
+                //位置图标
+                PositionIcon(
+                    position = character.position,
+                    modifier = Modifier
+                        .padding(
+                            bottom = Dimen.linePadding,
+                            end = Dimen.linePadding
+                        )
+                        .align(Alignment.BottomEnd)
+                )
+            }
+
+            // 根据筛选条件显示
+            filter?.let {
+                when (filter.sortType) {
+                    CharacterSortType.SORT_AGE -> MainContentText(text = character.age.fixedStr)
+                    CharacterSortType.SORT_HEIGHT -> MainContentText(text = character.height.fixedStr)
+                    CharacterSortType.SORT_WEIGHT -> MainContentText(text = character.weight.fixedStr)
+                    CharacterSortType.SORT_BIRTHDAY ->
+                        MainContentText(text = "${character.birthMonth}/${character.birthDay}")
+
+                    CharacterSortType.SORT_POSITION -> MainContentText(text = character.position.toString())
+                    else -> StarText(character)
+                }
+            }
+            if (character.talentId != 0) {
+                Dot(color = TalentType.getByType(character.talentId).color)
+            }
+        }
+
+    }
+}
+
+
+/**
  * 角色名称
  */
 @Composable
 private fun CharacterName(
+    character: CharacterInfo?,
     color: Color,
-    name: String,
-    nameExtra: String,
     isBorder: Boolean,
     modifier: Modifier = Modifier
 ) {
-
     Column(
         modifier = modifier
             .then(
@@ -712,13 +806,23 @@ private fun CharacterName(
             )
             .fillMaxWidth(RATIO_GOLDEN)
     ) {
-        Subtitle1(
-            text = nameExtra,
-            color = color,
-            selectable = !isBorder
-        )
+        //星级
+        character?.let {
+            StarText(character = character, color = color)
+        }
+
+        //限定类型
+        character?.getNameL()?.let {
+            Subtitle1(
+                text = character.getNameL(),
+                color = color,
+                selectable = !isBorder
+            )
+        }
+
+        //角色名
         MainText(
-            text = name,
+            text = character?.getNameF() ?: stringResource(id = R.string.unknown_character),
             color = color,
             textAlign = TextAlign.Start,
             style = MaterialTheme.typography.titleLarge,
