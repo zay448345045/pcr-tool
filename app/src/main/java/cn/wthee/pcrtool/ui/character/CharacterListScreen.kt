@@ -673,23 +673,6 @@ fun SharedTransitionScope.CharacterIconAndTextContent(
 }
 
 /**
- * 角色星级
- */
-@Composable
-private fun StarText(character: CharacterInfo, color: Color = Color.Unspecified) {
-    Subtitle1(
-        text = stringResource(
-            id = R.string.star, if (character.r6Id != 0) 6 else character.rarity
-        ),
-        color = if (character.r6Id != 0) {
-            colorPink
-        } else {
-            color
-        }
-    )
-}
-
-/**
  * 角色图标
  */
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -701,11 +684,13 @@ private fun SharedTransitionScope.CharacterIcon(
     favorite: Boolean,
     toCharacterDetail: (Int) -> Unit
 ) {
-    Box(
+    Column(
         modifier = Modifier
             .padding(
-                horizontal = Dimen.mediumPadding,
-                vertical = Dimen.smallPadding
+                start = Dimen.mediumPadding,
+                end = Dimen.mediumPadding,
+                top = Dimen.largePadding,
+                bottom = Dimen.smallPadding
             )
             .then(
                 if (MainActivity.animOnFlag) {
@@ -719,63 +704,80 @@ private fun SharedTransitionScope.CharacterIcon(
                     Modifier
                 }
             ),
-        contentAlignment = Alignment.Center
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Box {
-                //角色图标
-                MainIcon(
-                    data = ImageRequestHelper.getInstance().getMaxIconUrl(character.id),
-                    onClick = {
-                        toCharacterDetail(character.id)
-                    }
-                )
-                //收藏
-                if (favorite) {
-                    MainIcon(
-                        data = MainIconType.FAVORITE_FILL,
-                        size = Dimen.smallIconSize,
-                        modifier = Modifier
-                            .padding(
-                                top = Dimen.linePadding,
-                                start = Dimen.linePadding
-                            )
-                            .align(Alignment.TopStart)
-                    )
+        Box {
+            //角色图标
+            MainIcon(
+                data = ImageRequestHelper.getInstance().getMaxIconUrl(character.id),
+                onClick = {
+                    toCharacterDetail(character.id)
                 }
-                //位置图标
-                PositionIcon(
-                    position = character.position,
+            )
+            //收藏
+            if (favorite) {
+                MainIcon(
+                    data = MainIconType.FAVORITE_FILL,
+                    size = Dimen.smallIconSize,
                     modifier = Modifier
                         .padding(
-                            bottom = Dimen.linePadding,
-                            end = Dimen.linePadding
+                            top = Dimen.linePadding,
+                            start = Dimen.linePadding
                         )
-                        .align(Alignment.BottomEnd)
+                        .align(Alignment.TopStart)
                 )
             }
-
-            // 根据筛选条件显示
-            filter?.let {
-                when (filter.sortType) {
-                    CharacterSortType.SORT_AGE -> MainContentText(text = character.age.fixedStr)
-                    CharacterSortType.SORT_HEIGHT -> MainContentText(text = character.height.fixedStr)
-                    CharacterSortType.SORT_WEIGHT -> MainContentText(text = character.weight.fixedStr)
-                    CharacterSortType.SORT_BIRTHDAY ->
-                        MainContentText(text = "${character.birthMonth}/${character.birthDay}")
-
-                    CharacterSortType.SORT_POSITION -> MainContentText(text = character.position.toString())
-                    else -> StarText(character)
-                }
-            }
-            if (character.talentId != 0) {
-                Dot(color = TalentType.getByType(character.talentId).color)
-            }
+            //位置图标
+            PositionIcon(
+                position = character.position,
+                modifier = Modifier
+                    .padding(
+                        bottom = Dimen.linePadding,
+                        end = Dimen.linePadding
+                    )
+                    .align(Alignment.BottomEnd)
+            )
         }
 
+        // 根据筛选条件显示
+        filter?.let {
+            when (filter.sortType) {
+                CharacterSortType.SORT_AGE -> MainContentText(text = character.age.fixedStr)
+                CharacterSortType.SORT_HEIGHT -> MainContentText(text = character.height.fixedStr)
+                CharacterSortType.SORT_WEIGHT -> MainContentText(text = character.weight.fixedStr)
+                CharacterSortType.SORT_BIRTHDAY ->
+                    MainContentText(text = "${character.birthMonth}/${character.birthDay}")
+
+                CharacterSortType.SORT_POSITION -> MainContentText(text = character.position.toString())
+                else -> StarText(character)
+            }
+        }
+        if (character.talentId != 0) {
+            Dot(color = TalentType.getByType(character.talentId).color)
+        }
     }
 }
 
+/**
+ * 角色星级
+ */
+@Composable
+private fun StarText(
+    character: CharacterInfo,
+    color: Color = Color.Unspecified,
+    sixStarColor: Color = colorPink
+) {
+    Subtitle1(
+        text = stringResource(
+            id = R.string.star, if (character.r6Id != 0) 6 else character.rarity
+        ),
+        color = if (character.r6Id != 0) {
+            sixStarColor
+        } else {
+            color
+        }
+    )
+}
 
 /**
  * 角色名称
@@ -808,16 +810,23 @@ private fun CharacterName(
     ) {
         //星级
         character?.let {
-            StarText(character = character, color = color)
+            StarText(
+                character = character,
+                color = color,
+                sixStarColor = if (isBorder) color else colorPink
+            )
         }
 
         //限定类型
-        character?.getNameL()?.let {
+        if ((character?.getNameL() ?: "") != "") {
             Subtitle1(
-                text = character.getNameL(),
+                text = character!!.getNameL(),
                 color = color,
                 selectable = !isBorder
             )
+        }
+        character?.getNameL()?.let {
+
         }
 
         //角色名

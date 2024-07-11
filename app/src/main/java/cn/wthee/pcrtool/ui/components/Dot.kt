@@ -21,7 +21,7 @@ fun Dot(color: Color, size: Dp = Dimen.indicatorSize) {
             .padding(
                 start = Dimen.exSmallPadding,
                 end = Dimen.exSmallPadding,
-                top = Dimen.smallPadding
+                top = Dimen.exSmallPadding
             )
             .background(
                 color = color,
