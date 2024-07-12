@@ -32,7 +32,7 @@ import cn.wthee.pcrtool.utils.int
 fun AttrList(
     attrs: List<AttrValue>,
     attrValueType: AttrValueType = AttrValueType.INT,
-    itemWidth: Dp = Dimen.attrWidth,
+    itemWidth: Dp = Dimen.attrItemWidth,
     fixColumns: Int = 0,
 ) {
     VerticalGridList(

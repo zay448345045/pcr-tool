@@ -730,6 +730,7 @@ private fun SharedTransitionScope.CharacterIcon(
             //位置图标
             PositionIcon(
                 position = character.position,
+                size = Dimen.smallerIconSize,
                 modifier = Modifier
                     .padding(
                         bottom = Dimen.linePadding,

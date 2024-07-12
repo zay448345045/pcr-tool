@@ -506,7 +506,7 @@ fun SkillActionItem(
         modifier = Modifier
             .padding(vertical = Dimen.smallPadding)
             .fillMaxWidth()
-            .heightIn(min = Dimen.skillActionMinHeight)
+            .heightIn(min = Dimen.skillActionItemMinHeight)
             .padding(Dimen.smallPadding)
             .background(
                 color = MaterialTheme.colorScheme.surfaceVariant,

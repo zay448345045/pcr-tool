@@ -447,7 +447,7 @@ fun SettingSwitchCompose(
 fun SettingCommonItem(
     modifier: Modifier = Modifier,
     iconType: Any,
-    iconSize: Dp = Dimen.settingIconSize,
+    iconSize: Dp = Dimen.menuIconSize,
     title: String,
     summary: String,
     titleColor: Color = MaterialTheme.colorScheme.onSurface,

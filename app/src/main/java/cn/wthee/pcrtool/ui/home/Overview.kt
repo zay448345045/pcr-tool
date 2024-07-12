@@ -486,7 +486,7 @@ private fun DbVersionOtherContent(
         Row(
             modifier = Modifier
                 .height(IntrinsicSize.Min)
-                .widthIn(min = Dimen.dataChangeWidth + Dimen.iconSize)
+                .widthIn(min = Dimen.dataChangeItemWidth + Dimen.iconSize)
         ) {
 
             //数据更新时间
@@ -511,7 +511,7 @@ private fun DbVersionOtherContent(
                 content = dbVersion?.truthVersion ?: stringResource(id = R.string.unknown),
                 modifier = Modifier
                     .weight(1f)
-                    .widthIn(max = Dimen.dataChangeWidth),
+                    .widthIn(max = Dimen.dataChangeItemWidth),
                 color = color
             )
         }

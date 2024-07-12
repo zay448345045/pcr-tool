@@ -21,6 +21,9 @@ fun shapeTop() = RoundedCornerShape(
     bottomEnd = CornerSize(0)
 )
 
+/**
+ * 矩形（没有圆角）
+ */
 @Composable
 fun noShape() = CutCornerShape(0.dp)
 

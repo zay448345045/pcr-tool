@@ -681,7 +681,7 @@ fun PvpUnitIconLine(
                                 bottom = Dimen.linePadding,
                                 end = Dimen.linePadding
                             ),
-                        size = if (floatWindow) Dimen.exSmallIconSize else Dimen.smallIconSize
+                        size = if (floatWindow) Dimen.exSmallIconSize else Dimen.smallerIconSize
                     )
                 }
             }
