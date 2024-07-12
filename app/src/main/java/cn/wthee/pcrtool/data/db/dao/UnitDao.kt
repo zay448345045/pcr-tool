@@ -77,7 +77,7 @@ interface UnitDao {
             CAST((CASE WHEN unit_profile.birth_day LIKE '%-%' OR unit_profile.birth_day LIKE '%?%' OR  unit_profile.birth_day LIKE '%？%' OR unit_profile.birth_day = 0 THEN 999 ELSE unit_profile.birth_day END) AS INTEGER) AS birth_day_int,
             unit_data.search_area_width,
             unit_data.atk_type,
-            COALESCE(quest_data.quest_id, 0 ) AS r6Id,
+            COALESCE(rarity_6_quest_data.recommended_level, 0 ) AS r6Id,
             (
                 CASE WHEN unit_data.cutin_1 = 0 AND (unit_data.start_time = '2088/01/01 0:00:00' OR unit_data.start_time = '2015/4/1 15:00') 
                 THEN '2000/01/01 00:00:00' 
@@ -96,7 +96,7 @@ interface UnitDao {
             unit_profile
             LEFT JOIN unit_data ON unit_data.unit_id = unit_profile.unit_id
             LEFT JOIN item_data ON item_data.item_id = 32000 + unit_data.unit_id / 100 % 1000
-            LEFT JOIN quest_data ON quest_data.quest_id LIKE '13%' AND quest_data.daily_limit <> 0 AND quest_data.reward_image_1 = 32000 + unit_data.unit_id / 100 % 1000
+            LEFT JOIN rarity_6_quest_data ON rarity_6_quest_data.unit_id = unit_data.unit_id
             LEFT JOIN (SELECT MAX(id) AS id ,MAX(exchange_id) AS exchange_id,unit_id FROM gacha_exchange_lineup GROUP BY unit_id) AS gacha ON gacha.unit_id = unit_data.unit_id
         WHERE 
             (unit_data.unit_name like '%' || :unitName || '%' OR unit_data.unit_id = :unitName)
@@ -238,7 +238,7 @@ interface UnitDao {
             CAST((CASE WHEN unit_profile.birth_day LIKE '%-%' OR unit_profile.birth_day LIKE '%?%' OR  unit_profile.birth_day LIKE '%？%' OR unit_profile.birth_day = 0 THEN 999 ELSE unit_profile.birth_day END) AS INTEGER) AS birth_day_int,
             unit_data.search_area_width,
             unit_data.atk_type,
-            COALESCE(quest_data.quest_id, 0 ) AS r6Id,
+            COALESCE(rarity_6_quest_data.recommended_level, 0 ) AS r6Id,
             COALESCE(unit_data.start_time, '2015/04/01') AS unit_start_time,
             (
                 CASE
@@ -252,7 +252,7 @@ interface UnitDao {
         FROM
             unit_profile
             LEFT JOIN unit_data ON unit_data.unit_id = unit_profile.unit_id
-            LEFT JOIN quest_data ON quest_data.quest_id LIKE '13%' AND quest_data.daily_limit <> 0 AND quest_data.reward_image_1 = 32000 + unit_data.unit_id / 100 % 1000
+            LEFT JOIN rarity_6_quest_data ON rarity_6_quest_data.unit_id = unit_data.unit_id
         WHERE 
             unit_data.unit_id = :unitId
         """
