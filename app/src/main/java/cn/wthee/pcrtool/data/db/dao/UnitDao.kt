@@ -627,7 +627,7 @@ interface UnitDao {
     suspend fun getActualId(unitId: Int): Int?
 
     /**
-     * 获取卡池角色
+     * 获取卡池角色（一星去除御三家）
      * @param type 1、2、3: 常驻1、2、3星 ；4：限定；
      */
     @SkipQueryVerification

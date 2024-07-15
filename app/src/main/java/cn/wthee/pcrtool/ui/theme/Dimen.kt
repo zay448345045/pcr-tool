@@ -110,6 +110,9 @@ object Dimen {
     //rank选择默认宽度
     val rankTextWidth = 56.dp
 
+    //描边宽度（大）
+    val largeStrokeWidth = 4.dp
+
     //描边宽度
     val strokeWidth = 3.dp
 

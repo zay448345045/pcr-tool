@@ -165,16 +165,18 @@ fun GridIconList(
         fixColumns = fixColumns
     ) {
         if (idList != null) {
+            val selected = selectedUnitId == idList[it]
             IconItem(
                 id = idList[it],
-                selected = selectedUnitId == idList[it],
+                selected = selected,
                 detailId = if (detailIdList.isNotEmpty()) {
                     detailIdList[it]
                 } else {
                     null
                 },
                 iconResourceType = iconResourceType,
-                onClickItem = onClickItem
+                //选中的忽略再次点击
+                onClickItem = if (selected) null else onClickItem
             )
         }
     }
@@ -229,7 +231,7 @@ fun IconItem(
                 .then(
                     if (selected) {
                         Modifier.border(
-                            width = Dimen.strokeWidth,
+                            width = Dimen.largeStrokeWidth,
                             shape = MaterialTheme.shapes.extraSmall,
                             color = MaterialTheme.colorScheme.primary
                         )
