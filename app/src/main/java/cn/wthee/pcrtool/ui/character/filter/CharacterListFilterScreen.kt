@@ -24,7 +24,6 @@ import cn.wthee.pcrtool.data.enums.CharacterSortType
 import cn.wthee.pcrtool.data.enums.MainIconType
 import cn.wthee.pcrtool.data.enums.PositionType
 import cn.wthee.pcrtool.data.enums.TalentType
-import cn.wthee.pcrtool.data.enums.getSortType
 import cn.wthee.pcrtool.data.model.ChipData
 import cn.wthee.pcrtool.data.model.FilterCharacter
 import cn.wthee.pcrtool.navigation.navigateUpSheet
@@ -59,13 +58,15 @@ fun CharacterListFilterScreen(
             }
         }
     ) {
-        CharacterListFilterContent(
-            filter = uiState.filter,
-            raceList = uiState.raceList,
-            guildList = uiState.guildList,
-            hasTalent = uiState.hasTalent,
-            updateFilter = characterListFilterViewModel::updateFilter
-        )
+        uiState.filter?.let {
+            CharacterListFilterContent(
+                filter = it,
+                raceList = uiState.raceList,
+                guildList = uiState.guildList,
+                hasTalent = uiState.hasTalent,
+                updateFilter = characterListFilterViewModel::updateFilter
+            )
+        }
     }
 }
 
@@ -86,7 +87,7 @@ private fun CharacterListFilterContent(
     val sortTypeIndex = remember {
         mutableIntStateOf(filter.sortType.type)
     }
-    filter.sortType = getSortType(sortTypeIndex.intValue)
+    filter.sortType = CharacterSortType.getByType(sortTypeIndex.intValue)
 
     //排序方式筛选
     val sortAscIndex = remember {
@@ -257,7 +258,7 @@ private fun CharacterListFilterContent(
         //六星
         val r6ChipData = arrayListOf(
             ChipData(stringResource(id = R.string.all)),
-            ChipData(text = stringResource(id = R.string.six_star), color = colorPink),
+            ChipData(text = stringResource(id = R.string.star, 6), color = colorPink),
             ChipData(stringResource(id = R.string.six_locked)),
         )
         //是否选择了六星解放排序

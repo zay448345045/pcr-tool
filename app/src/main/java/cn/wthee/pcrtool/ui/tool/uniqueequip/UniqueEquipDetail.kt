@@ -82,11 +82,11 @@ fun SharedTransitionScope.UniqueEquipDetail(
                 } else {
                     currentValue.uniqueEquipmentLevel2.toString()
                 },
-                onDone = {
+                onDone = { level ->
                     if (slot == 1) {
-                        updateCurrentValue(currentValue.copy(uniqueEquipmentLevel = it))
+                        updateCurrentValue(currentValue.copy(uniqueEquipmentLevel = level))
                     } else {
-                        updateCurrentValue(currentValue.copy(uniqueEquipmentLevel2 = it))
+                        updateCurrentValue(currentValue.copy(uniqueEquipmentLevel2 = level))
                     }
                 },
                 minLevel = if (slot == 1) 1 else 0,

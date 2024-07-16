@@ -1,8 +1,6 @@
 package cn.wthee.pcrtool.ui.tool.enemy
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,9 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +39,7 @@ import cn.wthee.pcrtool.data.model.SkillDetail
 import cn.wthee.pcrtool.ui.components.AttrList
 import cn.wthee.pcrtool.ui.components.CaptionText
 import cn.wthee.pcrtool.ui.components.CommonSpacer
+import cn.wthee.pcrtool.ui.components.Dot
 import cn.wthee.pcrtool.ui.components.IconTextButton
 import cn.wthee.pcrtool.ui.components.MainAlertDialog
 import cn.wthee.pcrtool.ui.components.MainContentText
@@ -134,7 +131,8 @@ fun EnemyDetailContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         //图标，仅剧情活动boss显示
         if (enemyData.enemyId.toString()[0] == '6') {
@@ -217,7 +215,7 @@ fun EnemyDetailContent(
                 selectable = true
             )
             //属性
-            AttrList(attrs = it.attr.enemy())
+            AttrList(attrs = it.attr.enemy(context))
         }
         //技能，预览时隐藏
         if (!LocalInspectionMode.current) {
@@ -353,18 +351,8 @@ fun EnemyWeaknessContent(
                     )
                 } else {
                     //显示圆点
-                    Box(
-                        modifier = Modifier
-                            .padding(
-                                start = Dimen.exSmallPadding,
-                                end = Dimen.exSmallPadding,
-                                top = Dimen.smallPadding
-                            )
-                            .background(
-                                color = talentType.color,
-                                shape = CircleShape
-                            )
-                            .size(Dimen.indicatorSize)
+                    Dot(
+                        color = talentType.color
                     )
                 }
 
@@ -394,7 +382,7 @@ private fun EnemyDetailContentPreview() {
                 comment = stringResource(id = R.string.debug_long_text),
                 level = 100
             ),
-            partEnemyList = arrayListOf(),
+            partEnemyList = arrayListOf(EnemyParameterPro(name = stringResource(id = R.string.debug_short_text))),
             skillList = arrayListOf(),
             attackPatternList = arrayListOf(),
             weaknessData = EnemyTalentWeaknessData(),

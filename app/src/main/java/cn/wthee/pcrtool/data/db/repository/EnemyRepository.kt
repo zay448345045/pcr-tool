@@ -14,6 +14,13 @@ import javax.inject.Inject
  */
 class EnemyRepository @Inject constructor(private val enemyDao: EnemyDao) {
 
+    suspend fun getClanBossList() = try {
+        enemyDao.getClanBossList()
+    } catch (e: Exception) {
+        LogReportUtil.upload(e, "getClanBossList")
+        arrayListOf()
+    }
+
     /**
      * 获取多目标部位属性
      */

@@ -39,7 +39,6 @@ object NavRoute {
     const val UNIT_ID = "unitId"
     const val EQUIP_ID = "equipId"
     const val EQUIP_NAME = "equipName"
-
     //最大rank
     const val MAX_RANK = "maxRank"
     //等级
@@ -79,23 +78,17 @@ object NavRoute {
     const val SEARCH_EQUIP_IDS = "searchEquipIds"
     const val UNIQUE_EQUIP_LIST = "uniqueEquipList"
     const val UNIQUE_EQUIP_DETAIL = "UniqueEquipDetail"
-
     //角色筛选
     const val FILTER_CHARACTER = "filterCharacter"
-
     //装备筛选
     const val FILTER_EQUIP = "filterEquip"
-
     //ex装备筛选
     const val FILTER_EXTRA_EQUIP = "filterExtraEquip"
     const val FILTER_DATA = "filterData"
-
     //角色详情是否显示所有信息
     const val SHOW_ALL_INFO = "showAllInfo"
-
     const val MOCK_GACHA_TYPE = "mockGachaType"
     const val PICKUP_LIST = "pickUpList"
-
     const val LOAD_COMIC_LIST = "loadComicList"
     const val STORY_ID = "stroyId"
     const val EVENT_ID = "eventId"
@@ -103,4 +96,6 @@ object NavRoute {
     const val TALENT_LIST = "talentList"
     const val TALENT_TYPE = "talentType"
 
+    //未知技能
+    const val UNKNOWN_SKILL = "unknownSkill"
 }

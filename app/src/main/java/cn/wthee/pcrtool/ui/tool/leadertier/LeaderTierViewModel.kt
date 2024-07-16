@@ -67,8 +67,8 @@ class LeaderTierViewModel @Inject constructor(
      *
      * @param unitId 角色编号
      */
-    fun getCharacterBasicInfo(unitId: Int) = flow {
-        emit(unitRepository.getCharacterBasicInfo(unitId))
+    fun getCharacterInfo(unitId: Int) = flow {
+        emit(unitRepository.getCharacterInfo(unitId))
     }
 
     /**
@@ -154,19 +154,6 @@ class LeaderTierViewModel @Inject constructor(
                 it.copy(
                     openDialog = openDialog,
                     openTalentDialog = false
-                )
-            }
-        }
-    }
-
-    /**
-     * 弹窗状态更新
-     */
-    fun updateCount(count: Int) {
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    count = count
                 )
             }
         }

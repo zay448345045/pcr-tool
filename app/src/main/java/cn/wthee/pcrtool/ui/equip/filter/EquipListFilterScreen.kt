@@ -52,11 +52,13 @@ fun EquipListFilterScreen(
             }
         }
     ) {
-        EquipListFilterContent(
-            filter = uiState.filter,
-            colorNum = uiState.colorNum,
-            updateFilter = equipListFilterViewModel::updateFilter
-        )
+        uiState.filter?.let {
+            EquipListFilterContent(
+                filter = it,
+                colorNum = uiState.colorNum,
+                updateFilter = equipListFilterViewModel::updateFilter
+            )
+        }
     }
 }
 

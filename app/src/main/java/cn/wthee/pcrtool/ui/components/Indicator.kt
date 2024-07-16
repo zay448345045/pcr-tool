@@ -46,7 +46,7 @@ import kotlin.math.sign
 @Composable
 fun IconHorizontalPagerIndicator(
     pagerState: PagerState,
-    urlList: List<String>,
+    urlList: List<String?>,
     extraContent: @Composable (Int) -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()

@@ -15,7 +15,7 @@ import cn.wthee.pcrtool.utils.Constants
         PvpFavoriteData::class,
         PvpHistoryData::class,
     ],
-    version = 102,
+    version = 104,
     exportSchema = false,
 )
 /**

@@ -37,6 +37,15 @@ object Constants {
     var PREVIEW_UNIT_URL = "$PREVIEW_URL?unitId="
     var PREVIEW_ENEMY_URL = "$PREVIEW_URL?enemyId="
 
+    //数据库shm
+    const val DATABASE_SHM = "-shm"
+
+    //数据库wal
+    const val DATABASE_WAL = "-wal"
+
+    //数据库br
+    const val DATABASE_BR = ".br"
+
     //国服数据库
     const val DATABASE_DOWNLOAD_FILE_NAME_CN = "redive_cn.db.br"
     const val DATABASE_NAME_CN = "redive_cn.db"
@@ -90,6 +99,7 @@ object Constants {
     // 异常
     const val EXCEPTION_API = "api exception: "
     const val EXCEPTION_DOWNLOAD_DB = "db download exception: "
+    const val EXCEPTION_DOWNLOAD_WORK_DB = "db download work exception: "
     const val EXCEPTION_DOWNLOAD_FILE = "file download exception: "
     const val EXCEPTION_SAVE_DB = "db file save exception: "
     const val EXCEPTION_FILE_SAVE = "file save exception: "

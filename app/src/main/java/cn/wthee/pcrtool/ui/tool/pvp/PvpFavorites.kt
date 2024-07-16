@@ -32,6 +32,7 @@ import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.PreviewLayout
 import cn.wthee.pcrtool.ui.theme.colorGold
 import cn.wthee.pcrtool.utils.formatTime
+import cn.wthee.pcrtool.utils.intArrayList
 import cn.wthee.pcrtool.utils.toDate
 import kotlinx.coroutines.launch
 
@@ -131,7 +132,7 @@ private fun PvpFavoriteItem(
                 data = MainIconType.PVP_SEARCH,
                 size = Dimen.fabIconSize,
                 onClick = {
-                    searchByDefs(itemData.getDefIds())
+                    searchByDefs(itemData.defs.intArrayList)
                 }
             )
         }
@@ -144,7 +145,9 @@ private fun PvpFavoriteItem(
                 modifier = Modifier.padding(mediumPadding)
             )
             PvpUnitIconLine(
-                ids = itemData.getAtkIds(),
+                ids = itemData.atks.intArrayList,
+                talentIdList = itemData.atkTalentIds.intArrayList,
+                positionList = itemData.atkPositions.intArrayList,
                 floatWindow = floatWindow,
                 toCharacter = toCharacter
             )
@@ -156,7 +159,9 @@ private fun PvpFavoriteItem(
             )
             PvpUnitIconLine(
                 modifier = Modifier.padding(bottom = mediumPadding),
-                ids = itemData.getDefIds(),
+                ids = itemData.defs.intArrayList,
+                talentIdList = itemData.defTalentIds.intArrayList,
+                positionList = itemData.defPositions.intArrayList,
                 floatWindow = floatWindow,
                 toCharacter = toCharacter
             )
@@ -173,8 +178,9 @@ private fun PvpFavoriteItemPreview() {
         "id",
         "1-2-3-4-5",
         "1-2-3-4-5",
+        "1-2-3-4-5",
+        "1-2-3-4-5",
         "2020/01/01 00:00:00",
-        2
     )
     PreviewLayout {
         PvpFavoriteItem(

@@ -9,7 +9,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.PvpCharacterData
+import cn.wthee.pcrtool.ui.components.CenterTipText
 import cn.wthee.pcrtool.ui.components.CommonSpacer
 import kotlin.math.max
 
@@ -29,23 +32,29 @@ fun PvpRecentlyUsedList(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        //角色图标列表
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(max(5, spanCount)),
-            state = usedListState,
-            verticalArrangement = Arrangement.Center
-        ) {
-            items(
-                items = recentlyUsedUnitList.sortedBy { it.position },
-                key = {
-                    it.unitId
-                }
+        if (recentlyUsedUnitList.isNotEmpty()) {
+            //角色图标列表
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(max(5, spanCount)),
+                state = usedListState,
+                verticalArrangement = Arrangement.Center
             ) {
-                PvpIconItem(selectedIds, it, floatWindow)
+                items(
+                    items = recentlyUsedUnitList.sortedBy { it.position },
+                    key = {
+                        it.unitId
+                    }
+                ) {
+                    PvpIconItem(selectedIds, it, floatWindow)
+                }
+                items(5) {
+                    CommonSpacer()
+                }
             }
-            items(5) {
-                CommonSpacer()
-            }
+        } else {
+            CenterTipText(
+                text = stringResource(id = R.string.pvp_no_history)
+            )
         }
     }
 }

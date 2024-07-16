@@ -16,7 +16,11 @@ import javax.inject.Inject
  */
 class SkillRepository @Inject constructor(private val skillDao: SkillDao) {
 
-    suspend fun getUnitSkill(unitId: Int) = skillDao.getUnitSkill(unitId)
+    suspend fun getUnitSkill(unitId: Int) = try {
+        skillDao.getUnitSkill(unitId)
+    } catch (e: Exception) {
+        null
+    }
 
     private suspend fun getSkillData(skillId: Int, lv: Int): SkillData? {
         val skillData = skillDao.getSkillData(skillId)
@@ -103,7 +107,7 @@ class SkillRepository @Inject constructor(private val skillDao: SkillDao) {
         try {
             val infoList = mutableListOf<SkillDetail>()
             //技能编号信息
-            val unitSkillData = skillDao.getUnitSkill(unitId)
+            val unitSkillData = getUnitSkill(unitId)
 
             //技能信息
             skillIds.forEachIndexed { index, skillId ->
@@ -159,7 +163,7 @@ class SkillRepository @Inject constructor(private val skillDao: SkillDao) {
      */
     suspend fun getSkillIds(unitId: Int, skillType: SkillType): List<Int> {
         try {
-            val data = skillDao.getUnitSkill(unitId)
+            val data = getUnitSkill(unitId)
             val normalList = data!!.getNormalSkillId()
             val spList = data.getSpSkillId()
             return when (skillType) {

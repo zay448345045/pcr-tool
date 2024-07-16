@@ -45,6 +45,7 @@ import cn.wthee.pcrtool.utils.BrowserUtil
 import cn.wthee.pcrtool.utils.VibrateUtil
 import cn.wthee.pcrtool.utils.fillZero
 import cn.wthee.pcrtool.utils.getToday
+import cn.wthee.pcrtool.utils.intArrayList
 import kotlinx.coroutines.launch
 import kotlin.math.round
 
@@ -111,8 +112,8 @@ fun PvpSearchResult(
                             ) { index, item ->
                                 PvpResultItem(
                                     liked = favoritesAtkList.contains(item.atk),
-                                    i = index + 1,
-                                    item = item,
+                                    index = index + 1,
+                                    pvpResultData = item,
                                     floatWindow = floatWindow,
                                     delete = delete,
                                     insert = insert
@@ -174,8 +175,8 @@ fun PvpSearchResult(
                     items(10) {
                         PvpResultItem(
                             liked = false,
-                            i = 0,
-                            item = PvpResultData(),
+                            index = 0,
+                            pvpResultData = PvpResultData(),
                             floatWindow = floatWindow,
                             delete = delete,
                             insert = insert
@@ -195,18 +196,18 @@ fun PvpSearchResult(
 /**
  * 查询结果 Item
  *
- * @param i 序号
+ * @param index 序号
  */
 @Composable
 private fun PvpResultItem(
     liked: Boolean,
-    i: Int,
-    item: PvpResultData,
+    index: Int,
+    pvpResultData: PvpResultData,
     floatWindow: Boolean,
     delete: (String, String) -> Unit,
     insert: (PvpFavoriteData) -> Unit,
 ) {
-    val placeholder = item.id == ""
+    val placeholder = pvpResultData.id == ""
     val scope = rememberCoroutineScope()
 
     val largePadding = if (floatWindow) Dimen.mediumPadding else Dimen.largePadding
@@ -223,7 +224,7 @@ private fun PvpResultItem(
             verticalAlignment = Alignment.Bottom
         ) {
             MainTitleText(
-                text = stringResource(id = R.string.team_no, i.toString().fillZero()),
+                text = stringResource(id = R.string.team_no, index.toString().fillZero()),
                 modifier = Modifier.placeholder(visible = placeholder)
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -240,16 +241,20 @@ private fun PvpResultItem(
                         scope.launch {
                             if (liked) {
                                 //已收藏，取消收藏
-                                delete(item.atk, item.def)
+                                delete(pvpResultData.atk, pvpResultData.def)
                             } else {
                                 //未收藏，添加收藏
                                 insert(
                                     PvpFavoriteData(
-                                        item.id,
-                                        item.atk,
-                                        item.def,
-                                        getToday(true),
-                                        MainActivity.regionType.value
+                                        id = pvpResultData.id,
+                                        atks = pvpResultData.atk,
+                                        defs = pvpResultData.def,
+                                        atkTalentIds = pvpResultData.atkTalents,
+                                        defTalentIds = pvpResultData.defTalents,
+                                        atkPositions = pvpResultData.atkPositions,
+                                        defPositions = pvpResultData.defPositions,
+                                        date = getToday(true),
+                                        region = MainActivity.regionType.value
                                     )
                                 )
                             }
@@ -265,8 +270,8 @@ private fun PvpResultItem(
                 shape = MaterialTheme.shapes.medium
             )
         ) {
-            val upRatio = if (item.up == 0) 0 else {
-                round(item.up * 1.0 / (item.up + item.down) * 100).toInt()
+            val upRatio = if (pvpResultData.up == 0) 0 else {
+                round(pvpResultData.up * 1.0 / (pvpResultData.up + pvpResultData.down) * 100).toInt()
             }
             //点赞信息
             Row(
@@ -280,13 +285,13 @@ private fun PvpResultItem(
                     modifier = Modifier.weight(0.3f)
                 )
                 MainContentText(
-                    text = item.up.toString(),
+                    text = pvpResultData.up.toString(),
                     color = colorGreen,
                     textAlign = TextAlign.Start,
                     modifier = Modifier.weight(0.3f)
                 )
                 MainContentText(
-                    text = item.down.toString(),
+                    text = pvpResultData.down.toString(),
                     color = colorRed,
                     textAlign = TextAlign.Start,
                     modifier = Modifier.weight(if (floatWindow) 0.3f else 1f)
@@ -296,7 +301,9 @@ private fun PvpResultItem(
             //进攻
             PvpUnitIconLine(
                 modifier = Modifier.padding(bottom = mediumPadding),
-                ids = if (placeholder) arrayListOf(-1) else item.getIdList(0),
+                ids = if (placeholder) arrayListOf(-1) else pvpResultData.atk.intArrayList,
+                talentIdList = pvpResultData.atkTalents.intArrayList,
+                positionList = pvpResultData.atkPositions.intArrayList,
                 floatWindow = floatWindow
             ) { }
         }
@@ -319,16 +326,16 @@ private fun PvpResultItemPreview() {
     PreviewLayout {
         PvpResultItem(
             liked = false,
-            i = 0,
-            item = data,
+            index = 0,
+            pvpResultData = data,
             floatWindow = false,
             delete = { _, _ -> },
             insert = {}
         )
         PvpResultItem(
             liked = true,
-            i = 0,
-            item = data,
+            index = 0,
+            pvpResultData = data,
             floatWindow = true,
             delete = { _, _ -> },
             insert = {}

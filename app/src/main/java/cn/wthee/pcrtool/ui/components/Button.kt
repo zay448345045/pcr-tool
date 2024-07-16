@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -109,6 +110,7 @@ fun IconTextButton(
     onClick: (() -> Unit)? = null,
     icon: MainIconType? = null,
     text: String,
+    textWithColor: AnnotatedString? = null,
     contentColor: Color = MaterialTheme.colorScheme.primary,
     iconSize: Dp = Dimen.textIconSize,
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
@@ -140,18 +142,32 @@ fun IconTextButton(
             )
         }
 
-        Text(
-            text = text,
-            color = contentColor,
-            style = textStyle,
-            modifier = Modifier.padding(
-                start = Dimen.smallPadding,
-                top = Dimen.exSmallPadding,
-                bottom = Dimen.exSmallPadding
-            ),
-            maxLines = maxLines,
-            overflow = TextOverflow.Ellipsis,
-        )
+        if (textWithColor != null) {
+            Text(
+                text = textWithColor,
+                style = textStyle,
+                modifier = Modifier.padding(
+                    start = Dimen.smallPadding,
+                    top = Dimen.exSmallPadding,
+                    bottom = Dimen.exSmallPadding
+                ),
+                maxLines = maxLines,
+                overflow = TextOverflow.Ellipsis,
+            )
+        } else {
+            Text(
+                text = text,
+                color = contentColor,
+                style = textStyle,
+                modifier = Modifier.padding(
+                    start = Dimen.smallPadding,
+                    top = Dimen.exSmallPadding,
+                    bottom = Dimen.exSmallPadding
+                ),
+                maxLines = maxLines,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }
 

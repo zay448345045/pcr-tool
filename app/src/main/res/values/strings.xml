@@ -75,7 +75,7 @@
     <string name="vibrate">振动反馈</string>
     <string name="animation">动画效果</string>
     <string name="dynamic_color">动态色彩</string>
-    <string name="content_api_request_error">请切换网络后重试~</string>
+    <string name="content_api_request_error">请切换网络后重试</string>
     <string name="use_ip">网络调整</string>
     <string name="use_ip_tip_on">已调整访问地址。设置变更后将自动关闭应用</string>
     <string name="use_ip_tip_off">若一直提示网络请求异常，可尝试开启。设置变更后将自动关闭应用</string>
@@ -106,11 +106,6 @@
     <string name="random_drop_tip">额外掉落数据来源</string>
     <string name="random_drop_source_url">https://pcredivewiki.tw/Other/MapExtraDrop</string>
 
-    <string name="db_cn">国服</string>
-    <string name="db_tw">台服</string>
-    <string name="db_jp">日服</string>
-
-
     <!-- 筛选  -->
     <string name="title_sort">排序类型</string>
     <string name="sort_date">登场日期</string>
@@ -123,7 +118,6 @@
     <string name="talent">天赋</string>
     <string name="physical">物理</string>
     <string name="magic">魔法</string>
-    <string name="element_type">属性</string>
     <string name="fire">火</string>
     <string name="water">水</string>
     <string name="wind">风</string>
@@ -143,7 +137,7 @@
     <string name="uncraft">素材</string>
     <string name="title_rarity">星级</string>
     <string name="title_type">类型</string>
-    <string name="six_star">★6</string>
+    <string name="star">★%d</string>
     <string name="cutin_skill">★6技能</string>
     <string name="six_locked">其他</string>
     <string name="type_normal">常驻</string>
@@ -182,7 +176,6 @@
     <string name="tool_event">剧情活动</string>
     <string name="tool_news">公告</string>
     <string name="news_title">公告标题</string>
-    <string name="quest">主线</string>
     <string name="jjc">竞技场</string>
     <string name="clan">公会战</string>
     <string name="tower">露娜塔</string>
@@ -203,7 +196,6 @@
     <string name="tip_no_equip_get_area">暂无掉落区域</string>
     <string name="title_recently_used">常用</string>
     <string name="phase">%s阶段</string>
-    <string name="last_update">最近评分调整</string>
     <string name="random_area">额外掉落</string>
     <string name="random_drop_area_title">区域 %d</string>
     <string name="random_drop_area_1">（前半）</string>
@@ -262,8 +254,8 @@
     <string name="team_no">进攻队伍 %s</string>
     <string name="team_win">进攻</string>
     <string name="team_lose">防守</string>
-    <string name="tip_select_5">请选择 5 名角色~</string>
-    <string name="tip_selected_5">已选择 5 名角色~</string>
+    <string name="tip_select_5">请选择 5 名角色</string>
+    <string name="tip_selected_5">已选择 5 名角色</string>
     <string name="tool_pvp">竞技场</string>
     <string name="pvp_no_favorites">暂无收藏</string>
     <string name="pvp_no_history">暂无查询历史</string>
@@ -282,6 +274,7 @@
     <string name="copy_qq_group">已复制QQ群号：%s</string>
     <string name="share_to">分享到：</string>
     <string name="release">%s 发布</string>
+
     <!--活动相关-->
     <string name="daily_mission">每日任务体力</string>
     <string name="daily_login">每日登录宝石奖励，共计</string>
@@ -317,36 +310,44 @@
     <!--提示相关-->
     <string name="no_more">暂无更多</string>
     <string name="no_data">暂无数据</string>
+    <string name="data_get_error">数据获取失败</string>
     <string name="not_installed">暂未实装</string>
     <string name="tip_click_to_add">点击下列功能，添加至首页</string>
-    <string name="check_db_error">数据版本校验失败~</string>
-    <string name="data_get_error">数据获取失败</string>
-    <string name="data_file_error">文件已损坏\n点击重新下载</string>
-    <string name="remote_data_file_error">文件下载异常\n请加群反馈</string>
-    <string name="data_file_error_desc">重新下载数据</string>
-    <string name="database_remote_backup">已启用远程备用数据~</string>
     <string name="tip_save_to_gallery">保存至系统相册</string>
     <string name="wait_pic_load">请等待图片加载完成</string>
     <string name="wait_video_load">请等待视频加载完成</string>
-    <string name="change_failed">切换失败</string>
-    <string name="title_download_database">正在下载数据</string>
-    <string name="update_database">数据更新</string>
     <string name="pic_exist">图片已存在\n%s</string>
     <string name="video_exist">视频已存在\n%s</string>
     <string name="save_success">已成功保存至系统相册\n%s</string>
     <string name="save_failure">保存失败</string>
     <string name="save_error">保存异常</string>
     <string name="download_failure">下载失败</string>
-    <string name="copy_success">文本已复制~</string>
-    <string name="db_diff_version">版本</string>
-    <string name="db_diff_content">更新内容</string>
-    <string name="db_diff_time">日期</string>
-    <string name="db_diff_content_none">其他</string>
+    <string name="copy_success">文本已复制</string>
     <string name="title_api_request_error">网络请求异常</string>
     <string name="title_dialog_delete">删除</string>
     <string name="title_dialog_save_img">保存图片</string>
     <string name="title_dialog_clean_cache">清除缓存</string>
     <string name="find_new_release">v%s 已发布</string>
+
+    <!--数据库文件下载相关-->
+    <string name="change_failed">切换失败</string>
+    <string name="check_db_error">数据版本获取失败</string>
+    <string name="db_file_error_re_download">数据文件已损坏\n请点此[重新下载]数据</string>
+    <string name="db_error">数据异常</string>
+    <string name="remote_db_file_error">远程数据异常\n请[加群反馈]</string>
+    <string name="re_download_db_file">若数据加载或下载异常\n请点此[重新下载]数据</string>
+    <string name="title_db_downloading">正在下载数据</string>
+    <string name="update_database">数据更新</string>
+    <string name="db_download_failure">数据下载失败，请重新下载</string>
+    <string name="db_download_exception">数据下载出现异常，请重新下载</string>
+    <string name="db_load_failure">数据加载失败，请重试</string>
+    <string name="db_diff_version">版本</string>
+    <string name="db_diff_content">更新内容</string>
+    <string name="db_diff_time">日期</string>
+    <string name="db_diff_content_none">其他</string>
+    <string name="db_cn">国服</string>
+    <string name="db_tw">台服</string>
+    <string name="db_jp">日服</string>
 
     <!--模拟抽卡-->
     <string name="limit_re">复刻限定</string>
@@ -505,6 +506,8 @@
     <string name="skill_status_1800">多目标状态</string>
     <string name="skill_status_1900">护盾展开</string>
     <string name="skill_status_3137">界雷</string>
+    <string name="skill_status_3162">妨魔塵</string>
+    <string name="skill_status_6160">黏着状态</string>
     <string name="skill_status_physical_atk">物理攻击</string>
     <string name="skill_status_magic_atk">魔法攻击</string>
 
@@ -540,6 +543,8 @@
     <string name="skill_target_42">多目标</string>
     <string name="skill_target_43">物理攻击力最高(自身除外)的</string>
     <string name="skill_target_44">剩余HP最低(自身除外)的</string>
+    <string name="skill_target_45">物理防御力最低的</string>
+    <string name="skill_target_46">魔法防御力最低的</string>
 
     <!--技能目标分配-->
     <string name="skill_target_assignment_0">自身</string>
@@ -585,6 +590,8 @@
     <string name="skill_magic_def">魔法防御力</string>
     <string name="skill_must_hit_physical">必定命中的物理</string>
     <string name="skill_must_hit_magic">必定命中的魔法</string>
+    <string name="skill_sum_atk_physical">(物理、魔法攻击力合计)物理</string>
+    <string name="skill_sum_atk_magic">(物理、魔法攻击力合计)魔法</string>
     <string name="skill_adaptive_lower_defense">(适应物理/魔法防御中较低的防御)</string>
     <string name="skill_critical_damage_multiple">；暴击时，造成 {6}%s 倍伤害</string>
     <string name="skill_must_critical">；必定暴击</string>
@@ -640,6 +647,7 @@
     <string name="skill_action_type_desc_17_10">受到持续伤害时 [%d%%] 概率</string>
     <string name="skill_action_type_desc_17_11">所有部位 BREAK</string>
     <string name="skill_action_type_desc_17_13">HP减少 [%d] 时</string>
+    <string name="skill_action_type_desc_17_17">黏着时 [%d%%] 概率触发</string>
     <string name="skill_action_type_desc_18_19">蓄力 [%s] 秒</string>
     <string name="skill_action_type_desc_18_19_detail">，动作(%d)效果增加 %s * 蓄力中受到的伤害</string>
     <string name="skill_action_type_desc_20">使%s进入%s状态%s</string>
@@ -770,6 +778,9 @@
     <string name="skill_action_type_desc_106">赋予%s [%s] 状态，并代替其承受伤害%s</string>
     <string name="skill_action_type_desc_106_type_141">堕天使的守护</string>
     <string name="skill_action_type_desc_107">动作(%d)暴击率依据物理暴击与魔法暴击之和</string>
+    <string name="skill_action_type_desc_111">当%s标记数量 %s [%d] 时，使用动作(%d)</string>
+    <string name="skill_action_type_desc_114">对%s追加 [%d] 层标记，%s，受到伤害时，减少 [1] 层标记，并使用动作(%d)和动作(%d)%s</string>
+    <string name="skill_action_type_desc_114_aura">己方受到的伤害降低 [%d%%]</string>
 
     <!--异常状态-->
     <string name="skill_ailment_1">减速</string>
@@ -822,8 +833,8 @@
     <string name="minute">%d分</string>
 
     <!--请求-->
-    <string name="response_error">未正常获取数据，请切换网络后重试~</string>
-    <string name="response_cancel">查询取消~</string>
+    <string name="response_error">未正常获取数据，请切换网络后重试</string>
+    <string name="response_cancel">查询取消</string>
 
     <!--排行评级查询-->
     <string name="leader_need_sync">未关联</string>
@@ -843,12 +854,12 @@
 
 
     <!-- 应用更新 -->
-    <string name="download_apk_error">获取安装包失败，请重试~</string>
+    <string name="download_apk_error">获取安装包失败，请重试</string>
     <string name="install_apk_error">安装失败</string>
     <string name="download_apk">立即更新</string>
     <string name="download_apk_from_github">从Github更新</string>
     <string name="apk_url">https://github.com/wthee/pcr-tool/releases/download/v%s/app-official-release.apk</string>
-    <string name="request_install">正在请求应用安装权限，开启权限后请重新更新~</string>
+    <string name="request_install">正在请求应用安装权限，开启权限后请重新更新</string>
 
     <!-- 视频播放 -->
     <string name="video_play_speed">倍速:</string>

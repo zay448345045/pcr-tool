@@ -3,7 +3,6 @@ package cn.wthee.pcrtool.utils
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.SkillActionDetail
 import cn.wthee.pcrtool.data.enums.SkillActionType
-import cn.wthee.pcrtool.data.enums.toSkillActionType
 
 
 // 用于处理技能效果详情信息
@@ -18,6 +17,8 @@ fun SkillActionDetail.getAtkType() = getString(
         2 -> R.string.skill_magic
         3 -> R.string.skill_must_hit_physical
         4 -> R.string.skill_must_hit_magic
+        5 -> R.string.skill_sum_atk_physical
+        6 -> R.string.skill_sum_atk_magic
         else -> R.string.unknown
     }
 )
@@ -25,7 +26,7 @@ fun SkillActionDetail.getAtkType() = getString(
 /**
  * 获取 %
  */
-fun SkillActionDetail.getPercent() = when (toSkillActionType(actionType)) {
+fun SkillActionDetail.getPercent() = when (SkillActionType.getByType(actionType)) {
     SkillActionType.AURA, SkillActionType.HEAL_DOWN -> {
         if (actionValue1.toInt() == 2 || actionDetail1 / 10 in setOf(
                 11,
@@ -120,7 +121,7 @@ fun SkillActionDetail.getValueText(
 /**
  * 效果
  */
-fun SkillActionDetail.getAura(v: Int, valueText: String): String {
+fun getAura(v: Int, valueText: String): String {
     val action = getString(
         if (v == 1) {
             R.string.skill_hp_max
@@ -178,7 +179,7 @@ fun SkillActionDetail.getAura(v: Int, valueText: String): String {
 /**
  * 护盾类型
  */
-fun SkillActionDetail.getBarrierType(v1: Int): String {
+fun getBarrierType(v1: Int): String {
     //作用
     val f = if (v1 == 1 || v1 == 2 || v1 == 5) {
         getString(R.string.skill_shield_no_effect)
@@ -318,6 +319,7 @@ fun SkillActionDetail.getTargetType() = getString(
         42 -> R.string.skill_target_42
         43 -> R.string.skill_target_43
         44 -> R.string.skill_target_44
+        45 -> R.string.skill_target_45
         else -> R.string.unknown
     }
 )
@@ -385,6 +387,7 @@ fun SkillActionDetail.getStatus(value: Int) = getString(
         1800 -> R.string.skill_status_1800
         1900 -> R.string.skill_status_1900
         3137 -> R.string.skill_status_3137
+        3162 -> R.string.skill_status_3162
         else -> R.string.unknown
     }
 )

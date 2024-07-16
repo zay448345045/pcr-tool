@@ -26,8 +26,6 @@ import cn.wthee.pcrtool.ui.components.VerticalStaggeredGrid
 import cn.wthee.pcrtool.ui.components.getItemWidth
 import cn.wthee.pcrtool.ui.home.Section
 import cn.wthee.pcrtool.ui.home.tool.MenuItem
-import cn.wthee.pcrtool.ui.home.tool.ToolMenuData
-import cn.wthee.pcrtool.ui.home.tool.getToolMenuData
 import cn.wthee.pcrtool.ui.theme.CombinedPreviews
 import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.ExpandAnimation
@@ -153,13 +151,13 @@ private fun CalendarEventOperation(
     actions: NavActions
 ) {
     //日程相关工具
-    val toolList = arrayListOf<ToolMenuData>()
-    toolList.add(getToolMenuData(toolMenuType = ToolMenuType.CLAN))
-    toolList.add(getToolMenuData(toolMenuType = ToolMenuType.GACHA))
-    toolList.add(getToolMenuData(toolMenuType = ToolMenuType.FREE_GACHA))
-    toolList.add(getToolMenuData(toolMenuType = ToolMenuType.STORY_EVENT))
-    toolList.add(getToolMenuData(toolMenuType = ToolMenuType.CALENDAR_EVENT))
-    toolList.add(getToolMenuData(toolMenuType = ToolMenuType.BIRTHDAY))
+    val toolList = arrayListOf<ToolMenuType>()
+    toolList.add(ToolMenuType.CLAN)
+    toolList.add(ToolMenuType.GACHA)
+    toolList.add(ToolMenuType.FREE_GACHA)
+    toolList.add(ToolMenuType.STORY_EVENT)
+    toolList.add(ToolMenuType.CALENDAR_EVENT)
+    toolList.add(ToolMenuType.BIRTHDAY)
 
     MainCard(
         modifier = Modifier.padding(
@@ -177,7 +175,7 @@ private fun CalendarEventOperation(
                         .fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    MenuItem(actions = actions, toolMenuData = it, isEditMode = false)
+                    MenuItem(actions = actions, toolMenuType = it, isEditMode = false)
                 }
             }
         }
@@ -185,7 +183,6 @@ private fun CalendarEventOperation(
 }
 
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @CombinedPreviews
 @Composable
 private fun CalendarEventLayoutPreview() {

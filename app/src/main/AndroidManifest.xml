@@ -30,7 +30,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.App.Starting"
-        tools:targetApi="q">
+        android:enableOnBackInvokedCallback="true"
+        tools:targetApi="upside_down_cake">
         <service
             android:name=".ui.tool.pvp.PvpFloatService"
             android:foregroundServiceType="mediaPlayback"
@@ -40,11 +41,9 @@
             android:name=".ui.MainActivity"
             android:exported="true"
             android:launchMode="singleInstance"
-            android:screenOrientation="unspecified"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

@@ -56,6 +56,7 @@ import cn.wthee.pcrtool.ui.components.CaptionText
 import cn.wthee.pcrtool.ui.components.CircularProgressCompose
 import cn.wthee.pcrtool.ui.components.CommonSpacer
 import cn.wthee.pcrtool.ui.components.ExpandableFab
+import cn.wthee.pcrtool.ui.components.FabContent
 import cn.wthee.pcrtool.ui.components.IconTextButton
 import cn.wthee.pcrtool.ui.components.MainCard
 import cn.wthee.pcrtool.ui.components.MainIcon
@@ -63,6 +64,7 @@ import cn.wthee.pcrtool.ui.components.MainScaffold
 import cn.wthee.pcrtool.ui.components.MainText
 import cn.wthee.pcrtool.ui.components.SelectText
 import cn.wthee.pcrtool.ui.components.Subtitle2
+import cn.wthee.pcrtool.ui.components.getColorText
 import cn.wthee.pcrtool.ui.home.character.CharacterSection
 import cn.wthee.pcrtool.ui.home.equip.EquipSection
 import cn.wthee.pcrtool.ui.home.event.EventComingSoonSection
@@ -117,7 +119,7 @@ fun SharedTransitionScope.Overview(
                 downloadState = uiState.dbDownloadState,
                 closeAllDialog = overviewScreenViewModel::closeAllDialog,
                 updateDbDownloadState = overviewScreenViewModel::updateDbDownloadState,
-                updateDbVersionText = overviewScreenViewModel::updateDbVersionText
+                updateDbVersion = overviewScreenViewModel::updateDbVersion
             ) {
                 overviewScreenViewModel.changeDbClick()
             }
@@ -305,12 +307,12 @@ private fun ChangeDbCompose(
     downloadState: Int,
     updateDbDownloadState: (Int) -> Unit,
     closeAllDialog: () -> Unit,
-    updateDbVersionText: (DatabaseVersion?) -> Unit,
+    updateDbVersion: (DatabaseVersion?) -> Unit,
     onClick: () -> Unit
 ) {
 
     //远程数据文件异常
-    val remoteDbSizeError = downloadState == -3
+    val remoteDbSizeError = downloadState == DbDownloadState.SIZE_ERROR.state
 
     //颜色
     val tintColor = if (dbError || remoteDbSizeError) {
@@ -329,7 +331,7 @@ private fun ChangeDbCompose(
                 color = tintColor,
                 updateDbDownloadState = updateDbDownloadState,
                 closeAllDialog = closeAllDialog,
-                updateDbVersionText = updateDbVersionText
+                updateDbVersion = updateDbVersion
             )
         }
 
@@ -343,27 +345,27 @@ private fun ChangeDbCompose(
             ),
             expanded = showChangeDb,
             onClick = {
-                if (downloadState <= -2) {
+                if (downloadState == DbDownloadState.NORMAL.state || remoteDbSizeError) {
                     onClick()
                 }
             },
             customFabContent = {
                 //加载相关
                 when (downloadState) {
-                    -3 -> {
-                        MainIcon(
-                            data = MainIconType.REMOTE_DB_ERROR,
+                    DbDownloadState.SIZE_ERROR.state -> {
+                        FabContent(
+                            icon = MainIconType.REMOTE_DB_ERROR,
                             tint = tintColor,
-                            size = Dimen.fabIconSize
+                            text = stringResource(id = R.string.db_error)
                         )
                     }
 
-                    -2 -> {
+                    DbDownloadState.NORMAL.state -> {
                         FadeAnimation(visible = dbError) {
-                            MainIcon(
-                                data = MainIconType.DB_ERROR,
+                            FabContent(
+                                icon = MainIconType.DB_ERROR,
                                 tint = tintColor,
-                                size = Dimen.fabIconSize
+                                text = stringResource(id = R.string.db_error)
                             )
                         }
                         FadeAnimation(visible = !dbError) {
@@ -451,7 +453,7 @@ private fun DbVersionOtherContent(
     color: Color,
     updateDbDownloadState: (Int) -> Unit,
     closeAllDialog: () -> Unit,
-    updateDbVersionText: (DatabaseVersion?) -> Unit
+    updateDbVersion: (DatabaseVersion?) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -484,7 +486,7 @@ private fun DbVersionOtherContent(
         Row(
             modifier = Modifier
                 .height(IntrinsicSize.Min)
-                .widthIn(min = Dimen.dataChangeWidth + Dimen.iconSize)
+                .widthIn(min = Dimen.dataChangeItemWidth + Dimen.iconSize)
         ) {
 
             //数据更新时间
@@ -509,7 +511,7 @@ private fun DbVersionOtherContent(
                 content = dbVersion?.truthVersion ?: stringResource(id = R.string.unknown),
                 modifier = Modifier
                     .weight(1f)
-                    .widthIn(max = Dimen.dataChangeWidth),
+                    .widthIn(max = Dimen.dataChangeItemWidth),
                 color = color
             )
         }
@@ -530,7 +532,7 @@ private fun DbVersionOtherContent(
                         DatabaseUpdater.checkDBVersion(
                             fixDb = true,
                             updateDbDownloadState = updateDbDownloadState,
-                            updateDbVersionText = updateDbVersionText,
+                            updateDbVersion = updateDbVersion,
                         )
                     }
                 }
@@ -539,15 +541,18 @@ private fun DbVersionOtherContent(
         ) {
             IconTextButton(
                 modifier = Modifier.padding(horizontal = Dimen.mediumPadding),
-                text = if (remoteDbSizeError) {
-                    stringResource(id = R.string.remote_data_file_error)
-                } else if (dbError) {
-                    stringResource(id = R.string.data_file_error)
-                } else {
-                    stringResource(id = R.string.data_file_error_desc)
-                },
+                text = "",
+                textWithColor = getColorText(
+                    color = MaterialTheme.colorScheme.primary,
+                    text = if (remoteDbSizeError) {
+                        stringResource(id = R.string.remote_db_file_error)
+                    } else if (dbError) {
+                        stringResource(id = R.string.db_file_error_re_download)
+                    } else {
+                        stringResource(id = R.string.re_download_db_file)
+                    }
+                ),
                 contentColor = color,
-                icon = MainIconType.DOWNLOAD,
                 textStyle = MaterialTheme.typography.bodySmall,
                 maxLines = 2
             )
@@ -810,7 +815,7 @@ private fun ChangeDbComposePreview() {
             downloadState = -2,
             updateDbDownloadState = {},
             closeAllDialog = {},
-            updateDbVersionText = {}
+            updateDbVersion = {}
         ) {
 
         }
@@ -834,7 +839,7 @@ private fun ChangeDbCompose2Preview() {
             downloadState = -2,
             updateDbDownloadState = {},
             closeAllDialog = {},
-            updateDbVersionText = {}
+            updateDbVersion = {}
         ) {
 
         }
@@ -850,7 +855,7 @@ private fun ChangeDbCompose2Preview() {
             downloadState = -2,
             updateDbDownloadState = {},
             closeAllDialog = {},
-            updateDbVersionText = {}
+            updateDbVersion = {}
         ) {
 
         }

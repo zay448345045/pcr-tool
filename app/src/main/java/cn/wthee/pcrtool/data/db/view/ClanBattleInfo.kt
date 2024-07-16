@@ -53,6 +53,9 @@ data class ClanBattleTargetCountData(
     var offset: Int = 0
 )
 
+/**
+ * 公会战 boss 信息
+ */
 data class ClanBattleBossData(
     var enemyId: Int = 0,
     var unitId: Int = 0,

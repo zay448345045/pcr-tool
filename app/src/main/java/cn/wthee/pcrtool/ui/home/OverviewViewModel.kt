@@ -1,16 +1,22 @@
 package cn.wthee.pcrtool.ui.home
 
 import androidx.compose.runtime.Immutable
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.wthee.pcrtool.MyApplication
 import cn.wthee.pcrtool.data.db.repository.UnitRepository
+import cn.wthee.pcrtool.data.enums.OverviewType
+import cn.wthee.pcrtool.data.enums.RegionType
 import cn.wthee.pcrtool.data.model.AppNotice
 import cn.wthee.pcrtool.data.model.DatabaseVersion
 import cn.wthee.pcrtool.data.network.ApiRepository
 import cn.wthee.pcrtool.data.preferences.MainPreferencesKeys
+import cn.wthee.pcrtool.data.preferences.SettingPreferencesKeys
 import cn.wthee.pcrtool.database.DatabaseUpdater
+import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.ui.dataStoreMain
+import cn.wthee.pcrtool.ui.dataStoreSetting
 import cn.wthee.pcrtool.utils.Constants.SERVER_DOMAIN
 import cn.wthee.pcrtool.utils.editOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -63,12 +69,26 @@ data class OverviewScreenUiState(
      * -1: 显示加载中
      * >0: 进度
      */
-    val dbDownloadState: Int = -1,
+    val dbDownloadState: Int = DbDownloadState.LOADING.state,
     /**
      * 数据库更新信息
      */
     val dbVersion: DatabaseVersion? = null
 )
+
+/**
+ * 数据库文件下载状态枚举
+ */
+enum class DbDownloadState(val state: Int) {
+    //数据库文件大小异常
+    SIZE_ERROR(-3),
+
+    //正常状态
+    NORMAL(-2),
+
+    //加载中
+    LOADING(-1);
+}
 
 /**
  * 首页纵览
@@ -78,7 +98,13 @@ class OverviewScreenViewModel @Inject constructor(
     private val unitRepository: UnitRepository,
     private val apiRepository: ApiRepository
 ) : ViewModel() {
-    private val defaultOrder = "0-1-6-2-3-4-5-"
+    private val defaultOrder = "${OverviewType.CHARACTER.id}" +
+            "-${OverviewType.EQUIP.id}" +
+            "-${OverviewType.UNIQUE_EQUIP.id}" +
+            "-${OverviewType.TOOL.id}" +
+            "-${OverviewType.NEWS.id}" +
+            "-${OverviewType.IN_PROGRESS_EVENT.id}" +
+            "-${OverviewType.COMING_SOON_EVENT.id}"
 
     private val _uiState = MutableStateFlow(OverviewScreenUiState())
     val uiState: StateFlow<OverviewScreenUiState> = _uiState.asStateFlow()
@@ -96,7 +122,7 @@ class OverviewScreenViewModel @Inject constructor(
             DatabaseUpdater.checkDBVersion(
                 fixDb = false,
                 updateDbDownloadState = this@OverviewScreenViewModel::updateDbDownloadState,
-                updateDbVersionText = this@OverviewScreenViewModel::updateDbVersionText
+                updateDbVersion = this@OverviewScreenViewModel::updateDbVersion
             )
         }
         //应用更新校验
@@ -305,8 +331,21 @@ class OverviewScreenViewModel @Inject constructor(
     /**
      * 更新数据库版本信息
      */
-    fun updateDbVersionText(dbVersion: DatabaseVersion?) {
+    fun updateDbVersion(dbVersion: DatabaseVersion?) {
+        val key = when (MainActivity.regionType) {
+            RegionType.CN -> SettingPreferencesKeys.SP_DATABASE_VERSION_CN
+            RegionType.TW -> SettingPreferencesKeys.SP_DATABASE_VERSION_TW
+            RegionType.JP -> SettingPreferencesKeys.SP_DATABASE_VERSION_JP
+        }
+
         viewModelScope.launch {
+            //更新本地数据库版本、哈希值
+            dbVersion?.let {
+                MyApplication.context.dataStoreSetting.edit {
+                    it[key] = dbVersion.toString()
+                }
+            }
+
             _uiState.update {
                 it.copy(
                     dbVersion = dbVersion

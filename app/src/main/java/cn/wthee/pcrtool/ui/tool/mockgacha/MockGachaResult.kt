@@ -100,7 +100,7 @@ fun MockGachaResult(
                     modifier = Modifier.padding(start = Dimen.smallPadding)
                 )
                 MainTitleText(
-                    text = "★3：$start3Count",
+                    text = stringResource(id = R.string.star, 3) + "：$start3Count",
                     backgroundColor = colorGold,
                     modifier = Modifier.padding(start = Dimen.smallPadding)
                 )
@@ -187,7 +187,7 @@ private fun MockGachaResultRecordItem(
                 )
             } else if (rarity3List.isNotEmpty()) {
                 MainTitleText(
-                    text = "★3",
+                    text = stringResource(id = R.string.star, 3),
                     modifier = Modifier.padding(start = Dimen.smallPadding),
                     backgroundColor = colorGold
                 )
@@ -262,7 +262,10 @@ private fun MockGachaResultRecordIconLine(
                             MaterialTheme.colorScheme.onSurface
                         }
                     }
-                    MainText(text = "★${gachaUnitInfo.rarity}", color = textColor)
+                    MainText(
+                        text = stringResource(id = R.string.star, gachaUnitInfo.rarity),
+                        color = textColor
+                    )
                 }
             }
         }

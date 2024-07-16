@@ -1,7 +1,6 @@
 package cn.wthee.pcrtool.data.enums
 
 import cn.wthee.pcrtool.R
-import cn.wthee.pcrtool.utils.getString
 
 /**
  * 技能效果枚举
@@ -481,28 +480,27 @@ enum class SkillActionType(val type: Int, val descId: Int) {
     SUM_CRITICAL(107, R.string.none),
 
     //fixme 110 技能描述
-}
+    //fixme 111 技能描述
+    /**
+     * 111：
+     */
+    TRIGGER_V2(111, R.string.skill_type_17),
 
-/**
- * 获取描述
- */
-fun getAilment(value: Int): String {
-    for (item in SkillActionType.entries) {
-        if (item.type == value) {
-            return getString(item.descId)
-        }
-    }
-    return ""
-}
+    /**
+     * 114：特殊标记计数？
+     */
+    SEAL_COUNT(114, R.string.none),
 
-/**
- * 获取技能类型枚举对象
- */
-fun toSkillActionType(value: Int): SkillActionType {
-    for (item in SkillActionType.entries) {
-        if (item.type == value) return item
+    /**
+     * 115：debuff？
+     */
+    AURA_V2(115, R.string.none),
+    ;
+
+    companion object {
+        fun getByType(type: Int) = SkillActionType.entries
+            .find { it.type == type } ?: UNKNOWN
     }
-    return SkillActionType.UNKNOWN
 }
 
 

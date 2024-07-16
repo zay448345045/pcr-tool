@@ -29,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import cn.wthee.pcrtool.BuildConfig
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.enums.MainIconType
 import cn.wthee.pcrtool.data.enums.ToolMenuType
@@ -47,10 +48,8 @@ import cn.wthee.pcrtool.ui.components.Subtitle2
 import cn.wthee.pcrtool.ui.components.VerticalGridList
 import cn.wthee.pcrtool.ui.dataStoreMain
 import cn.wthee.pcrtool.ui.home.tool.ToolMenu
-import cn.wthee.pcrtool.ui.home.tool.ToolMenuData
 import cn.wthee.pcrtool.ui.home.tool.ToolSectionViewModel
 import cn.wthee.pcrtool.ui.home.tool.getAction
-import cn.wthee.pcrtool.ui.home.tool.getToolMenuData
 import cn.wthee.pcrtool.ui.theme.CombinedPreviews
 import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.ExpandAnimation
@@ -68,7 +67,7 @@ import kotlinx.coroutines.launch
  */
 private data class ToolMenuGroup(
     val groupTitle: String,
-    val toolList: List<ToolMenuData>,
+    val toolList: List<ToolMenuType>,
     val groupDesc: String = ""
 )
 
@@ -93,28 +92,28 @@ fun AllToolMenuScreen(
     val itemGroupList = arrayListOf<ToolMenuGroup>()
 
     //游戏数据
-    val dataList = arrayListOf<ToolMenuData>()
-    dataList.addItem(ToolMenuType.CHARACTER)
-    dataList.addItem(ToolMenuType.EQUIP)
-    dataList.addItem(ToolMenuType.GUILD)
-    dataList.addItem(ToolMenuType.CLAN)
-    dataList.addItem(ToolMenuType.EXTRA_EQUIP)
-    dataList.addItem(ToolMenuType.TRAVEL_AREA)
-    dataList.addItem(ToolMenuType.UNIQUE_EQUIP)
-    dataList.addItem(ToolMenuType.TALENT_LIST)
+    val dataList = arrayListOf<ToolMenuType>()
+    dataList.add(ToolMenuType.CHARACTER)
+    dataList.add(ToolMenuType.EQUIP)
+    dataList.add(ToolMenuType.GUILD)
+    dataList.add(ToolMenuType.CLAN)
+    dataList.add(ToolMenuType.EXTRA_EQUIP)
+    dataList.add(ToolMenuType.TRAVEL_AREA)
+    dataList.add(ToolMenuType.UNIQUE_EQUIP)
+    dataList.add(ToolMenuType.TALENT_LIST)
     itemGroupList.add(ToolMenuGroup(stringResource(id = R.string.basic_info), dataList))
 
     //查询
-    val searchList = arrayListOf<ToolMenuData>()
-    searchList.addItem(ToolMenuType.PVP_SEARCH)
-    searchList.addItem(ToolMenuType.NEWS)
-    searchList.addItem(ToolMenuType.LEADER)
-    searchList.addItem(ToolMenuType.LEADER_TIER)
-    searchList.addItem(ToolMenuType.RANDOM_AREA)
-    searchList.addItem(ToolMenuType.WEBSITE)
-    searchList.addItem(ToolMenuType.TWEET)
-    searchList.addItem(ToolMenuType.COMIC)
-    searchList.addItem(ToolMenuType.LOAD_COMIC)
+    val searchList = arrayListOf<ToolMenuType>()
+    searchList.add(ToolMenuType.PVP_SEARCH)
+    searchList.add(ToolMenuType.NEWS)
+    searchList.add(ToolMenuType.LEADER)
+    searchList.add(ToolMenuType.LEADER_TIER)
+    searchList.add(ToolMenuType.RANDOM_AREA)
+    searchList.add(ToolMenuType.WEBSITE)
+    searchList.add(ToolMenuType.TWEET)
+    searchList.add(ToolMenuType.COMIC)
+    searchList.add(ToolMenuType.LOAD_COMIC)
     itemGroupList.add(
         ToolMenuGroup(
             stringResource(id = R.string.search_api),
@@ -124,32 +123,33 @@ fun AllToolMenuScreen(
     )
 
     //活动信息
-    val infoList = arrayListOf<ToolMenuData>()
-    infoList.addItem(ToolMenuType.GACHA)
-    infoList.addItem(ToolMenuType.STORY_EVENT)
-    infoList.addItem(ToolMenuType.FREE_GACHA)
-    infoList.addItem(ToolMenuType.BIRTHDAY)
-    infoList.addItem(ToolMenuType.CALENDAR_EVENT)
+    val infoList = arrayListOf<ToolMenuType>()
+    infoList.add(ToolMenuType.GACHA)
+    infoList.add(ToolMenuType.STORY_EVENT)
+    infoList.add(ToolMenuType.FREE_GACHA)
+    infoList.add(ToolMenuType.BIRTHDAY)
+    infoList.add(ToolMenuType.CALENDAR_EVENT)
     itemGroupList.add(ToolMenuGroup(stringResource(id = R.string.activity_info), infoList))
 
     //其它
-    val otherList = arrayListOf<ToolMenuData>()
-    otherList.addItem(ToolMenuType.MOCK_GACHA)
-    otherList.addItem(ToolMenuType.ALL_QUEST)
-    otherList.addItem(ToolMenuType.ALL_EQUIP)
+    val otherList = arrayListOf<ToolMenuType>()
+    otherList.add(ToolMenuType.MOCK_GACHA)
+    otherList.add(ToolMenuType.ALL_QUEST)
+    otherList.add(ToolMenuType.ALL_EQUIP)
     itemGroupList.add(ToolMenuGroup(stringResource(id = R.string.other), otherList))
 
     //测试
-//    val betaList = arrayListOf<ToolMenuData>()
-//    betaList.addItem(ToolMenuType.ALL_EQUIP)
-//    betaList.addItem(ToolMenuType.ALL_QUEST)
-//    itemGroupList.add(
-//        ToolMenuGroup(
-//            stringResource(id = R.string.beta_tool_group),
-//            betaList,
-//            stringResource(id = R.string.beta_tool_group_title)
-//        )
-//    )
+    if (BuildConfig.DEBUG) {
+        val betaList = arrayListOf<ToolMenuType>()
+        betaList.add(ToolMenuType.UNKNOWN_SKILL_LIST)
+        itemGroupList.add(
+            ToolMenuGroup(
+                stringResource(id = R.string.beta_tool_group),
+                betaList
+            )
+        )
+    }
+
 
     val uiState by toolSectionViewModel.uiState.collectAsStateWithLifecycle()
     LifecycleEffect(Lifecycle.Event.ON_CREATE) {
@@ -275,7 +275,7 @@ private fun MenuGroup(
         ) {
             MenuItem(
                 actions = actions,
-                toolMenuData = group.toolList[it],
+                toolMenuType = group.toolList[it],
                 orderStr = toolOrderData,
                 isEditMode = isEditMode,
                 updateOrderData = updateOrderData
@@ -287,14 +287,14 @@ private fun MenuGroup(
 @Composable
 private fun MenuItem(
     actions: NavActions,
-    toolMenuData: ToolMenuData,
+    toolMenuType: ToolMenuType,
     orderStr: String,
     isEditMode: Boolean,
     updateOrderData: (String) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val hasAdded = orderStr.intArrayList.contains(toolMenuData.type.id)
+    val hasAdded = orderStr.intArrayList.contains(toolMenuType.id)
 
 
     MainCard(
@@ -303,14 +303,14 @@ private fun MenuItem(
                 editOrder(
                     context,
                     scope,
-                    toolMenuData.type.id,
+                    toolMenuType.id,
                     MainPreferencesKeys.SP_TOOL_ORDER
                 ) {
                     updateOrderData(it)
                 }
             }
         } else {
-            getAction(actions, toolMenuData)
+            getAction(actions, toolMenuType)
         },
         containerColor = if (hasAdded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
     ) {
@@ -322,12 +322,12 @@ private fun MenuItem(
         ) {
             MainIcon(
                 modifier = Modifier.padding(start = Dimen.mediumPadding),
-                data = toolMenuData.iconType,
+                data = toolMenuType.iconType,
                 size = Dimen.mediumIconSize,
                 tint = if (hasAdded) colorWhite else MaterialTheme.colorScheme.primary
             )
             Subtitle2(
-                text = stringResource(id = toolMenuData.titleId),
+                text = stringResource(id = toolMenuType.titleId),
                 modifier = Modifier.padding(start = Dimen.largePadding),
                 color = if (hasAdded) colorWhite else MaterialTheme.colorScheme.onSurface
             )
@@ -335,29 +335,18 @@ private fun MenuItem(
     }
 }
 
-/**
- * 列表扩展函数
- */
-private fun ArrayList<ToolMenuData>.addItem(toolMenuType: ToolMenuType) {
-    this.add(getToolMenuData(toolMenuType = toolMenuType))
-}
-
 
 @CombinedPreviews
 @Composable
 private fun MenuGroupPreview() {
-    val menu = ToolMenuData(
-        R.string.tool_mock_gacha,
-        MainIconType.MOCK_GACHA,
-        ToolMenuType.MOCK_GACHA
-    )
+
 
     PreviewLayout {
         MenuGroup(
             actions = NavActions(rememberNavController()),
             group = ToolMenuGroup(
                 stringResource(id = R.string.debug_short_text),
-                arrayListOf(menu, menu, menu),
+                arrayListOf(ToolMenuType.MOCK_GACHA),
                 stringResource(id = R.string.debug_short_text),
             ),
             isEditMode = true

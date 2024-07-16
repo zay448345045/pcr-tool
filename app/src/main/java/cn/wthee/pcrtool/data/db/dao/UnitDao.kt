@@ -68,13 +68,16 @@ interface UnitDao {
             CAST((CASE WHEN unit_profile.age LIKE '%-%' OR unit_profile.age LIKE '%?%' OR  unit_profile.age LIKE '%？%' OR unit_profile.age = 0 THEN 999 ELSE unit_profile.age END) AS INTEGER) AS age_int,
             unit_profile.guild,
             unit_profile.race,
+            unit_profile.voice,
+            unit_profile.blood_type,
+            unit_profile.favorite,
             CAST((CASE WHEN unit_profile.height LIKE '%-%' OR unit_profile.height LIKE '%?%' OR  unit_profile.height LIKE '%？%' OR unit_profile.height = 0 THEN 999 ELSE unit_profile.height END) AS INTEGER) AS height_int,
             CAST((CASE WHEN unit_profile.weight LIKE '%-%' OR unit_profile.weight LIKE '%?%' OR  unit_profile.weight LIKE '%？%' OR unit_profile.weight = 0 THEN 999 ELSE unit_profile.weight END) AS INTEGER) AS weight_int,
             CAST((CASE WHEN unit_profile.birth_month LIKE '%-%' OR unit_profile.birth_month LIKE '%?%' OR  unit_profile.birth_month LIKE '%？%' OR unit_profile.birth_month = 0 THEN 999 ELSE unit_profile.birth_month END) AS INTEGER) AS birth_month_int,
             CAST((CASE WHEN unit_profile.birth_day LIKE '%-%' OR unit_profile.birth_day LIKE '%?%' OR  unit_profile.birth_day LIKE '%？%' OR unit_profile.birth_day = 0 THEN 999 ELSE unit_profile.birth_day END) AS INTEGER) AS birth_day_int,
             unit_data.search_area_width,
             unit_data.atk_type,
-            COALESCE(quest_data.quest_id, 0 ) AS r6Id,
+            COALESCE(rarity_6_quest_data.recommended_level, 0 ) AS r6Id,
             (
                 CASE WHEN unit_data.cutin_1 = 0 AND (unit_data.start_time = '2088/01/01 0:00:00' OR unit_data.start_time = '2015/4/1 15:00') 
                 THEN '2000/01/01 00:00:00' 
@@ -93,7 +96,7 @@ interface UnitDao {
             unit_profile
             LEFT JOIN unit_data ON unit_data.unit_id = unit_profile.unit_id
             LEFT JOIN item_data ON item_data.item_id = 32000 + unit_data.unit_id / 100 % 1000
-            LEFT JOIN quest_data ON quest_data.quest_id LIKE '13%' AND quest_data.daily_limit <> 0 AND quest_data.reward_image_1 = 32000 + unit_data.unit_id / 100 % 1000
+            LEFT JOIN rarity_6_quest_data ON rarity_6_quest_data.unit_id = unit_data.unit_id
             LEFT JOIN (SELECT MAX(id) AS id ,MAX(exchange_id) AS exchange_id,unit_id FROM gacha_exchange_lineup GROUP BY unit_id) AS gacha ON gacha.unit_id = unit_data.unit_id
         WHERE 
             (unit_data.unit_name like '%' || :unitName || '%' OR unit_data.unit_id = :unitName)
@@ -226,13 +229,16 @@ interface UnitDao {
             CAST((CASE WHEN unit_profile.age LIKE '%-%' OR unit_profile.age LIKE '%?%' OR  unit_profile.age LIKE '%？%' OR unit_profile.age = 0 THEN 999 ELSE unit_profile.age END) AS INTEGER) AS age_int,
             unit_profile.guild,
             unit_profile.race,
+            unit_profile.voice,
+            unit_profile.blood_type,
+            unit_profile.favorite,
             CAST((CASE WHEN unit_profile.height LIKE '%-%' OR unit_profile.height LIKE '%?%' OR  unit_profile.height LIKE '%？%' OR unit_profile.height = 0 THEN 999 ELSE unit_profile.height END) AS INTEGER) AS height_int,
             CAST((CASE WHEN unit_profile.weight LIKE '%-%' OR unit_profile.weight LIKE '%?%' OR  unit_profile.weight LIKE '%？%' OR unit_profile.weight = 0 THEN 999 ELSE unit_profile.weight END) AS INTEGER) AS weight_int,
             CAST((CASE WHEN unit_profile.birth_month LIKE '%-%' OR unit_profile.birth_month LIKE '%?%' OR  unit_profile.birth_month LIKE '%？%' OR unit_profile.birth_month = 0 THEN 999 ELSE unit_profile.birth_month END) AS INTEGER) AS birth_month_int,
             CAST((CASE WHEN unit_profile.birth_day LIKE '%-%' OR unit_profile.birth_day LIKE '%?%' OR  unit_profile.birth_day LIKE '%？%' OR unit_profile.birth_day = 0 THEN 999 ELSE unit_profile.birth_day END) AS INTEGER) AS birth_day_int,
             unit_data.search_area_width,
             unit_data.atk_type,
-            0 AS r6Id,
+            COALESCE(rarity_6_quest_data.recommended_level, 0 ) AS r6Id,
             COALESCE(unit_data.start_time, '2015/04/01') AS unit_start_time,
             (
                 CASE
@@ -246,11 +252,12 @@ interface UnitDao {
         FROM
             unit_profile
             LEFT JOIN unit_data ON unit_data.unit_id = unit_profile.unit_id
+            LEFT JOIN rarity_6_quest_data ON rarity_6_quest_data.unit_id = unit_data.unit_id
         WHERE 
             unit_data.unit_id = :unitId
         """
     )
-    suspend fun getCharacterBasicInfo(unitId: Int, exUnitIdList: List<Int>): CharacterInfo?
+    suspend fun getCharacterInfo(unitId: Int, exUnitIdList: List<Int>): CharacterInfo?
 
     /**
      * 获取角色详情基本资料
@@ -317,33 +324,6 @@ interface UnitDao {
     suspend fun getMultiIds(unitId: Int): List<Int>
 
     /**
-     * 根据位置范围 [start] <= x <= [end] 获取角色列表
-     * @param start 开始位置
-     * @param end 结束位置
-     */
-    @SkipQueryVerification
-    @Query(
-        """
-        SELECT
-            a.unit_id,
-            b.search_area_width AS position, 
-            - 1 AS type 
-        FROM
-            unit_profile AS a
-            LEFT JOIN unit_data AS b ON a.unit_id = b.unit_id 
-        WHERE
-            search_area_width >= :start 
-            AND search_area_width <= :end
-            AND a.unit_id < $maxUnitId  
-            AND b.search_area_width > 0
-        ORDER BY
-            b.search_area_width,
-            a.unit_id
-    """
-    )
-    suspend fun getCharacterByPosition(start: Int, end: Int): List<PvpCharacterData>
-
-    /**
      * 获取角色列表
      * @param unitIds 角色编号
      */
@@ -353,20 +333,58 @@ interface UnitDao {
         SELECT
             a.unit_id,
             b.search_area_width AS position, 
-            - 1 AS type 
+            - 1 AS type ,
+            0 AS talent_id
         FROM
             unit_profile AS a
             LEFT JOIN unit_data AS b ON a.unit_id = b.unit_id 
         WHERE
-            a.unit_id IN (:unitIds) 
+            ((1 = :allUnit) OR (0 = :allUnit AND a.unit_id IN (:unitIds)))
             AND a.unit_id < $maxUnitId
             AND b.search_area_width > 0
         ORDER BY
-            b.search_area_width DESC,
+        CASE WHEN :desc = 1 THEN  b.search_area_width END DESC,
+        CASE WHEN :desc = 0 THEN  b.search_area_width END ASC,
+        a.unit_id
+    """
+    )
+    suspend fun getCharacterByIds(
+        unitIds: List<Int>,
+        allUnit: Int,
+        desc: Int
+    ): List<PvpCharacterData>
+
+    /**
+     * 获取角色列表V2 适配天赋
+     * @param unitIds 角色编号
+     */
+    @SkipQueryVerification
+    @Query(
+        """
+        SELECT
+            a.unit_id,
+            b.search_area_width AS position, 
+            - 1 AS type,
+            c.talent_id
+        FROM
+            unit_profile AS a
+            LEFT JOIN unit_data AS b ON a.unit_id = b.unit_id 
+            LEFT JOIN unit_talent AS c ON a.unit_id = c.unit_id 
+        WHERE
+            ((1 = :allUnit) OR (0 = :allUnit AND a.unit_id IN (:unitIds)))
+            AND a.unit_id < $maxUnitId
+            AND b.search_area_width > 0
+        ORDER BY
+            CASE WHEN :desc = 1 THEN  b.search_area_width END DESC,
+            CASE WHEN :desc = 0 THEN  b.search_area_width END ASC,
             a.unit_id
     """
     )
-    suspend fun getCharacterByIds(unitIds: List<Int>): List<PvpCharacterData>
+    suspend fun getCharacterByIdsV2(
+        unitIds: List<Int>,
+        allUnit: Int,
+        desc: Int
+    ): List<PvpCharacterData>
 
     /**
      * 获取角色所需装备数据
@@ -508,18 +526,6 @@ interface UnitDao {
     /**
      * 获取角色剧情属性
      * @param unitId 角色编号
-     * fixme 日台有以下字段，国服未更新，待更新逻辑
-     * ,
-     *                 a.chara_id_11,
-     *                 a.chara_id_12,
-     *                 a.chara_id_13,
-     *                 a.chara_id_14,
-     *                 a.chara_id_15,
-     *                 a.chara_id_16,
-     *                 a.chara_id_17,
-     *                 a.chara_id_18,
-     *                 a.chara_id_19,
-     *                 a.chara_id_20
      */
     @SkipQueryVerification
     @Transaction
@@ -551,7 +557,17 @@ interface UnitDao {
                 a.chara_id_7,
                 a.chara_id_8,
                 a.chara_id_9,
-                a.chara_id_10 
+                a.chara_id_10,
+                a.chara_id_11,
+                a.chara_id_12,
+                a.chara_id_13,
+                a.chara_id_14,
+                a.chara_id_15,
+                a.chara_id_16,
+                a.chara_id_17,
+                a.chara_id_18,
+                a.chara_id_19,
+                a.chara_id_20
             )
             LEFT JOIN story_detail AS c ON a.story_id = c.story_id
         WHERE b.unit_id = :unitId
@@ -611,7 +627,7 @@ interface UnitDao {
     suspend fun getActualId(unitId: Int): Int?
 
     /**
-     * 获取卡池角色
+     * 获取卡池角色（一星去除御三家）
      * @param type 1、2、3: 常驻1、2、3星 ；4：限定；
      */
     @SkipQueryVerification

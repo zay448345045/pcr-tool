@@ -53,22 +53,7 @@ class UniqueEquipSectionViewModel @Inject constructor(
                     )
                 }
             }
-            getUniqueEquipCount()
             getUniqueEquipInfoList(limit)
-        }
-    }
-
-    /**
-     * 获取专用装备数量
-     */
-    private fun getUniqueEquipCount() {
-        viewModelScope.launch {
-            val count = equipmentRepository.getUniqueEquipCount()
-            _uiState.update {
-                it.copy(
-                    uniqueEquipCount = count
-                )
-            }
         }
     }
 
@@ -82,8 +67,13 @@ class UniqueEquipSectionViewModel @Inject constructor(
 
             _uiState.update {
                 it.copy(
-                    uniqueEquipList1 = filterList1?.subList(0, min(limit, filterList1.size)),
-                    uniqueEquipList2 = filterList2?.subList(0, min(limit, filterList2.size)),
+                    uniqueEquipList1 = filterList1.subList(0, min(limit, filterList1.size)),
+                    uniqueEquipList2 = filterList2.subList(0, min(limit, filterList2.size)),
+                    uniqueEquipCount = if (filterList2.isNotEmpty()) {
+                        "${filterList1.size} · ${filterList2.size}"
+                    } else {
+                        "${filterList1.size}"
+                    }
                 )
             }
         }

@@ -88,4 +88,25 @@ interface EnemyDao {
     """
     )
     suspend fun getAllEnemyTalentWeaknessList(enemyId: Int): List<EnemyTalentWeaknessData>
+
+    /**
+     * 获取所有公会战怪物基本参数
+     */
+    @SkipQueryVerification
+    @Query(
+        """
+        SELECT
+            enemy_parameter.*,
+            unit_enemy_data.normal_atk_cast_time,
+            unit_enemy_data.comment,
+            unit_enemy_data.prefab_id
+        FROM
+            enemy_parameter
+            LEFT JOIN unit_enemy_data ON enemy_parameter.unit_id = unit_enemy_data.unit_id
+        WHERE enemy_parameter.enemy_id LIKE '4%'
+        GROUP BY unit_enemy_data.unit_id
+        """
+    )
+    suspend fun getClanBossList(): List<EnemyParameterPro>
+
 }

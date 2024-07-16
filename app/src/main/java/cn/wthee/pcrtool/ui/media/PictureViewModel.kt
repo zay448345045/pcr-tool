@@ -26,13 +26,13 @@ import javax.inject.Inject
 @Immutable
 data class PictureUiState(
     //角色卡面
-    val unitCardList: ArrayList<String> = arrayListOf(),
+    val unitCardList: ArrayList<String?> = arrayListOf(),
     //剧情
-    val storyCardList: ArrayList<String> = arrayListOf(),
+    val storyCardList: ArrayList<String?> = arrayListOf(),
     //过场漫画
-    val comicList: ArrayList<String> = arrayListOf(),
+    val comicList: ArrayList<String?> = arrayListOf(),
     //剧情活动 banner
-    val bannerList: ArrayList<String> = arrayListOf(),
+    val bannerList: ArrayList<String?> = arrayListOf(),
     val storyLoadState: LoadState = LoadState.Loading,
     val comicLoadState: LoadState = LoadState.Loading,
     val pageCount: Int = 1
@@ -97,7 +97,7 @@ class PictureViewModel @Inject constructor(
             val actualId = unitRepository.getActualId(id)
             val picUrls =
                 ImageRequestHelper.getInstance().getAllPicUrl(id, actualId)
-            val list = arrayListOf<String>()
+            val list = arrayListOf<String?>()
             list.addAll(picUrls)
             _uiState.update {
                 it.copy(
@@ -146,7 +146,7 @@ class PictureViewModel @Inject constructor(
      */
     private fun getStoryBannerList() {
         viewModelScope.launch {
-            val list = arrayListOf<String>()
+            val list = arrayListOf<String?>()
             originalEventId?.let {
                 list.add(
                     ImageRequestHelper.getInstance()
@@ -186,7 +186,7 @@ class PictureViewModel @Inject constructor(
                 if (data != null) {
                     val url =
                         ImageRequestHelper.getInstance().getComicUrl(id = id, resourceType = data)
-                    val list = arrayListOf<String>()
+                    val list = arrayListOf<String?>()
                     if (data != "") {
                         list.add(url)
                     }
@@ -211,8 +211,8 @@ class PictureViewModel @Inject constructor(
     /**
      * 获取立绘信息
      */
-    private fun getStoryUrls(idStr: String, path: String): ArrayList<String> {
-        val list = arrayListOf<String>()
+    private fun getStoryUrls(idStr: String, path: String): ArrayList<String?> {
+        val list = arrayListOf<String?>()
         idStr.split(",").sortedBy { it }.forEach {
             if (it != "") {
                 list.add(ImageRequestHelper.getInstance().getUrl(path, it))

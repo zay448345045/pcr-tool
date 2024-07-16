@@ -614,7 +614,7 @@ fun EventTitleCountdown(
 fun CharacterTagRow(
     modifier: Modifier = Modifier,
     unknown: Boolean = false,
-    basicInfo: CharacterInfo?,
+    characterInfo: CharacterInfo?,
     tipText: String? = null,
     endText: String? = null,
     endTextColor: Color? = null,
@@ -627,19 +627,19 @@ fun CharacterTagRow(
         verticalArrangement = Arrangement.Center,
     ) {
         if (!unknown) {
-            val limitType = CharacterLimitType.getByType(basicInfo!!.limitType)
+            val limitType = CharacterLimitType.getByType(characterInfo!!.limitType)
 
             Row(
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
             ) {
                 //专用装备
-                if (showUniqueEquipType && basicInfo.uniqueEquipType != 0) {
+                if (showUniqueEquipType && characterInfo.uniqueEquipType != 0) {
                     MainIcon(
                         modifier = Modifier
                             .padding(horizontal = Dimen.exSmallPadding)
                             .align(Alignment.CenterVertically),
-                        data = if (basicInfo.uniqueEquipType == 1) {
+                        data = if (characterInfo.uniqueEquipType == 1) {
                             R.drawable.ic_unique_equip
                         } else {
                             R.drawable.ic_unique_equip2
@@ -653,7 +653,7 @@ fun CharacterTagRow(
                     modifier = Modifier
                         .padding(Dimen.exSmallPadding)
                         .align(Alignment.CenterVertically),
-                    position = basicInfo.position
+                    position = characterInfo.position
                 )
             }
 
@@ -664,9 +664,9 @@ fun CharacterTagRow(
             ) {
 
                 //天赋类型
-                val talentType = TalentType.getByType(basicInfo.talentId)
+                val talentType = TalentType.getByType(characterInfo.talentId)
                 //攻击
-                val atkType = AtkType.getByType(basicInfo.atkType)
+                val atkType = AtkType.getByType(characterInfo.atkType)
 
                 Tag(
                     modifier = Modifier
@@ -924,7 +924,7 @@ private fun CharacterTagPreview() {
         Column(modifier = Modifier.width(150.dp)) {
             CharacterTagRow(
                 unknown = false,
-                basicInfo = CharacterInfo(
+                characterInfo = CharacterInfo(
                     position = 123,
                     atkType = 1,
                     limitType = 2,
@@ -936,7 +936,7 @@ private fun CharacterTagPreview() {
         }
         CharacterTagRow(
             unknown = false,
-            basicInfo = CharacterInfo(
+            characterInfo = CharacterInfo(
                 position = 123,
                 atkType = 1,
                 limitType = 2,

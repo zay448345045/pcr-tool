@@ -83,9 +83,9 @@ class UnitRepository @Inject constructor(
             //筛选专用装备
             val uniqueEquipList = equipmentRepository.getUniqueEquipList("", 0)
             filterList.forEach {
-                val uniqueEquipType = uniqueEquipList?.count { equip ->
+                val uniqueEquipType = uniqueEquipList.count { equip ->
                     equip.unitId == it.id
-                } ?: 0
+                }
                 it.uniqueEquipType = uniqueEquipType
             }
             filterList = when (filter.uniqueEquipType) {
@@ -174,7 +174,7 @@ class UnitRepository @Inject constructor(
     /**
      * 获取角色基本信息
      */
-    suspend fun getCharacterBasicInfo(unitId: Int) = try {
+    suspend fun getCharacterInfo(unitId: Int) = try {
         //额外角色编号
         val exUnitIdList = try {
             unitDao.getExUnitIdList()
@@ -182,10 +182,11 @@ class UnitRepository @Inject constructor(
             arrayListOf()
         }
 
-        val data = unitDao.getCharacterBasicInfo(unitId = unitId, exUnitIdList = exUnitIdList)!!
+        val data = unitDao.getCharacterInfo(unitId = unitId, exUnitIdList = exUnitIdList)!!
         //获取专用装备信息
         val uniqueEquipList = equipmentRepository.getUniqueEquipList("", 0, unitId = data.id)
-        data.uniqueEquipType = uniqueEquipList?.size ?: 0
+        //根据专用装备数量，设置类型
+        data.uniqueEquipType = uniqueEquipList.size
         //获取天赋类型
         val talentIdList = getTalentIdList(unitId)
         data.talentId = if (talentIdList.isNotEmpty()) {
@@ -197,11 +198,6 @@ class UnitRepository @Inject constructor(
         //返回数据
         data
     } catch (_: Exception) {
-        //移除异常上报，排行榜会多次触发异常
-//        LogReportUtil.upload(
-//            e,
-//            Constants.EXCEPTION_UNIT_NULL + "getCharacterBasicInfo#unitId:$unitId"
-//        )
         null
     }
 
@@ -221,23 +217,17 @@ class UnitRepository @Inject constructor(
     }
 
     /**
-     * 根据站位获取角色列表
-     */
-    suspend fun getCharacterByPosition(start: Int, end: Int) = try {
-        unitDao.getCharacterByPosition(start, end)
-    } catch (e: Exception) {
-        LogReportUtil.upload(e, "getCharacterByPosition$start-$end")
-        emptyList()
-    }
-
-    /**
      * 根据id列表获取角色列表
      */
-    suspend fun getCharacterByIds(unitIds: List<Int>) = try {
-        unitDao.getCharacterByIds(unitIds)
+    suspend fun getCharacterByIds(unitIds: List<Int>, allUnit: Int = 0, desc: Int = 1) = try {
+        unitDao.getCharacterByIdsV2(unitIds, allUnit, desc)
     } catch (e: Exception) {
-        LogReportUtil.upload(e, "getCharacterByIds$unitIds")
-        emptyList()
+        try {
+            unitDao.getCharacterByIds(unitIds, allUnit, desc)
+        } catch (e: Exception) {
+            LogReportUtil.upload(e, "getCharacterByIds$unitIds")
+            emptyList()
+        }
     }
 
     suspend fun getMaxRank(unitId: Int) = try {

@@ -1,6 +1,7 @@
 package cn.wthee.pcrtool.data.db.repository
 
 import cn.wthee.pcrtool.data.db.dao.EquipmentDao
+import cn.wthee.pcrtool.data.db.view.Attr
 import cn.wthee.pcrtool.data.db.view.EquipmentBasicInfo
 import cn.wthee.pcrtool.data.db.view.UniqueEquipmentMaxData
 import cn.wthee.pcrtool.data.enums.RegionType
@@ -54,30 +55,6 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
     }
 
     /**
-     * 获取专用装备1、2数量
-     */
-    suspend fun getUniqueEquipCount() = try {
-        val uniqueEquipCount = equipmentDao.getUniqueEquipCountV2()
-        if (uniqueEquipCount.size > 1) {
-            "${uniqueEquipCount[0].count} · ${uniqueEquipCount[1].count}"
-        } else {
-            uniqueEquipCount[0].count.toString()
-        }
-
-    } catch (_: Exception) {
-        try {
-            val uniqueEquipCount = equipmentDao.getUniqueEquipCount()
-            if (uniqueEquipCount.isNotEmpty()) {
-                uniqueEquipCount[0].count.toString()
-            } else {
-                "0"
-            }
-        } catch (_: Exception) {
-            "0"
-        }
-    }
-
-    /**
      * 获取专用装备信息（包括专用装备1、2）
      *
      * @param unitId 角色编号
@@ -112,7 +89,7 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
                 lv
             }
 
-            val maxDataList = getUniqueEquip(unitId = unitId, lv = level, lv2 = lv2)
+            val maxDataList = getFixedUniqueEquip(unitId = unitId, lv = level, lv2 = lv2)
             // 专武1奖励属性不为空，计算总属性：初始属性 + 奖励属性
             if (maxDataList.isNotEmpty() && maxDataList[0].equipmentId % 10 == 1) {
                 if (tpBonusAttr != null) {
@@ -127,14 +104,14 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
 
             maxDataList
         } else {
-            getUniqueEquip(unitId = unitId, lv = lv, lv2 = lv2)
+            getFixedUniqueEquip(unitId = unitId, lv = lv, lv2 = lv2)
         }
 
 
     /**
      * 查询两张专武关联表，适配不同游戏版本
      */
-    private suspend fun getUniqueEquip(
+    private suspend fun getFixedUniqueEquip(
         unitId: Int,
         lv: Int,
         lv2: Int
@@ -142,17 +119,15 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
         val list = arrayListOf<UniqueEquipmentMaxData>()
         try {
             //专用装备1
-            equipmentDao.getUniqueEquipInfoV2(unitId = unitId, lv = lv, slot = 1)?.let {
+            equipmentDao.getUniqueEquipInfo(unitId = unitId, lv = lv, slot = 1)?.let {
                 list.add(it)
             }
             //专用装备2
-            equipmentDao.getUniqueEquipInfoV2(unitId = unitId, lv = lv2 + 1, slot = 2)?.let {
+            equipmentDao.getUniqueEquipInfo(unitId = unitId, lv = lv2 + 1, slot = 2)?.let {
                 list.add(it)
             }
         } catch (e: Exception) {
-            equipmentDao.getUniqueEquipInfo(unitId = unitId, lv = lv)?.let {
-                list.add(it)
-            }
+            LogReportUtil.upload(e, "getUniqueEquip#unitId:$unitId")
         }
         return list
     }
@@ -161,9 +136,13 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
      * 查询两张专武关联表，适配不同游戏版本
      */
     private suspend fun getUniqueEquipBonus(unitId: Int, offsetLv: Int, minLv: Int) = try {
-        equipmentDao.getUniqueEquipBonusV2(unitId = unitId, lv = offsetLv, minLv = minLv)
-    } catch (e: Exception) {
         equipmentDao.getUniqueEquipBonus(unitId = unitId, lv = offsetLv, minLv = minLv)
+    } catch (e: Exception) {
+        LogReportUtil.upload(
+            e,
+            "getUniqueEquipBonus#unitId:$unitId,offsetLv:$offsetLv,minLv:$minLv"
+        )
+        Attr()
     }
 
     suspend fun getUniqueEquipMaxLv(slot: Int) = equipmentDao.getUniqueEquipMaxLv(slot)
@@ -242,10 +221,9 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
      */
     suspend fun getUniqueEquipList(name: String, slot: Int, unitId: Int = 0) = try {
         val data = (try {
-            val data = equipmentDao.getUniqueEquipListV2(name = name, slot = slot, unitId = unitId)
-            data
-        } catch (_: Exception) {
             equipmentDao.getUniqueEquipList(name = name, slot = slot, unitId = unitId)
+        } catch (_: Exception) {
+            emptyList()
         }).reversed()
 
         when (MainActivity.regionType) {
@@ -254,17 +232,10 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
                 data.sortedBy {
                     arrayListOf(
                         137011,
-                        137021
-                    ).contains(it.equipId)
-                }
-            }
-
-            RegionType.TW -> {
-                //处理台服排序
-                data.sortedBy {
-                    arrayListOf(
+                        137021,
                         138011,
                         138021,
+                        138031,
                         138041,
                         138061
                     ).contains(it.equipId)
@@ -277,7 +248,7 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
         }
     } catch (e: Exception) {
         LogReportUtil.upload(e, "getUniqueEquipInfoList")
-        null
+        emptyList()
     }
 
 

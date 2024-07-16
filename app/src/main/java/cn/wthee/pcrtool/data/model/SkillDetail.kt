@@ -55,11 +55,12 @@ data class SkillDetail(
              actions.forEachIndexed { index, skillActionPro ->
                  skillActionPro.getActionDesc().let { actionDesc ->
                      if (actionDesc.showCoe) {
-                         val coe = Regex("\\{.\\}").findAll(actionDesc.action).firstOrNull()?.value
+                         val coe =
+                             Regex("\\{.\\}").findAll(actionDesc.actionDesc).firstOrNull()?.value
                          coe?.let {
                              list.add(ShowCoe(index, 0, coe))
                              val actionText = getString(R.string.skill_action)
-                             Regex("${actionText}\\(.\\)").findAll(actionDesc.action)
+                             Regex("${actionText}\\(.\\)").findAll(actionDesc.actionDesc)
                                  .forEach { result ->
                                      val next = result.value.substring(3, 4).toInt() - 1
                                      list.add(ShowCoe(next, 1, coe))

@@ -1,6 +1,5 @@
 package cn.wthee.pcrtool.ui.home.tool
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -44,12 +43,6 @@ import cn.wthee.pcrtool.utils.VibrateUtil
 import cn.wthee.pcrtool.utils.deleteSpace
 import cn.wthee.pcrtool.utils.editOrder
 import cn.wthee.pcrtool.utils.intArrayList
-
-data class ToolMenuData(
-    @StringRes val titleId: Int,
-    val iconType: MainIconType,
-    var type: ToolMenuType = ToolMenuType.CHARACTER
-)
 
 
 /**
@@ -149,10 +142,10 @@ fun ToolMenu(
             }
         }
     ) {
-        val toolList = arrayListOf<ToolMenuData>()
+        val toolList = arrayListOf<ToolMenuType>()
         toolOrderData?.intArrayList?.forEach {
             ToolMenuType.getByValue(it)?.let { toolMenuType ->
-                toolList.add(getToolMenuData(toolMenuType = toolMenuType))
+                toolList.add(toolMenuType)
             }
         }
 
@@ -164,7 +157,7 @@ fun ToolMenu(
         ) {
             MenuItem(
                 actions = actions,
-                toolMenuData = toolList[it],
+                toolMenuType = toolList[it],
                 isEditMode = isEditMode,
                 updateOrderData = updateToolOrderData
             )
@@ -175,7 +168,7 @@ fun ToolMenu(
 @Composable
 fun MenuItem(
     actions: NavActions,
-    toolMenuData: ToolMenuData,
+    toolMenuType: ToolMenuType,
     isEditMode: Boolean,
     updateOrderData: ((String) -> Unit)? = null
 ) {
@@ -192,7 +185,7 @@ fun MenuItem(
                     editOrder(
                         context,
                         scope,
-                        toolMenuData.type.id,
+                        toolMenuType.id,
                         MainPreferencesKeys.SP_TOOL_ORDER
                     ) {
                         if (updateOrderData != null) {
@@ -200,16 +193,16 @@ fun MenuItem(
                         }
                     }
                 } else {
-                    getAction(actions, toolMenuData)()
+                    getAction(actions, toolMenuType)()
                 }
             }
             .defaultMinSize(minWidth = Dimen.menuItemSize)
             .padding(Dimen.smallPadding),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        MainIcon(data = toolMenuData.iconType, size = Dimen.menuIconSize)
+        MainIcon(data = toolMenuType.iconType, size = Dimen.menuIconSize)
         CaptionText(
-            text = stringResource(id = toolMenuData.titleId),
+            text = stringResource(id = toolMenuType.titleId),
             modifier = Modifier.padding(top = Dimen.mediumPadding),
             textAlign = TextAlign.Center
         )
@@ -221,11 +214,11 @@ fun MenuItem(
  */
 fun getAction(
     actions: NavActions,
-    tool: ToolMenuData
+    toolMenuType: ToolMenuType
 ): () -> Unit {
 
     return {
-        when (tool.type) {
+        when (toolMenuType) {
             ToolMenuType.CHARACTER -> actions.toCharacterList()
             ToolMenuType.GACHA -> actions.toGacha()
             ToolMenuType.CLAN -> actions.toClan()
@@ -236,7 +229,6 @@ fun getAction(
             ToolMenuType.EQUIP -> actions.toEquipList()
             ToolMenuType.TWEET -> actions.toTweetList()
             ToolMenuType.COMIC -> actions.toComicList()
-//            ToolMenuType.ALL_SKILL -> actions.toAllSkillList()
             ToolMenuType.ALL_EQUIP -> actions.toAllEquipList()
             ToolMenuType.RANDOM_AREA -> actions.toRandomEquipArea(0)
             ToolMenuType.NEWS -> actions.toNews()
@@ -252,77 +244,10 @@ fun getAction(
             ToolMenuType.UNIQUE_EQUIP -> actions.toUniqueEquipList()
             ToolMenuType.LOAD_COMIC -> actions.toLoadComicList()
             ToolMenuType.TALENT_LIST -> actions.toUnitTalentList()
+            ToolMenuType.UNKNOWN_SKILL_LIST -> actions.toUnknownSkillList()
         }
     }
 
-}
-
-/**
- * 获取菜单数据
- */
-fun getToolMenuData(toolMenuType: ToolMenuType): ToolMenuData {
-    val tool = when (toolMenuType) {
-        ToolMenuType.CHARACTER -> ToolMenuData(R.string.character, MainIconType.CHARACTER)
-        ToolMenuType.EQUIP -> ToolMenuData(R.string.tool_equip, MainIconType.EQUIP)
-        ToolMenuType.GUILD -> ToolMenuData(R.string.tool_guild, MainIconType.GUILD)
-        ToolMenuType.CLAN -> ToolMenuData(R.string.tool_clan, MainIconType.CLAN)
-        ToolMenuType.RANDOM_AREA -> ToolMenuData(R.string.random_area, MainIconType.RANDOM_AREA)
-        ToolMenuType.GACHA -> ToolMenuData(R.string.tool_gacha, MainIconType.GACHA)
-        ToolMenuType.STORY_EVENT -> ToolMenuData(R.string.tool_event, MainIconType.EVENT)
-        ToolMenuType.NEWS -> ToolMenuData(R.string.tool_news, MainIconType.NEWS)
-        ToolMenuType.FREE_GACHA -> ToolMenuData(R.string.tool_free_gacha, MainIconType.FREE_GACHA)
-        ToolMenuType.PVP_SEARCH -> ToolMenuData(R.string.tool_pvp, MainIconType.PVP_SEARCH)
-        ToolMenuType.LEADER -> ToolMenuData(R.string.tool_leader, MainIconType.LEADER)
-        ToolMenuType.TWEET -> ToolMenuData(R.string.tweet, MainIconType.TWEET)
-        ToolMenuType.COMIC -> ToolMenuData(R.string.comic_4, MainIconType.COMIC)
-//        ToolMenuType.ALL_SKILL -> ToolMenuData(R.string.skill, MainIconType.SKILL_LOOP)
-        ToolMenuType.ALL_EQUIP -> ToolMenuData(R.string.calc_equip_count, MainIconType.EQUIP_CALC)
-        ToolMenuType.MOCK_GACHA -> ToolMenuData(R.string.tool_mock_gacha, MainIconType.MOCK_GACHA)
-        ToolMenuType.BIRTHDAY -> ToolMenuData(R.string.tool_birthday, MainIconType.BIRTHDAY)
-        ToolMenuType.CALENDAR_EVENT -> ToolMenuData(
-            R.string.tool_calendar_event,
-            MainIconType.CALENDAR
-        )
-
-        ToolMenuType.EXTRA_EQUIP -> ToolMenuData(
-            R.string.tool_extra_equip,
-            MainIconType.EXTRA_EQUIP
-        )
-
-        ToolMenuType.TRAVEL_AREA -> ToolMenuData(
-            R.string.tool_travel,
-            MainIconType.EXTRA_EQUIP_DROP
-        )
-
-        ToolMenuType.WEBSITE -> ToolMenuData(R.string.tool_website, MainIconType.WEBSITE_BOOKMARK)
-        ToolMenuType.LEADER_TIER -> ToolMenuData(
-            R.string.tool_leader_tier,
-            MainIconType.LEADER_TIER
-        )
-
-        ToolMenuType.ALL_QUEST -> ToolMenuData(
-            R.string.tool_all_quest,
-            MainIconType.ALL_QUEST
-        )
-
-        ToolMenuType.UNIQUE_EQUIP -> ToolMenuData(
-            R.string.tool_unique_equip,
-            MainIconType.UNIQUE_EQUIP
-        )
-
-        ToolMenuType.LOAD_COMIC -> ToolMenuData(
-            R.string.tool_load_comic,
-            MainIconType.LOAD_COMIC
-        )
-
-        ToolMenuType.TALENT_LIST -> ToolMenuData(
-            R.string.unit_talent,
-            MainIconType.TALENT
-        )
-    }
-    //设置模块类别
-    tool.type = toolMenuType
-    return tool
 }
 
 

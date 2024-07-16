@@ -21,8 +21,6 @@ import kotlinx.serialization.json.Json
  * 接口请求 client
  */
 object ApiClient {
-    private const val TIMEOUT_NORMAL_SECOND = 10 * 1000L
-    private const val MAX_RETRY = 1
 
     // 配置 HttpClient
     @OptIn(ExperimentalSerializationApi::class)
@@ -35,14 +33,14 @@ object ApiClient {
 
         // 请求重试配置
         install(HttpRequestRetry) {
-            maxRetries = MAX_RETRY
+            maxRetries = 3
         }
 
         // 超时设置
         install(HttpTimeout) {
-            requestTimeoutMillis = TIMEOUT_NORMAL_SECOND
-            connectTimeoutMillis = TIMEOUT_NORMAL_SECOND
-            socketTimeoutMillis = TIMEOUT_NORMAL_SECOND
+            requestTimeoutMillis = 10 * 1000L
+            connectTimeoutMillis = 5 * 1000L
+            socketTimeoutMillis = 5 * 1000L
         }
 
         // 响应 JSON 配置

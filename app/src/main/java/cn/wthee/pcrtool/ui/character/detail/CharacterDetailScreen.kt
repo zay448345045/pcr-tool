@@ -363,7 +363,7 @@ private fun SharedTransitionScope.CharacterDetailContent(
                         CharacterDetailModuleType.CARD -> CharacterCard(
                             animatedVisibilityScope = animatedVisibilityScope,
                             unitId = uiState.unitId,
-                            basicInfo = uiState.basicInfo,
+                            characterInfo = uiState.characterInfo,
                             favorite = uiState.favorite,
                             toAllPics = actions.toAllPics
                         )
@@ -382,7 +382,7 @@ private fun SharedTransitionScope.CharacterDetailContent(
                             ToolsContent(
                                 unitId = uiState.unitId,
                                 cutinId = uiState.cutinId,
-                                talentType = uiState.basicInfo?.talentId ?: 0,
+                                talentType = uiState.characterInfo?.talentId ?: 0,
                                 idList = uiState.idList,
                                 toCharacterBasicInfo = actions.toCharacterBasicInfo,
                                 toAllPics = actions.toAllPics,
@@ -468,7 +468,7 @@ private fun SharedTransitionScope.CharacterDetailContent(
                         //图标
                         CharacterDetailModuleType.UNIT_ICON -> {
                             UnitIconAndTag(
-                                basicInfo = uiState.basicInfo,
+                                characterInfo = uiState.characterInfo,
                                 showUniqueEquipType = uiState.showAllInfo,
                                 animatedVisibilityScope = animatedVisibilityScope
                             )
@@ -502,7 +502,7 @@ private fun SharedTransitionScope.CharacterDetailContent(
 private fun SharedTransitionScope.CharacterCard(
     animatedVisibilityScope: AnimatedVisibilityScope,
     unitId: Int,
-    basicInfo: CharacterInfo?,
+    characterInfo: CharacterInfo?,
     favorite: Boolean,
     toAllPics: (Int, Int) -> Unit
 ) {
@@ -522,7 +522,7 @@ private fun SharedTransitionScope.CharacterCard(
         CharacterItemContent(
             animatedVisibilityScope = animatedVisibilityScope,
             unitId = unitId,
-            character = basicInfo,
+            characterInfo = characterInfo,
             favorite = favorite,
             onClick = {
                 toAllPics(unitId, AllPicsType.CHARACTER.type)

@@ -10,14 +10,11 @@ enum class CharacterSortType(val type: Int) {
     SORT_WEIGHT(3),
     SORT_POSITION(4),
     SORT_BIRTHDAY(5),
-    SORT_UNLOCK_6(6),
-}
+    SORT_UNLOCK_6(6);
 
-fun getSortType(value: Int): CharacterSortType {
-    for (item in CharacterSortType.entries) {
-        if (item.type == value) return item
+    companion object {
+        fun getByType(type: Int) = CharacterSortType.entries
+            .find { it.type == type } ?: SORT_DATE
     }
-    return CharacterSortType.SORT_DATE
 }
-
 

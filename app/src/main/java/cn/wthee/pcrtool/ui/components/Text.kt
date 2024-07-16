@@ -21,14 +21,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.enums.RankColor
+import cn.wthee.pcrtool.ui.skill.ColorTextIndex
 import cn.wthee.pcrtool.ui.theme.CombinedPreviews
 import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.PreviewLayout
@@ -93,7 +98,10 @@ fun MainContentText(
     }
 
     if (selectable) {
-        SelectionContainer(modifier = modifier, content = content)
+        //fixme 2024-06-04 添加一层。直接使用 SelectionContainer 时，设置 weight 无效
+        Box(modifier = modifier) {
+            SelectionContainer(modifier = Modifier.fillMaxWidth(), content = content)
+        }
     } else {
         content()
     }
@@ -426,6 +434,62 @@ fun CommonGroupTitle(
             )
         }
 
+    }
+}
+
+/**
+ * 加粗 []及其范围内的字体
+ */
+@Composable
+fun ColorText(
+    modifier: Modifier = Modifier,
+    text: String,
+    style: TextStyle = MaterialTheme.typography.bodyMedium,
+    color: Color = MaterialTheme.colorScheme.primary
+) {
+    Text(
+        text = getColorText(color, text),
+        textAlign = TextAlign.Start,
+        modifier = modifier.padding(top = Dimen.largePadding, bottom = Dimen.mediumPadding),
+        style = style,
+    )
+}
+
+
+/**
+ * 构建待颜色的文本
+ */
+@Composable
+fun getColorText(color: Color, text: String): AnnotatedString {
+    val mark0 = arrayListOf<ColorTextIndex>()
+    text.forEachIndexed { index, c ->
+        if (c == '[') {
+            mark0.add(ColorTextIndex(start = index))
+        }
+        if (c == ']') {
+            mark0[mark0.size - 1].end = index
+        }
+    }
+
+    return buildAnnotatedString {
+        text.forEachIndexed { index, char ->
+            //替换括号及括号内字体颜色
+            mark0.forEach {
+                if (index >= it.start && index <= it.end) {
+                    withStyle(
+                        style = SpanStyle(
+                            color = color,
+                            fontWeight = FontWeight.Bold
+                        )
+                    ) {
+                        append(char)
+                    }
+                    return@forEachIndexed
+                }
+            }
+            //添加非括号标记的参数
+            append(char)
+        }
     }
 }
 
