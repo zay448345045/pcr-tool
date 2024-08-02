@@ -243,17 +243,30 @@ class ApiRepository @Inject constructor(private val client: HttpClient) {
     /**
      * 排行信息
      */
-    suspend fun getLeader(): ResponseData<List<LeaderboardData>> =
-        postCatching("leaders/score/v2")
+    suspend fun getLeader(unitId: Int? = null): ResponseData<List<LeaderboardData>> =
+        postCatching("leaders/score/v2") {
+            setBody(
+                buildJsonObject {
+                    unitId?.let {
+                        put("unitId", unitId)
+                    }
+                }
+            )
+        }
 
     /**
-     * 排行评级信息
+     * 排行梯队信息
      */
-    suspend fun getLeaderTier(type: Int): ResponseData<LeaderTierData> =
+    suspend fun getLeaderTier(type: Int?, unitId: Int? = null): ResponseData<LeaderTierData> =
         postCatching("leaders/tier/v2") {
             setBody(
                 buildJsonObject {
-                    put("type", type)
+                    type?.let {
+                        put("type", type)
+                    }
+                    unitId?.let {
+                        put("unitId", unitId)
+                    }
                 }
             )
         }
