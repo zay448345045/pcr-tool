@@ -2,28 +2,31 @@ name: Android CI
 
 on:
   push:
-    branches: [ "master-compose" ]
-  pull_request:
     branches: [ "beta-compose" ]
+    paths:
+       - 'action.on' # 只有 特定 文件的更改才构建
+#    branches: [ "master-compose" ]
+#  pull_request:
+#    branches: [ "beta-compose" ]
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4
     - name: set up JDK 
       uses: actions/setup-java@v4
       with:
-        java-version: '17'
+        java-version: '23'
         distribution: 'temurin'
         cache: gradle
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew assembledebug --scan #--stacktrace #--debug       #build#
+      run: ./gradlew assembledebug #--scan #--stacktrace #--debug       #build#
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
