@@ -119,7 +119,7 @@ enum class SkillActionType(val type: Int, val descId: Int) {
     INVINCIBLE(21, R.string.skill_type_21),
 
     /**
-     * 22：改变模式
+     * 22：循环变更
      */
     CHANGE_PATTERN(22, R.string.skill_type_22),
 
@@ -191,12 +191,12 @@ enum class SkillActionType(val type: Int, val descId: Int) {
     /**
      * 35：特殊标记
      */
-    SEAL(35, R.string.skill_type_35_43_60_77),
+    SEAL(35, R.string.skill_type_35_43_60_77_133),
 
     /**
      * 101：特殊标记v2
      */
-    SEAL_V2(101, R.string.skill_type_35_43_60_77),
+    SEAL_V2(101, R.string.skill_type_35_43_60_77_133),
 
     /**
      * 36：攻击领域展开
@@ -236,7 +236,7 @@ enum class SkillActionType(val type: Int, val descId: Int) {
     /**
      * 43：拥有标记时触发
      */
-    IF_TARGETED(43, R.string.skill_type_35_43_60_77),
+    IF_TARGETED(43, R.string.skill_type_35_43_60_77_133),
 
     /**
      * 44：每场战斗开始时
@@ -321,7 +321,7 @@ enum class SkillActionType(val type: Int, val descId: Int) {
     /**
      * 60：标记赋予
      */
-    ATTACK_SEAL(60, R.string.skill_type_35_43_60_77),
+    ATTACK_SEAL(60, R.string.skill_type_35_43_60_77_133),
 
     /**
      * 61：恐慌
@@ -381,7 +381,7 @@ enum class SkillActionType(val type: Int, val descId: Int) {
     /**
      * 77：被动叠加标记
      */
-    IF_BUFF_SEAL(77, R.string.skill_type_35_43_60_77),
+    IF_BUFF_SEAL(77, R.string.skill_type_35_43_60_77_133),
 
     /**
      * 78：被击伤害上升
@@ -479,7 +479,11 @@ enum class SkillActionType(val type: Int, val descId: Int) {
      */
     SUM_CRITICAL(107, R.string.none),
 
-    //fixme 110 技能描述
+    /**
+     * 110：持续伤害易伤
+     */
+    DOT_UP(110, R.string.skill_type_110),
+
     //fixme 111 技能描述
     /**
      * 111：
@@ -495,6 +499,56 @@ enum class SkillActionType(val type: Int, val descId: Int) {
      * 115：debuff？
      */
     AURA_V2(115, R.string.none),
+
+    /**
+     * 116：执着状态
+     */
+    PERSISTENT(116, R.string.skill_action_type_116),
+
+    /**
+     * 121：幻化状态
+     */
+    MAGIC_CHANGE(121, R.string.skill_action_type_121),
+
+    /**
+     * 123：减伤状态
+     */
+    MAGIC_CHANGE_REDUCE_DAMAGE(123, R.string.skill_action_type_123),
+
+    /**
+     * 124：护盾（转移伤害）
+     */
+    TRANSFER_DAMAGE(124, R.string.skill_action_type_124),
+
+    /**
+     * 125：无法选中
+     */
+    CANNOT_SELECTED(125, R.string.skill_action_type_125),
+
+    /**
+     * 128：持续伤害增强
+     */
+    BUFF_DOT(128, R.string.skill_action_type_128),
+
+    /**
+     * 129：伤害转化
+     */
+    DAMAGE_TO_DOT(129, R.string.skill_action_type_129),
+
+    /**
+     * 130：调和
+     */
+    CHANGE_DEF_MAX(130, R.string.skill_action_type_130),
+
+    /**
+     * 132：伤害变更
+     */
+    DAMAGE_CHANGE(132, R.string.skill_action_type_132),
+
+    /**
+     * 133：标记消耗
+     */
+    SEAL_CONSUME(133, R.string.skill_type_35_43_60_77_133),
     ;
 
     companion object {

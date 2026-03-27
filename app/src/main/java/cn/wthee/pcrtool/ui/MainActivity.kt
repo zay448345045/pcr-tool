@@ -23,7 +23,6 @@ import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.NavHostController
-import androidx.work.WorkManager
 import cn.wthee.pcrtool.MyApplication.Companion.context
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.enums.RegionType
@@ -77,6 +76,7 @@ class MainActivity : ComponentActivity() {
         var vibrateOnFlag = true
         var animOnFlag = true
         var dynamicColorOnFlag = true
+        var autoTimeZone = true
         var r6Ids = listOf<Int>()
         var regionType = RegionType.CN
 
@@ -120,7 +120,6 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         stopService(Intent(context, PvpFloatService::class.java))
-        WorkManager.getInstance(context).cancelAllWork()
         val notificationManager: NotificationManager =
             context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancelAll()
@@ -132,9 +131,10 @@ class MainActivity : ComponentActivity() {
     private fun initUserPreferences() {
         runBlocking {
             val preferences = context.dataStoreSetting.data.first()
-            vibrateOnFlag = preferences[SettingPreferencesKeys.SP_VIBRATE_STATE] ?: true
-            animOnFlag = preferences[SettingPreferencesKeys.SP_ANIM_STATE] ?: true
-            dynamicColorOnFlag = preferences[SettingPreferencesKeys.SP_COLOR_STATE] ?: true
+            vibrateOnFlag = preferences[SettingPreferencesKeys.SP_VIBRATE_STATE] != false
+            animOnFlag = preferences[SettingPreferencesKeys.SP_ANIM_STATE] != false
+            dynamicColorOnFlag = preferences[SettingPreferencesKeys.SP_COLOR_STATE] != false
+            autoTimeZone = preferences[SettingPreferencesKeys.SP_TIME_ZONE] != false
             regionType = RegionType.getByValue(
                 preferences[SettingPreferencesKeys.SP_DATABASE_TYPE] ?: RegionType.CN.value
             )

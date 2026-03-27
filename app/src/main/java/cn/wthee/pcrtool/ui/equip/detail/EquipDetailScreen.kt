@@ -1,8 +1,10 @@
 package cn.wthee.pcrtool.ui.equip.detail
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,10 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.R
+import cn.wthee.pcrtool.data.db.view.Attr
 import cn.wthee.pcrtool.data.db.view.EquipmentMaxData
 import cn.wthee.pcrtool.data.enums.MainIconType
 import cn.wthee.pcrtool.data.model.EquipmentMaterial
@@ -34,6 +37,7 @@ import cn.wthee.pcrtool.ui.components.SelectText
 import cn.wthee.pcrtool.ui.components.StateBox
 import cn.wthee.pcrtool.ui.components.Subtitle2
 import cn.wthee.pcrtool.ui.components.VerticalGridList
+import cn.wthee.pcrtool.ui.shared.SharedElementKey
 import cn.wthee.pcrtool.ui.theme.CombinedPreviews
 import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.PreviewLayout
@@ -128,8 +132,8 @@ private fun SharedTransitionScope.EquipDetailContent(
             .then(
                 if (MainActivity.animOnFlag) {
                     Modifier.sharedElement(
-                        state = rememberSharedContentState(
-                            key = "item-$equipId"
+                        sharedContentState = rememberSharedContentState(
+                            key = "${SharedElementKey.EQUIP}$equipId"
                         ),
                         animatedVisibilityScope = animatedVisibilityScope,
                     )
@@ -218,21 +222,28 @@ private fun EquipMaterialListContent(
 }
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @CombinedPreviews
 @Composable
 private fun EquipDetailPreview() {
     PreviewLayout {
-//        EquipDetailContent(
-//            equipId = 0,
-//            equipMaxData = EquipmentMaxData(
-//                equipmentId = 1001,
-//                equipmentName = stringResource(id = R.string.debug_short_text),
-//                description = stringResource(id = R.string.debug_long_text),
-//                craftFlg = 1,
-//                attr = Attr()
-//            ),
-//            favorite = true
-//        )
+        SharedTransitionLayout {
+            AnimatedVisibility(visible = true) {
+                EquipDetailContent(
+                    animatedVisibilityScope = this,
+                    equipId = 0,
+                    equipMaxData = EquipmentMaxData(
+                        equipmentId = 1001,
+                        equipmentName = stringResource(id = R.string.debug_short_text),
+                        description = stringResource(id = R.string.debug_long_text),
+                        craftFlg = 1,
+                        attr = Attr()
+                    ),
+                    favorite = true
+                )
+            }
+        }
+
         EquipMaterialListContent(
             materialList = arrayListOf(EquipmentMaterial(id = 1)),
             favoriteIdList = arrayListOf(1),

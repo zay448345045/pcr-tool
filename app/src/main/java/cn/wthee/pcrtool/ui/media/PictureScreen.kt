@@ -35,7 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.enums.MainIconType
@@ -219,7 +219,7 @@ private fun PictureScreenContent(uiState: PictureUiState) {
                         loadState = LoadState.Success,
                         showTitle = false
                     ) {
-                        val isBanner = it?.contains(ImageRequestHelper.EVENT_BANNER) ?: false
+                        val isBanner = it?.contains(ImageRequestHelper.EVENT_BANNER) == true
                         PictureItem(
                             picUrl = it,
                             modifier = Modifier
@@ -304,7 +304,6 @@ fun PictureItem(
 
 /**
  * 图片预览弹窗
- * fixme 小窗模式底部显示异常（dialog导致问题）
  */
 @Composable
 @OptIn(ExperimentalCoilApi::class)
@@ -354,7 +353,9 @@ private fun PreviewPictureDialog(
             openPreviewDialog.value = false
         },
         properties = DialogProperties(
-            usePlatformDefaultWidth = false
+            usePlatformDefaultWidth = false,
+            // 避免底部显示异常
+            decorFitsSystemWindows = false
         ),
     ) {
         MainScaffold(
@@ -443,11 +444,12 @@ private fun PreviewPictureDialog(
                         VibrateUtil(context).single()
                         openPreviewDialog.value = false
                     },
-            ) {
-                //获取本地原图缓存
-                loadedPic.value = (it.image as BitmapImage).bitmap
-                success = true
-            }
+                onSuccess = {
+                    //获取本地原图缓存
+                    loadedPic.value = (it.image as BitmapImage).bitmap
+                    success = true
+                }
+            )
         }
     }
 

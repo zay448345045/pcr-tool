@@ -1,7 +1,9 @@
 package cn.wthee.pcrtool.ui.equip
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
@@ -27,7 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.R
@@ -51,6 +53,7 @@ import cn.wthee.pcrtool.ui.components.SelectText
 import cn.wthee.pcrtool.ui.components.StateBox
 import cn.wthee.pcrtool.ui.components.Subtitle2
 import cn.wthee.pcrtool.ui.components.VerticalGridList
+import cn.wthee.pcrtool.ui.shared.SharedElementKey
 import cn.wthee.pcrtool.ui.theme.CombinedPreviews
 import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.PreviewLayout
@@ -65,13 +68,13 @@ import cn.wthee.pcrtool.ui.theme.colorPink
 import cn.wthee.pcrtool.ui.theme.colorPurple
 import cn.wthee.pcrtool.ui.theme.colorRed
 import cn.wthee.pcrtool.ui.theme.colorSilver
+import cn.wthee.pcrtool.ui.theme.colorYellow
 import cn.wthee.pcrtool.ui.theme.defaultSpring
 import cn.wthee.pcrtool.utils.ImageRequestHelper
 import cn.wthee.pcrtool.utils.ToastUtil
 import cn.wthee.pcrtool.utils.VibrateUtil
 import cn.wthee.pcrtool.utils.listJoinStr
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 
@@ -377,8 +380,8 @@ private fun SharedTransitionScope.EquipItem(
             .then(
                 if (MainActivity.animOnFlag) {
                     Modifier.sharedElement(
-                        state = rememberSharedContentState(
-                            key = "item-${equip.equipmentId}"
+                        sharedContentState = rememberSharedContentState(
+                            key = "${SharedElementKey.EQUIP}${equip.equipmentId}"
                         ),
                         animatedVisibilityScope = animatedVisibilityScope,
                     )
@@ -448,31 +451,54 @@ private fun getEquipColor(colorType: Int): Color {
         8 -> colorOrange
         9 -> colorCyan
         10 -> colorPink
+        11 -> colorYellow
         else -> colorGray
     }
 }
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @CombinedPreviews
 @Composable
 private fun EquipListContentPreview() {
     val name = stringResource(id = R.string.debug_short_text)
     PreviewLayout {
-//        EquipListContent(
-//            equipList = arrayListOf(
-//                EquipmentBasicInfo(equipmentId = 1, equipmentName = name, promotionLevel = 1),
-//                EquipmentBasicInfo(equipmentId = 2, equipmentName = name, promotionLevel = 2),
-//                EquipmentBasicInfo(equipmentId = 3, equipmentName = name, promotionLevel = 2),
-//                EquipmentBasicInfo(equipmentId = 4, equipmentName = name, promotionLevel = 2),
-//            ),
-//            scrollState = rememberLazyListState(),
-//            favoriteIdList = arrayListOf(1),
-//            toEquipDetail = { },
-//            toEquipMaterial = { _, _ -> },
-//            searchEquipMode = false,
-//            searchEquipIdList = arrayListOf(),
-//            selectEquip = {}
-//        )
+        SharedTransitionLayout {
+            AnimatedVisibility(visible = true) {
+                EquipListContent(
+                    animatedVisibilityScope = this,
+                    equipList = arrayListOf(
+                        EquipmentBasicInfo(
+                            equipmentId = 1,
+                            equipmentName = name,
+                            promotionLevel = 1
+                        ),
+                        EquipmentBasicInfo(
+                            equipmentId = 2,
+                            equipmentName = name,
+                            promotionLevel = 2
+                        ),
+                        EquipmentBasicInfo(
+                            equipmentId = 3,
+                            equipmentName = name,
+                            promotionLevel = 2
+                        ),
+                        EquipmentBasicInfo(
+                            equipmentId = 4,
+                            equipmentName = name,
+                            promotionLevel = 2
+                        ),
+                    ),
+                    scrollState = rememberLazyListState(),
+                    favoriteIdList = arrayListOf(1),
+                    toEquipDetail = { },
+                    toEquipMaterial = { _, _ -> },
+                    searchEquipMode = false,
+                    searchEquipIdList = arrayListOf(),
+                    selectEquip = {}
+                )
+            }
+        }
     }
 }
 
@@ -480,14 +506,17 @@ private fun EquipListContentPreview() {
 @Composable
 private fun EquipSearchFabContentPreview() {
     PreviewLayout {
-        EquipSearchFabContent(
-            openSearchDialog = true,
-            searchEquipMode = true,
-            searchEquipIdList = arrayListOf(1, 2, 3, 4, 5),
-            toSearchEquipQuest = {},
-            changeSearchMode = {},
-            selectEquip = {},
-            changeSearchDialog = {}
-        )
+        Row {
+            EquipSearchFabContent(
+                openSearchDialog = true,
+                searchEquipMode = true,
+                searchEquipIdList = arrayListOf(1, 2, 3, 4, 5),
+                toSearchEquipQuest = {},
+                changeSearchMode = {},
+                selectEquip = {},
+                changeSearchDialog = {}
+            )
+
+        }
     }
 }

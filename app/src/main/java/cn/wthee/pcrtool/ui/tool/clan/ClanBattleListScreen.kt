@@ -1,7 +1,9 @@
 package cn.wthee.pcrtool.ui.tool.clan
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,7 +25,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.ClanBattleEvent
@@ -43,6 +45,7 @@ import cn.wthee.pcrtool.ui.components.MainTitleText
 import cn.wthee.pcrtool.ui.components.StateBox
 import cn.wthee.pcrtool.ui.components.getItemWidth
 import cn.wthee.pcrtool.ui.components.placeholder
+import cn.wthee.pcrtool.ui.shared.SharedElementKey
 import cn.wthee.pcrtool.ui.theme.CombinedPreviews
 import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.PreviewLayout
@@ -57,12 +60,11 @@ import cn.wthee.pcrtool.ui.tool.enemy.EnemyWeaknessContent
 import cn.wthee.pcrtool.utils.ImageRequestHelper
 import cn.wthee.pcrtool.utils.ImageRequestHelper.Companion.ICON_UNIT
 import cn.wthee.pcrtool.utils.fillZero
-import cn.wthee.pcrtool.utils.fixJpTime
+import cn.wthee.pcrtool.utils.fixTimeZone
 import cn.wthee.pcrtool.utils.formatTime
 import cn.wthee.pcrtool.utils.getZhNumberText
 import cn.wthee.pcrtool.utils.intArrayList
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 /**
@@ -193,8 +195,8 @@ fun SharedTransitionScope.ClanBattleItem(
                     Modifier
                 } else {
                     Modifier.sharedElement(
-                        state = rememberSharedContentState(
-                            key = "item-${clanBattleInfo.clanBattleId}"
+                        sharedContentState = rememberSharedContentState(
+                            key = "${SharedElementKey.CLAN_BATTLE}${clanBattleInfo.clanBattleId}"
                         ),
                         animatedVisibilityScope = animatedVisibilityScope,
                     )
@@ -213,8 +215,8 @@ fun SharedTransitionScope.ClanBattleItem(
                         .placeholder(visible = placeholder)
                         .align(Alignment.CenterVertically)
                         .sharedElement(
-                            state = rememberSharedContentState(
-                                key = "text-${clanBattleInfo.clanBattleId}"
+                            sharedContentState = rememberSharedContentState(
+                                key = "${SharedElementKey.CLAN_DATE}${clanBattleInfo.clanBattleId}"
                             ),
                             animatedVisibilityScope = animatedVisibilityScope,
                         ),
@@ -279,7 +281,7 @@ fun SharedTransitionScope.ClanBattleItem(
             if (clanBattleEvent != null) {
                 //结束日期
                 CaptionText(
-                    text = clanBattleEvent.getFixedEndTime().fixJpTime,
+                    text = clanBattleEvent.getFixedEndTime().fixTimeZone,
                     modifier = Modifier
                         .padding(end = Dimen.mediumPadding, bottom = Dimen.mediumPadding)
                         .fillMaxWidth()
@@ -375,18 +377,24 @@ fun getClanBattleDate(clanBattleInfo: ClanBattleInfo): String {
 }
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @CombinedPreviews
 @Composable
 private fun ClanBattleListContentPreview() {
     PreviewLayout {
-//        ClanBattleListContent(
-//            scrollState = rememberLazyGridState(),
-//            clanBattleList = arrayListOf(
-//                ClanBattleInfo(1),
-//                ClanBattleInfo(2),
-//                ClanBattleInfo(3),
-//            ),
-//            toClanBossInfo = {}
-//        )
+        SharedTransitionLayout {
+            AnimatedVisibility(visible = true) {
+                ClanBattleListContent(
+                    animatedVisibilityScope = this,
+                    scrollState = rememberLazyGridState(),
+                    clanBattleList = arrayListOf(
+                        ClanBattleInfo(1),
+                        ClanBattleInfo(2),
+                        ClanBattleInfo(3),
+                    ),
+                    toClanBossInfo = {}
+                )
+            }
+        }
     }
 }

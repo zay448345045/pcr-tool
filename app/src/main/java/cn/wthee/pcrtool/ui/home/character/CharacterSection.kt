@@ -1,7 +1,9 @@
 package cn.wthee.pcrtool.ui.home.character
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,9 +20,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.R
+import cn.wthee.pcrtool.data.db.view.CharacterInfo
 import cn.wthee.pcrtool.data.enums.MainIconType
 import cn.wthee.pcrtool.data.enums.OverviewType
 import cn.wthee.pcrtool.ui.MainActivity
@@ -29,6 +32,7 @@ import cn.wthee.pcrtool.ui.components.MainImage
 import cn.wthee.pcrtool.ui.components.RATIO
 import cn.wthee.pcrtool.ui.components.placeholder
 import cn.wthee.pcrtool.ui.home.Section
+import cn.wthee.pcrtool.ui.shared.SharedElementKey
 import cn.wthee.pcrtool.ui.theme.CombinedPreviews
 import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.PreviewLayout
@@ -157,8 +161,8 @@ private fun SharedTransitionScope.CharacterImageItem(
             .then(
                 if (MainActivity.animOnFlag) {
                     Modifier.sharedElement(
-                        state = rememberSharedContentState(
-                            key = "CharacterItemContent-$unitId"
+                        sharedContentState = rememberSharedContentState(
+                            key = "${SharedElementKey.CHARACTER_ITEM}$unitId"
                         ),
                         animatedVisibilityScope = animatedVisibilityScope,
                     )
@@ -180,27 +184,33 @@ private fun SharedTransitionScope.CharacterImageItem(
 }
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @CombinedPreviews
 @Composable
 private fun CharacterSectionContentPreview() {
     PreviewLayout {
-//        CharacterSectionContent(
-//            uiState = CharacterSectionUiState(
-//                characterList = arrayListOf(
-//                    CharacterInfo(
-//                        id = 1
-//                    ),
-//                    CharacterInfo(
-//                        id = 2
-//                    )
-//                ),
-//                characterCount = "100"
-//            ),
-//            isEditMode = false,
-//            orderStr = "${OverviewType.CHARACTER.id}",
-//            updateOrderData = {},
-//            toCharacterList = {},
-//            toCharacterDetail = {}
-//        )
+        SharedTransitionLayout {
+            AnimatedVisibility(visible = true) {
+                CharacterSectionContent(
+                    animatedVisibilityScope = this,
+                    uiState = CharacterSectionUiState(
+                        characterList = arrayListOf(
+                            CharacterInfo(
+                                id = 1
+                            ),
+                            CharacterInfo(
+                                id = 2
+                            )
+                        ),
+                        characterCount = "100"
+                    ),
+                    isEditMode = false,
+                    orderStr = "${OverviewType.CHARACTER.id}",
+                    updateOrderData = {},
+                    toCharacterList = {},
+                    toCharacterDetail = {}
+                )
+            }
+        }
     }
 }

@@ -12,6 +12,9 @@ import cn.wthee.pcrtool.data.db.view.skilltype.aura
 import cn.wthee.pcrtool.data.db.view.skilltype.auraField
 import cn.wthee.pcrtool.data.db.view.skilltype.awe
 import cn.wthee.pcrtool.data.db.view.skilltype.barrier
+import cn.wthee.pcrtool.data.db.view.skilltype.buffDot
+import cn.wthee.pcrtool.data.db.view.skilltype.cannotSelected
+import cn.wthee.pcrtool.data.db.view.skilltype.changeDefMax
 import cn.wthee.pcrtool.data.db.view.skilltype.changeMode
 import cn.wthee.pcrtool.data.db.view.skilltype.changePattern
 import cn.wthee.pcrtool.data.db.view.skilltype.changePosition
@@ -26,11 +29,14 @@ import cn.wthee.pcrtool.data.db.view.skilltype.copyAtk
 import cn.wthee.pcrtool.data.db.view.skilltype.countBlind
 import cn.wthee.pcrtool.data.db.view.skilltype.countDown
 import cn.wthee.pcrtool.data.db.view.skilltype.damage
+import cn.wthee.pcrtool.data.db.view.skilltype.damageChange
 import cn.wthee.pcrtool.data.db.view.skilltype.damageReduce
 import cn.wthee.pcrtool.data.db.view.skilltype.damageTakenUp
+import cn.wthee.pcrtool.data.db.view.skilltype.damageToDot
 import cn.wthee.pcrtool.data.db.view.skilltype.dispel
 import cn.wthee.pcrtool.data.db.view.skilltype.dot
 import cn.wthee.pcrtool.data.db.view.skilltype.dotField
+import cn.wthee.pcrtool.data.db.view.skilltype.dotUp
 import cn.wthee.pcrtool.data.db.view.skilltype.environment
 import cn.wthee.pcrtool.data.db.view.skilltype.ex
 import cn.wthee.pcrtool.data.db.view.skilltype.exEquipFull
@@ -58,14 +64,18 @@ import cn.wthee.pcrtool.data.db.view.skilltype.limitAttack
 import cn.wthee.pcrtool.data.db.view.skilltype.logBarrier
 import cn.wthee.pcrtool.data.db.view.skilltype.loop
 import cn.wthee.pcrtool.data.db.view.skilltype.loopTrigger
+import cn.wthee.pcrtool.data.db.view.skilltype.magicChange
+import cn.wthee.pcrtool.data.db.view.skilltype.magicChangeReduceDamage
 import cn.wthee.pcrtool.data.db.view.skilltype.move
 import cn.wthee.pcrtool.data.db.view.skilltype.movePart
 import cn.wthee.pcrtool.data.db.view.skilltype.noTarget
 import cn.wthee.pcrtool.data.db.view.skilltype.noUB
+import cn.wthee.pcrtool.data.db.view.skilltype.persistent
 import cn.wthee.pcrtool.data.db.view.skilltype.rateDamage
 import cn.wthee.pcrtool.data.db.view.skilltype.reindeer
 import cn.wthee.pcrtool.data.db.view.skilltype.revival
 import cn.wthee.pcrtool.data.db.view.skilltype.seal
+import cn.wthee.pcrtool.data.db.view.skilltype.sealConsume
 import cn.wthee.pcrtool.data.db.view.skilltype.sealCount
 import cn.wthee.pcrtool.data.db.view.skilltype.sealV2
 import cn.wthee.pcrtool.data.db.view.skilltype.skillCount
@@ -81,6 +91,7 @@ import cn.wthee.pcrtool.data.db.view.skilltype.tp
 import cn.wthee.pcrtool.data.db.view.skilltype.tpField
 import cn.wthee.pcrtool.data.db.view.skilltype.tpHit
 import cn.wthee.pcrtool.data.db.view.skilltype.tpHitReduce
+import cn.wthee.pcrtool.data.db.view.skilltype.transferDamage
 import cn.wthee.pcrtool.data.db.view.skilltype.trigger
 import cn.wthee.pcrtool.data.db.view.skilltype.triggerV2
 import cn.wthee.pcrtool.data.db.view.skilltype.unknownType
@@ -243,7 +254,7 @@ data class SkillActionDetail(
             SkillActionType.TAUNT -> taunt(ailmentName)
             // 21：回避
             SkillActionType.INVINCIBLE -> invincible()
-            // 22：改变模式
+            // 22：循环变更
             SkillActionType.CHANGE_PATTERN -> changePattern()
             // 23：判定对象状态
             SkillActionType.IF_STATUS -> ifStatus()
@@ -377,8 +388,30 @@ data class SkillActionDetail(
             SkillActionType.GUARD -> guard()
             // 107：暴击率合计
             SkillActionType.SUM_CRITICAL -> sumCritical()
+            // 110：持续伤害易伤
+            SkillActionType.DOT_UP -> dotUp()
             // 114：特殊标记计数？
             SkillActionType.SEAL_COUNT -> sealCount()
+            // 116：执着状态
+            SkillActionType.PERSISTENT -> persistent()
+            // 121：幻化状态
+            SkillActionType.MAGIC_CHANGE -> magicChange()
+            // 123：减伤状态
+            SkillActionType.MAGIC_CHANGE_REDUCE_DAMAGE -> magicChangeReduceDamage()
+            // 124：护盾（转移伤害）
+            SkillActionType.TRANSFER_DAMAGE -> transferDamage()
+            // 125：无法选中
+            SkillActionType.CANNOT_SELECTED -> cannotSelected()
+            // 128：持续伤害增强
+            SkillActionType.BUFF_DOT -> buffDot()
+            // 129：伤害转化
+            SkillActionType.DAMAGE_TO_DOT -> damageToDot()
+            // 130：调和
+            SkillActionType.CHANGE_DEF_MAX -> changeDefMax()
+            // 132：伤害变更
+            SkillActionType.DAMAGE_CHANGE -> damageChange()
+            // 133：标记消耗
+            SkillActionType.SEAL_CONSUME -> sealConsume()
             else -> unknownType()
         }
     }

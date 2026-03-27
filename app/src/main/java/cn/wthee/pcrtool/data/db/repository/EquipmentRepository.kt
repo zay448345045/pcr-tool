@@ -50,7 +50,8 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
 
     suspend fun getCount() = try {
         equipmentDao.getCount()
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        LogReportUtil.upload(e, "getCount")
         0
     }
 
@@ -61,7 +62,7 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
      * @param lv 专用装备1等级
      * @param lv2 专用装备2等级
      */
-    suspend fun getUniqueEquipInfo(unitId: Int, lv: Int, lv2: Int) =
+    suspend fun getUniqueEquipInfo(unitId: Int, lv: Int, lv2: Int) = try {
         if (lv > Constants.TP_LIMIT_LEVEL) {
             //tp相关261 ~ 300
             val tpBonusAttr =
@@ -106,6 +107,10 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
         } else {
             getFixedUniqueEquip(unitId = unitId, lv = lv, lv2 = lv2)
         }
+    } catch (e: Exception) {
+        LogReportUtil.upload(e, "getUniqueEquipInfo#unitId:$unitId,lv:$lv,lv2:$lv2")
+        emptyList()
+    }
 
 
     /**
@@ -120,14 +125,21 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
         try {
             //专用装备1
             equipmentDao.getUniqueEquipInfo(unitId = unitId, lv = lv, slot = 1)?.let {
+                it.equipSlot = 1
                 list.add(it)
             }
             //专用装备2
             equipmentDao.getUniqueEquipInfo(unitId = unitId, lv = lv2 + 1, slot = 2)?.let {
+                it.equipSlot = 2
+                list.add(it)
+            }
+            //专用装备1 sp
+            equipmentDao.getUniqueEquip1SpInfo(unitId = unitId)?.let {
+                it.equipSlot = 3
                 list.add(it)
             }
         } catch (e: Exception) {
-            LogReportUtil.upload(e, "getUniqueEquip#unitId:$unitId")
+            LogReportUtil.upload(e, "getUniqueEquip#unitId:$unitId,lv:$lv,lv2:$lv2")
         }
         return list
     }
@@ -145,7 +157,12 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
         Attr()
     }
 
-    suspend fun getUniqueEquipMaxLv(slot: Int) = equipmentDao.getUniqueEquipMaxLv(slot)
+    suspend fun getUniqueEquipMaxLv(slot: Int) = try {
+        equipmentDao.getUniqueEquipMaxLv(slot)
+    } catch (e: Exception) {
+        LogReportUtil.upload(e, "getUniqueEquipMaxLv#slot:$slot")
+        null
+    }
 
     /**
      * 获取所有角色所需的装备统计
@@ -200,19 +217,31 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
         null
     }
 
-    suspend fun getMaxArea() = equipmentDao.getMaxArea()
+    suspend fun getMaxArea() = try {
+        equipmentDao.getMaxArea()
+    } catch (e: Exception) {
+        LogReportUtil.upload(e, "getMaxArea")
+        0
+    }
 
-    suspend fun getEquipUnitList(equipId: Int) = equipmentDao.getEquipUnitList(equipId)
+    suspend fun getEquipUnitList(equipId: Int) = try {
+        equipmentDao.getEquipUnitList(equipId)
+    } catch (e: Exception) {
+        LogReportUtil.upload(e, "getEquipUnitList#equipId:$equipId")
+        emptyList()
+    }
 
     suspend fun getEquipColorNum() = try {
         equipmentDao.getEquipColorNum()
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        LogReportUtil.upload(e, "getEquipColorNum")
         0
     }
 
     suspend fun getMaxRank() = try {
         equipmentDao.getMaxRank()
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        LogReportUtil.upload(e, "getMaxRank")
         0
     }
 
@@ -220,11 +249,22 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
      * 获取排序后的专用装备列表
      */
     suspend fun getUniqueEquipList(name: String, slot: Int, unitId: Int = 0) = try {
-        val data = (try {
+        var data = (try {
             equipmentDao.getUniqueEquipList(name = name, slot = slot, unitId = unitId)
         } catch (_: Exception) {
             emptyList()
         }).reversed()
+        //  获取 ex_unique_equipment_1 表
+        if (slot == 0 || slot == 3) {
+            try {
+                val uniqueEquip1SpList =
+                    equipmentDao.getUniqueEquip1SpList(name = name, unitId = unitId).reversed()
+                data += uniqueEquip1SpList
+            } catch (_: Exception) {
+
+            }
+        }
+
 
         when (MainActivity.regionType) {
             RegionType.CN -> {
@@ -335,8 +375,8 @@ class EquipmentRepository @Inject constructor(private val equipmentDao: Equipmen
                     materials[flag].count += material.count
                 }
             }
-        } catch (_: Exception) {
-
+        } catch (e: Exception) {
+            LogReportUtil.upload(e, "getAllMaterial#equipmentId:$equipmentId")
         }
     }
 }

@@ -1,9 +1,12 @@
 package cn.wthee.pcrtool.ui.tool.extraequip
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,10 +20,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.R
@@ -42,13 +46,14 @@ import cn.wthee.pcrtool.ui.components.MainScaffold
 import cn.wthee.pcrtool.ui.components.MainSmallFab
 import cn.wthee.pcrtool.ui.components.StateBox
 import cn.wthee.pcrtool.ui.components.VerticalGridList
+import cn.wthee.pcrtool.ui.shared.SharedElementKey
 import cn.wthee.pcrtool.ui.theme.CombinedPreviews
 import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.PreviewLayout
+import cn.wthee.pcrtool.ui.theme.colorPink
 import cn.wthee.pcrtool.utils.ImageRequestHelper
 import cn.wthee.pcrtool.utils.VibrateUtil
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 /**
@@ -197,6 +202,7 @@ private fun SharedTransitionScope.ExtraEquipGroup(
     favoriteIdList: List<Int>,
     toExtraEquipDetail: (Int) -> Unit
 ) {
+    val color = ExtraEquipLevelColor.getByType(equipGroupData.rarity).color
     //分组标题
     CommonGroupTitle(
         iconData = ImageRequestHelper.getInstance()
@@ -205,7 +211,17 @@ private fun SharedTransitionScope.ExtraEquipGroup(
                 equipGroupData.category
             ),
         iconSize = Dimen.smallIconSize,
-        backgroundColor = ExtraEquipLevelColor.getByType(equipGroupData.rarity).color,
+        backgroundColor = color,
+        brush = if (equipGroupData.rarity == ExtraEquipLevelColor.RARITY_5.type) {
+            Brush.linearGradient(
+                colors = listOf(
+                    colorPink,
+                    colorPink.copy(alpha = 0.5f),
+                    color.copy(alpha = 0.5f),
+                    color
+                )
+            )
+        } else null,
         titleStart = stringResource(
             id = R.string.extra_equip_rarity_and_type,
             equipGroupData.rarity,
@@ -257,8 +273,8 @@ private fun SharedTransitionScope.ExtraEquipItem(
             .then(
                 if (MainActivity.animOnFlag) {
                     Modifier.sharedElement(
-                        state = rememberSharedContentState(
-                            key = "item-${equip.equipmentId}"
+                        sharedContentState = rememberSharedContentState(
+                            key = "${SharedElementKey.EX_EQUIP}${equip.equipmentId}"
                         ),
                         animatedVisibilityScope = animatedVisibilityScope,
                     )
@@ -286,23 +302,31 @@ private fun SharedTransitionScope.ExtraEquipItem(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @CombinedPreviews
 @Composable
 private fun ExtraEquipGroupPreview() {
     val text = stringResource(id = R.string.debug_short_text)
     PreviewLayout {
-//        ExtraEquipGroup(
-//            ExtraEquipGroupData(
-//                rarity = 3,
-//                category = 1,
-//                categoryName = text,
-//                equipIdList = arrayListOf(
-//                    ExtraEquipmentBasicInfo(equipmentId = 1, equipmentName = text),
-//                    ExtraEquipmentBasicInfo(equipmentName = text),
-//                    ExtraEquipmentBasicInfo(equipmentName = text)
-//                )
-//            ),
-//            favoriteIdList = arrayListOf(1)
-//        ) { }
+        SharedTransitionLayout {
+            AnimatedVisibility(visible = true) {
+                Column {
+                    ExtraEquipGroup(
+                        animatedVisibilityScope = this@AnimatedVisibility,
+                        ExtraEquipGroupData(
+                            rarity = 3,
+                            category = 1,
+                            categoryName = text,
+                            equipIdList = arrayListOf(
+                                ExtraEquipmentBasicInfo(equipmentId = 1, equipmentName = text),
+                                ExtraEquipmentBasicInfo(equipmentName = text),
+                                ExtraEquipmentBasicInfo(equipmentName = text)
+                            )
+                        ),
+                        favoriteIdList = arrayListOf(1)
+                    ) { }
+                }
+            }
+        }
     }
 }

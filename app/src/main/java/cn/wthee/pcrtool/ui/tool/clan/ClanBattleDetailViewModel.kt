@@ -99,7 +99,10 @@ class ClanBattleDetailViewModel @Inject constructor(
      */
     private fun getClanBattleInfo(clanBattleId: Int, phase: Int) {
         viewModelScope.launch {
-            val clanBattleList = clanBattleRepository.getClanBattleList(clanBattleId, phase)
+            val clanBattleList = clanBattleRepository.getClanBattleList(
+                clanBattleId = clanBattleId,
+                phase = phase
+            )
             _uiState.update {
                 it.copy(
                     clanBattleList = clanBattleList

@@ -25,7 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
@@ -73,6 +73,13 @@ private data class ToolMenuGroup(
 
 /**
  * 全部工具
+ *
+ * 新增工具步骤：
+ * 0、完成工具页面功能
+ * 1、[ToolMenuType]中添加枚举
+ * 2、[AllToolMenuScreen]设置分组
+ * 3、[NavActions]添加action、[NavGraph]添加页面
+ * 4、[ToolSection]添加跳转
  */
 @Composable
 fun AllToolMenuScreen(
@@ -101,6 +108,8 @@ fun AllToolMenuScreen(
     dataList.add(ToolMenuType.TRAVEL_AREA)
     dataList.add(ToolMenuType.UNIQUE_EQUIP)
     dataList.add(ToolMenuType.TALENT_LIST)
+    dataList.add(ToolMenuType.TALENT_QUEST)
+    dataList.add(ToolMenuType.ROLE)
     itemGroupList.add(ToolMenuGroup(stringResource(id = R.string.basic_info), dataList))
 
     //查询

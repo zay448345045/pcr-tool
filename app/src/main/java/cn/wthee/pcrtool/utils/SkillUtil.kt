@@ -2,6 +2,7 @@ package cn.wthee.pcrtool.utils
 
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.SkillActionDetail
+import cn.wthee.pcrtool.data.enums.BuffType
 import cn.wthee.pcrtool.data.enums.SkillActionType
 
 
@@ -17,8 +18,7 @@ fun SkillActionDetail.getAtkType() = getString(
         2 -> R.string.skill_magic
         3 -> R.string.skill_must_hit_physical
         4 -> R.string.skill_must_hit_magic
-        5 -> R.string.skill_sum_atk_physical
-        6 -> R.string.skill_sum_atk_magic
+        5 -> R.string.skill_adaptive_lower_defense_change_atk_type
         else -> R.string.unknown
     }
 )
@@ -29,13 +29,14 @@ fun SkillActionDetail.getAtkType() = getString(
 fun SkillActionDetail.getPercent() = when (SkillActionType.getByType(actionType)) {
     SkillActionType.AURA, SkillActionType.HEAL_DOWN -> {
         if (actionValue1.toInt() == 2 || actionDetail1 / 10 in setOf(
-                11,
-                12,
-                14,
-                16,
-                17,
-                18,
-                19
+                BuffType.PHYSICAL_CRITICAL_DAMAGE.type,
+                BuffType.MAGIC_CRITICAL_DAMAGE.type,
+                BuffType.CRITICAL_DAMAGE_TAKE.type,
+                BuffType.DAMAGE_TAKE.type,
+                BuffType.PHYSICAL_DAMAGE_TAKE.type,
+                BuffType.MAGIC_DAMAGE_TAKE.type,
+                BuffType.PHYSICAL_DAMAGE.type,
+                BuffType.MAGIC_DAMAGE.type
             )
         ) {
             "%"
@@ -44,9 +45,27 @@ fun SkillActionDetail.getPercent() = when (SkillActionType.getByType(actionType)
         }
     }
 
-    SkillActionType.HEAL_FIELD, SkillActionType.AURA_FIELD -> if (actionDetail2 == 2) "%" else ""
+    SkillActionType.AURA_FIELD -> {
+        if (actionDetail2 == 2 || actionDetail1 / 10 in setOf(
+                BuffType.PHYSICAL_CRITICAL_DAMAGE.type,
+                BuffType.MAGIC_CRITICAL_DAMAGE.type,
+                BuffType.CRITICAL_DAMAGE_TAKE.type,
+                BuffType.DAMAGE_TAKE.type,
+                BuffType.PHYSICAL_DAMAGE_TAKE.type,
+                BuffType.MAGIC_DAMAGE_TAKE.type,
+                BuffType.PHYSICAL_DAMAGE.type,
+                BuffType.MAGIC_DAMAGE.type
+            )
+        ) {
+            "%"
+        } else {
+            ""
+        }
+    }
+
     SkillActionType.DAMAGE_REDUCE -> "%"
     SkillActionType.ACTION_DOT -> if (actionDetail1 == 10) "%" else ""
+    SkillActionType.DOT -> if (actionDetail1 == 11) "%" else ""
     else -> ""
 }
 
@@ -120,60 +139,60 @@ fun SkillActionDetail.getValueText(
 
 /**
  * 效果
+ *
+ * @param value action_detail
+ * @param valueText 数值描述文本
+ * @param actionValue7 是否可驱散判断
  */
-fun getAura(v: Int, valueText: String): String {
-    val action = getString(
-        if (v == 1) {
+fun getBuffText(value: Int, valueText: String = "", actionValue7: Double = 0.0): String {
+    //获取实际类型，1021 -> 2 10 -> 1
+    val typeValue = value % 1000 / 10
+    val buffText = getString(
+        if (value == 1) {
             R.string.skill_hp_max
         } else {
-            when (v % 1000 / 10) {
-                1 -> R.string.attr_atk
-                2 -> R.string.attr_def
-                3 -> R.string.attr_magic_str
-                4 -> R.string.attr_magic_def
-                5 -> R.string.attr_dodge
-                6 -> R.string.attr_physical_critical
-                7 -> R.string.attr_magic_critical
-                8 -> R.string.attr_energy_recovery_rate
-                9 -> R.string.attr_life_steal
-                10 -> R.string.skill_speed
-                11 -> R.string.skill_physical_critical_damage
-                12 -> R.string.skill_magic_critical_damage
-                13 -> R.string.attr_accuracy
-                14 -> R.string.skill_critical_damage_take
-                16 -> R.string.skill_physical_damage_take
-                17 -> R.string.skill_magic_damage_take
-                18 -> R.string.skill_physical_damage
-                19 -> R.string.skill_magic_damage
-                else -> R.string.unknown
-            }
+            BuffType.getByValue(typeValue).nameId
         }
     )
-
-    var type =
-        if (v / 10 == 14 || v / 10 == 16 || v / 10 == 17) {
+    //提升/减少
+    var changeDesc = when (BuffType.getByValue(typeValue)) {
+        BuffType.CRITICAL_DAMAGE_TAKE,
+        BuffType.DAMAGE_TAKE,
+        BuffType.PHYSICAL_DAMAGE_TAKE,
+        BuffType.MAGIC_DAMAGE_TAKE,
+            -> {
             getString(
-                if (v % 10 == 0) {
+                if (value % 10 == 0) {
                     R.string.skill_reduce
                 } else {
                     R.string.skill_increase
                 }
-            ) + " " + valueText
-        } else {
-            getString(
-                if (v % 10 == 0) {
-                    R.string.skill_increase
-                } else {
-                    R.string.skill_reduce
-                }
-            ) + " " + valueText
+            )
         }
-    //固定buff，不受其他效果影响
-    if (v > 1000) {
-        type += getString(R.string.skill_fixed)
+
+        else -> getString(
+            if (value % 10 == 0) {
+                R.string.skill_increase
+            } else {
+                R.string.skill_reduce
+            }
+        )
     }
 
-    return action + type
+    //数值
+    if (valueText != "") {
+        changeDesc += " $valueText"
+    }
+    //固定buff，不受其他效果影响
+    //参考(台服数据)： action_id = 217307201 action_detail_1 = 1020 description=提升自身的物理防禦力（不可降低）
+    if (value / 1000 == 1) {
+        changeDesc += getString(R.string.skill_fixed)
+    }
+    if (actionValue7.toInt() == 2) {
+        changeDesc += getString(R.string.skill_cannot_dispel)
+    }
+
+    return buffText + changeDesc
 }
 
 /**
@@ -229,22 +248,29 @@ fun SkillActionDetail.getTargetAssignment() = getString(
 /**
  * 首个目标位置
  */
-fun SkillActionDetail.getTargetNumber() = if (targetAssignment == 1) {
-    when (targetNumber) {
-        in 1..10 -> {
-            getString(R.string.skill_target_order_num, targetNumber + 1)
-        }
+fun SkillActionDetail.getTargetNumber(): String {
+    val order = if (targetAssignment == 1) {
+        when (targetNumber) {
+            in 1..10 -> {
+                getString(R.string.skill_target_order_num, targetNumber + 1)
+            }
 
-        else -> ""
+            else -> ""
+        }
+    } else {
+        when (targetNumber) {
+            1 -> getString(R.string.skill_target_order_1)
+            in 2..10 -> {
+                getString(R.string.skill_target_order_num, targetNumber)
+            }
+
+            else -> ""
+        }
     }
-} else {
-    when (targetNumber) {
-        1 -> getString(R.string.skill_target_order_1)
-        in 2..10 -> {
-            getString(R.string.skill_target_order_num, targetNumber)
-        }
-
-        else -> ""
+    return if (order != "") {
+        "⌈${order}⌋"
+    } else {
+        ""
     }
 }
 
@@ -252,16 +278,17 @@ fun SkillActionDetail.getTargetNumber() = if (targetAssignment == 1) {
  * 作用对象数量
  */
 fun SkillActionDetail.getTargetCount() = when (targetCount) {
-    0, 1, 99 -> ""
-//        1 -> {
-//            //目标是敌人时，显示生效目标数量
-//            if(targetAssignment == 1){
-//                getString(R.string.skill_target_count, targetCount)
-//            }else{
-//                ""
-//            }
-//        }
-//        99 -> getString(R.string.n)
+    0 -> ""
+    1 -> {
+        //目标是敌人时，显示生效目标数量
+        if (targetAssignment == 1) {
+            getString(R.string.skill_target_single)
+        } else {
+            ""
+        }
+    }
+
+    99 -> getString(R.string.skill_target_all)
     else -> getString(R.string.skill_target_count, targetCount)
 }
 
@@ -270,7 +297,8 @@ fun SkillActionDetail.getTargetCount() = when (targetCount) {
  */
 fun SkillActionDetail.getTargetRange() = when (targetRange) {
     in 1 until 2160 -> {
-        getString(R.string.skill_range, targetRange)
+        val range = getString(R.string.skill_range, targetRange)
+        "⌈${range}⌋"
     }
 
     else -> ""
@@ -278,11 +306,19 @@ fun SkillActionDetail.getTargetRange() = when (targetRange) {
 
 /**
  * 目标类型
+ *
+ * @see <a href="https://github.com/wthee/pcr-tool/issues/148#issuecomment-3671555051">issue #148</a>
  */
-fun SkillActionDetail.getTargetType() = getString(
-    when (targetType) {
-        0, 1, 3, 40, 41 -> R.string.none
-        2, 8 -> R.string.skill_target_2_8
+fun SkillActionDetail.getTargetType(): String {
+    val targetArea = when (targetArea) {
+        4, 5, 6 -> getString(R.string.skill_area_include_flight)
+        7, 8, 9 -> getString(R.string.skill_area_without_summon)
+        else -> ""
+    }
+    val target = getString(
+        when (targetType) {
+            0, 1, 3, 40, 41 -> R.string.none
+            2, 8 -> R.string.skill_target_2_8
 //            3 -> {
 //                //非范围技能时，显示生效目标类型：最近的
 //                if(targetRange == 0 || targetRange == 2160){
@@ -291,38 +327,56 @@ fun SkillActionDetail.getTargetType() = getString(
 //                    R.string.none
 //                }
 //            }
-        4 -> R.string.skill_target_4
-        5, 25 -> R.string.skill_target_5_25
-        6, 26 -> R.string.skill_target_6_26
-        7 -> R.string.skill_target_7
-        9 -> R.string.skill_target_9
-        10 -> R.string.skill_target_10
-        11 -> R.string.skill_target_11
-        12, 27, 37 -> R.string.skill_target_12_27_37
-        13, 19, 28 -> R.string.skill_target_13_19_28
-        14, 29 -> R.string.skill_target_14_29
-        15, 30 -> R.string.skill_target_15_30
-        16, 31 -> R.string.skill_target_16_31
-        17, 32 -> R.string.skill_target_17_32
-        18 -> R.string.skill_target_18
-        20 -> R.string.skill_target_20
-        21 -> R.string.skill_target_21
-        22 -> R.string.skill_target_22
-        23 -> R.string.skill_target_23
-        24 -> R.string.skill_target_24
-        33 -> R.string.skill_target_33
-        34 -> R.string.skill_target_34
-        35 -> R.string.skill_target_35
-        36 -> R.string.skill_target_36
-        38 -> R.string.skill_target_38
-        39 -> R.string.skill_target_39
-        42 -> R.string.skill_target_42
-        43 -> R.string.skill_target_43
-        44 -> R.string.skill_target_44
-        45 -> R.string.skill_target_45
-        else -> R.string.unknown
+            4 -> R.string.skill_target_4
+            5, 25 -> R.string.skill_target_5_25
+            6, 26 -> R.string.skill_target_6_26
+            7 -> R.string.skill_target_7
+            9 -> R.string.skill_target_9
+            10 -> R.string.skill_target_10
+            11 -> R.string.skill_target_11
+            12, 27, 37 -> R.string.skill_target_12_27_37
+            13, 19, 28 -> R.string.skill_target_13_19_28
+            14, 29 -> R.string.skill_target_14_29
+            15, 30 -> R.string.skill_target_15_30
+            16, 31 -> R.string.skill_target_16_31
+            17, 32 -> R.string.skill_target_17_32
+            18 -> R.string.skill_target_18
+            20 -> R.string.skill_target_20
+            21 -> R.string.skill_target_21
+            22 -> R.string.skill_target_22
+            23 -> R.string.skill_target_23
+            24 -> R.string.skill_target_24
+            33 -> R.string.skill_target_33
+            34 -> R.string.skill_target_34
+            35 -> R.string.skill_target_35
+            36 -> R.string.skill_target_36
+            38 -> R.string.skill_target_38
+            39 -> R.string.skill_target_39
+            42 -> R.string.skill_target_42
+            43 -> R.string.skill_target_43
+            44 -> R.string.skill_target_44
+            45 -> R.string.skill_target_45
+            46 -> R.string.skill_target_46
+            47 -> R.string.skill_target_47
+            50 -> R.string.skill_target_50
+            51 -> R.string.skill_target_51
+            in 13195..14000 -> R.string.skill_target_13xxx
+            14001, 15001 -> R.string.skill_target_fire
+            14002, 15002 -> R.string.skill_target_water
+            14003, 15003 -> R.string.skill_target_wind
+            14004, 15004 -> R.string.skill_target_light
+            15005, 14005 -> R.string.skill_target_dark
+            else -> R.string.unknown
+        }
+    )
+    return if (target != "") {
+        "⌈$targetArea$target⌋"
+    } else if (targetArea != "") {
+        "⌈$targetArea⌋"
+    } else {
+        ""
     }
-)
+}
 
 /**
  * 获取目标具体描述
@@ -355,42 +409,42 @@ fun SkillActionDetail.getTarget(): String {
 /**
  * 获取技能附带的状态
  */
-fun SkillActionDetail.getStatus(value: Int) = getString(
-    when (value) {
-        100 -> R.string.skill_status_100
-        101 -> R.string.skill_status_101
-        200 -> R.string.skill_status_200
-        300 -> R.string.skill_status_300
-        400 -> R.string.skill_status_400
-        500 -> R.string.skill_status_500
-        501 -> R.string.skill_status_501
-        502 -> R.string.skill_status_502
-        503 -> R.string.skill_status_503
-        504 -> R.string.skill_status_504
-        511 -> R.string.skill_status_511
-        512 -> R.string.skill_status_512
-        710 -> R.string.skill_status_710
-        1400 -> R.string.skill_status_1400
-        1600 -> R.string.skill_status_1600
-        1601 -> R.string.skill_status_1601
-        //防御减少
-        1700 -> {
-            when (actionValue3.toInt()) {
-                21 -> R.string.skill_status_1700_21
-                41 -> R.string.skill_status_1700_41
-                else -> R.string.unknown
-            }
-        }
-
-        721, 6107 -> R.string.skill_status_721_6107
-        1513 -> R.string.skill_ailment_13
-        1800 -> R.string.skill_status_1800
-        1900 -> R.string.skill_status_1900
-        3137 -> R.string.skill_status_3137
-        3162 -> R.string.skill_status_3162
-        else -> R.string.unknown
-    }
-)
+fun SkillActionDetail.getStatus(value: Int) = when (value) {
+    100 -> getString(R.string.skill_status_100)
+    101 -> getString(R.string.skill_status_101)
+    200 -> getString(R.string.skill_status_200)
+    300 -> getString(R.string.skill_status_300)
+    400 -> getString(R.string.skill_status_400)
+    500 -> getString(R.string.skill_status_500)
+    501 -> getString(R.string.skill_status_501)
+    502 -> getString(R.string.skill_status_502)
+    503 -> getString(R.string.skill_status_503)
+    504 -> getString(R.string.skill_status_504)
+    511 -> getString(R.string.skill_status_511)
+    512 -> getString(R.string.skill_status_512)
+    710 -> getString(R.string.skill_status_710)
+    900 -> getString(R.string.skill_status_900)
+    1400 -> getString(R.string.skill_status_1400)
+    1600 -> getString(R.string.skill_status_1600)
+    1601 -> getString(R.string.skill_status_1601)
+    1700 -> getString(R.string.skill_status_1700, getBuffText(actionValue3.toInt()))
+    721 -> getString(R.string.skill_status_721)
+    6107 -> getString(R.string.skill_status_6107)
+    1513 -> getString(R.string.skill_ailment_13)
+    1800 -> getString(R.string.skill_status_1800)
+    1900 -> getString(R.string.skill_status_1900)
+    3137 -> getString(R.string.skill_status_3137)
+    3162 -> getString(R.string.skill_status_3162)
+    3175 -> getString(R.string.skill_status_3175)
+    3207 -> getString(R.string.skill_status_3207)
+    6160 -> getString(R.string.skill_status_6160)
+    4001 -> getString(R.string.skill_target_fire)
+    4002 -> getString(R.string.skill_target_water)
+    4003 -> getString(R.string.skill_target_wind)
+    4004 -> getString(R.string.skill_target_light)
+    4005 -> getString(R.string.skill_target_dark)
+    else -> getString(R.string.unknown)
+}
 
 
 /**
@@ -400,4 +454,28 @@ fun SkillActionDetail.initOtherLimit() {
     if (level > Constants.OTHER_LIMIT_LEVEL && isOtherRfSkill) {
         isOtherLimitAction = true
     }
+}
+
+/**
+ * 受击 tp 回复
+ */
+fun SkillActionDetail.takeDamageTp() = if (actionDetail3 != 0) {
+    val multiple = 1 - actionDetail3 / 100
+    if (multiple == 0) {
+        //不回复 tp
+        getString(R.string.skill_action_take_damage_tp_0)
+    } else {
+        getString(R.string.skill_action_take_damage_tp_multiple, multiple)
+    }
+} else {
+    ""
+}
+
+/**
+ * 增加或减少
+ */
+fun getEffectType(value: Int) = when (value) {
+    1 -> getString(R.string.skill_action_type_desc_additive)
+    2 -> getString(R.string.skill_action_type_desc_subtract)
+    else -> getString(R.string.unknown)
 }

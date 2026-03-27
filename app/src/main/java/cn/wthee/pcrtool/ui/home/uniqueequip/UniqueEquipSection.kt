@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.UniqueEquipBasicData
@@ -105,6 +105,18 @@ private fun UniqueEquipSectionContent(
             )
         }
         uiState.uniqueEquipList2?.let { list ->
+            GridIconList(
+                paddingValues = PaddingValues(top = Dimen.mediumPadding),
+                idList = list.map { it.equipId },
+                detailIdList = list.map { it.unitId },
+                iconResourceType = IconResourceType.UNIQUE_EQUIP,
+                fixColumns = equipSpanCount,
+                contentPadding = 0.dp,
+                onClickItem = toUniqueEquipDetail
+            )
+        }
+        //专用装备1sp
+        uiState.uniqueEquipSpList1?.let { list ->
             GridIconList(
                 paddingValues = PaddingValues(top = Dimen.mediumPadding),
                 idList = list.map { it.equipId },

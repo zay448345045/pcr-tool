@@ -29,9 +29,48 @@ interface EnemyDao {
         FROM
             enemy_parameter
             LEFT JOIN unit_enemy_data ON enemy_parameter.unit_id = unit_enemy_data.unit_id
-        WHERE enemy_id = :enemyId"""
+        WHERE enemy_id = :enemyId
+        """
     )
     suspend fun getEnemyAttr(enemyId: Int): EnemyParameterPro
+
+    /**
+     * 获取深域怪物基本参数
+     * @param enemyId 怪物编号
+     */
+    @SkipQueryVerification
+    @Query(
+        """
+        SELECT
+            talent_quest_enemy_parameter.*,
+            unit_enemy_data.normal_atk_cast_time,
+            unit_enemy_data.comment,
+            unit_enemy_data.prefab_id
+        FROM
+            talent_quest_enemy_parameter
+            LEFT JOIN unit_enemy_data ON talent_quest_enemy_parameter.unit_id = unit_enemy_data.unit_id
+        WHERE enemy_id = :enemyId"""
+    )
+    suspend fun getTalentEnemyAttr(enemyId: Int): EnemyParameterPro
+
+    /**
+     * 获取怪物基本参数（日服7周年新版剧情boss）
+     * @param enemyId 怪物编号
+     */
+    @SkipQueryVerification
+    @Query(
+        """
+        SELECT
+            enemy.*,
+            unit_enemy_data.normal_atk_cast_time,
+            unit_enemy_data.comment,
+            unit_enemy_data.prefab_id
+        FROM
+            seven_enemy_parameter AS enemy
+            LEFT JOIN unit_enemy_data ON enemy.unit_id = unit_enemy_data.unit_id
+        WHERE enemy_id = :enemyId"""
+    )
+    suspend fun getNewEventEnemyAttr(enemyId: Int): EnemyParameterPro
 
     /**
      * 获取多目标

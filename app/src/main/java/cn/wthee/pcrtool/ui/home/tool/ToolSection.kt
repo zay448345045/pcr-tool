@@ -17,7 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -245,6 +245,8 @@ fun getAction(
             ToolMenuType.LOAD_COMIC -> actions.toLoadComicList()
             ToolMenuType.TALENT_LIST -> actions.toUnitTalentList()
             ToolMenuType.UNKNOWN_SKILL_LIST -> actions.toUnknownSkillList()
+            ToolMenuType.TALENT_QUEST -> actions.toTalentQuest()
+            ToolMenuType.ROLE -> actions.toUnitRoleList()
         }
     }
 

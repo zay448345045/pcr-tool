@@ -10,7 +10,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.FixedScale
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.enums.MainIconType
 import cn.wthee.pcrtool.navigation.NavActions
@@ -29,8 +29,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun PvpFloatSearch(spanCount: Int, pvpViewModel: PvpViewModel = hiltViewModel()) {
     val scope = rememberCoroutineScope()
-    val min = navViewModel.floatSearchMin.observeAsState().value ?: false
-    val showResult = navViewModel.showResult.observeAsState().value ?: false
+    val min = navViewModel.floatSearchMin.observeAsState().value == true
+    val showResult = navViewModel.showResult.observeAsState().value == true
     val pagerState = rememberPagerState { 4 }
     val selectListState = rememberLazyGridState()
     val usedListState = rememberLazyGridState()

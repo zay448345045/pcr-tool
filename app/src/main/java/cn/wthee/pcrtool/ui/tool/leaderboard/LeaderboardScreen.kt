@@ -30,7 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.CharacterInfo
@@ -399,7 +399,7 @@ private fun LeaderboardItem(
                     vertical = Dimen.smallPadding
                 ),
                 text = "${index + 1}." + if (hasUnitId && !unknown) {
-                    characterInfo!!.name
+                    characterInfo.name
                 } else {
                     leader.name
                 },
@@ -477,7 +477,7 @@ fun LeaderCharacterIcon(
         //wiki页面
         if (!placeholder) {
             CaptionText(
-                text = "wiki",
+                text = stringResource(id = R.string.wiki),
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .padding(top = Dimen.exSmallPadding)
@@ -566,7 +566,7 @@ private fun LeaderboardItemPreview() {
                 id = 1,
                 name = stringResource(id = R.string.debug_name),
                 position = 100,
-                uniqueEquipType = 2
+                uniqueEquipSlotList = arrayListOf(1)
             ),
         ) {}
     }

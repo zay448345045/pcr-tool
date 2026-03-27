@@ -33,7 +33,6 @@ import cn.wthee.pcrtool.ui.character.profile.CharacterBasicInfo
 import cn.wthee.pcrtool.ui.character.rankcompare.RankCompareScreen
 import cn.wthee.pcrtool.ui.character.rankequip.RankEquipListScreen
 import cn.wthee.pcrtool.ui.character.skillloop.CharacterSkillLoopScreen
-import cn.wthee.pcrtool.ui.character.statuscoe.CharacterStatusCoeScreen
 import cn.wthee.pcrtool.ui.character.story.CharacterStoryAttrScreen
 import cn.wthee.pcrtool.ui.equip.EquipListScreen
 import cn.wthee.pcrtool.ui.equip.detail.EquipDetailScreen
@@ -73,9 +72,11 @@ import cn.wthee.pcrtool.ui.tool.news.NewsScreen
 import cn.wthee.pcrtool.ui.tool.pvp.PvpSearchScreen
 import cn.wthee.pcrtool.ui.tool.quest.QuestListScreen
 import cn.wthee.pcrtool.ui.tool.randomdrop.RandomDropAreaListScreen
+import cn.wthee.pcrtool.ui.tool.role.UnitRoleListScreen
 import cn.wthee.pcrtool.ui.tool.storyevent.StoryEventBossDetail
 import cn.wthee.pcrtool.ui.tool.storyevent.StoryEventListScreen
 import cn.wthee.pcrtool.ui.tool.talent.UnitTalentListScreen
+import cn.wthee.pcrtool.ui.tool.talentquest.TalentQuestScreen
 import cn.wthee.pcrtool.ui.tool.tweet.TweetList
 import cn.wthee.pcrtool.ui.tool.uniqueequip.UniqueEquipListScreen
 import cn.wthee.pcrtool.ui.tool.unknownskill.UnknownSkillListScreen
@@ -477,7 +478,7 @@ fun NavGraph(
                     LeaderboardScreen(actions.toCharacterDetail)
                 }
 
-                //角色排行评级
+                //角色梯队
                 composable(
                     route = NavRoute.TOOL_LEADER_TIER
                 ) {
@@ -588,13 +589,6 @@ fun NavGraph(
                     route = NavRoute.COMIC
                 ) {
                     ComicListScreen()
-                }
-
-                //战力系数
-                bottomSheet(
-                    route = NavRoute.ATTR_COE
-                ) {
-                    CharacterStatusCoeScreen()
                 }
 
                 //召唤物信息
@@ -804,6 +798,29 @@ fun NavGraph(
                     )
                 }
 
+                //角色职能列表
+                composable(
+                    route = NavRoute.ROLE_LIST
+                ) {
+                    UnitRoleListScreen(
+                        toCharacterDetail = actions.toCharacterDetail
+                    )
+                }
+
+                //角色职能列表（指定类型）
+                bottomSheet(
+                    route = "${NavRoute.ROLE_LIST}/{${NavRoute.UNIT_ID}}/{${NavRoute.ROLE_TYPE}}",
+                    arguments = listOf(navArgument(NavRoute.UNIT_ID) {
+                        type = NavType.IntType
+                    }, navArgument(NavRoute.ROLE_TYPE) {
+                        type = NavType.IntType
+                    })
+                ) {
+                    UnitRoleListScreen(
+                        toCharacterDetail = actions.toCharacterDetail
+                    )
+                }
+
                 if (BuildConfig.DEBUG) {
                     //未知技能列表
                     composable(
@@ -812,6 +829,16 @@ fun NavGraph(
                         UnknownSkillListScreen()
                     }
                 }
+
+                //深域关卡
+                composable(
+                    route = NavRoute.TALENT_QUEST
+                ) {
+                    TalentQuestScreen(
+                        toEnemyDetail = actions.toEnemyDetail
+                    )
+                }
+
             }
         }
 
@@ -1062,13 +1089,6 @@ class NavActions(navController: NavHostController) {
     }
 
     /**
-     * 战力系数
-     */
-    val toCoe = {
-        navController.navigate(NavRoute.ATTR_COE)
-    }
-
-    /**
      * 召唤物信息
      */
     val toSummonDetail: (String) -> Unit = { property ->
@@ -1132,6 +1152,13 @@ class NavActions(navController: NavHostController) {
     }
 
     /**
+     * 怪物详情信息
+     */
+    val toEnemyDetail: (Int) -> Unit = { enemyId ->
+        navController.navigate("${NavRoute.ENEMY_DETAIL}/${enemyId}")
+    }
+
+    /**
      * 活动剧情怪物详情信息
      */
     val toEventEnemyDetail: (Int) -> Unit = { enemyId ->
@@ -1146,7 +1173,7 @@ class NavActions(navController: NavHostController) {
     }
 
     /**
-     * 角色评级
+     * 角色梯队
      */
     val toLeaderTier = {
         navController.navigate(NavRoute.TOOL_LEADER_TIER)
@@ -1223,9 +1250,30 @@ class NavActions(navController: NavHostController) {
     }
 
     /**
+     * 角色职能列表
+     */
+    val toUnitRoleList = {
+        navController.navigate(NavRoute.ROLE_LIST)
+    }
+
+    /**
+     * 角色职能列表（按选中角色筛选列表）
+     */
+    val toUnitRoleFilterList: (Int, Int) -> Unit = { unitId, roleType ->
+        navController.navigate("${NavRoute.ROLE_LIST}/$unitId/$roleType")
+    }
+
+    /**
      * 未知技能列表
      */
     val toUnknownSkillList = {
         navController.navigate(NavRoute.UNKNOWN_SKILL)
+    }
+
+    /**
+     * 深域关卡
+     */
+    val toTalentQuest = {
+        navController.navigate(NavRoute.TALENT_QUEST)
     }
 }

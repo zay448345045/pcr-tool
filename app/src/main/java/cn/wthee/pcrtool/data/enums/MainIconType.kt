@@ -63,10 +63,12 @@ import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Looks4
 import androidx.compose.material.icons.rounded.Map
 import androidx.compose.material.icons.rounded.MiscellaneousServices
+import androidx.compose.material.icons.rounded.MoreTime
 import androidx.compose.material.icons.rounded.Movie
 import androidx.compose.material.icons.rounded.NotificationsNone
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Pause
+import androidx.compose.material.icons.rounded.Pentagon
 import androidx.compose.material.icons.rounded.Pets
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -94,6 +96,7 @@ import androidx.compose.material.icons.rounded.ViewAgenda
 import androidx.compose.material.icons.rounded.ViewCompact
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material.icons.rounded.WorkspacePremium
+import androidx.compose.material.icons.rounded.Workspaces
 import androidx.compose.ui.graphics.vector.ImageVector
 
 /**
@@ -404,6 +407,16 @@ enum class MainIconType(val icon: ImageVector) {
     TALENT(Icons.Rounded.EmojiObjects),
 
     /**
+     * 深域关卡
+     */
+    TALENT_QUEST(Icons.Rounded.Pentagon),
+
+    /**
+     * 深域关卡奖励
+     */
+    TALENT_QUEST_REWARD(Icons.Rounded.Map),
+
+    /**
      * 漫画目录
      */
     COMIC_NAV(Icons.AutoMirrored.Rounded.Toc),
@@ -499,7 +512,7 @@ enum class MainIconType(val icon: ImageVector) {
     WEBSITE_BOOKMARK(Icons.Rounded.Bookmarks),
 
     /**
-     * 角色评级
+     * 角色梯队
      */
     LEADER_TIER(Icons.Rounded.WorkspacePremium),
 
@@ -582,4 +595,14 @@ enum class MainIconType(val icon: ImageVector) {
      * 列表显示模式（卡片）
      */
     VIEW_CARD(Icons.Rounded.ViewAgenda),
+
+    /**
+     * 时区
+     */
+    TIME_ZONE(Icons.Rounded.MoreTime),
+
+    /**
+     * 职能
+     */
+    ROLE(Icons.Rounded.Workspaces),
 }

@@ -182,7 +182,7 @@ class EventSectionViewModel @Inject constructor(
      * 设置公会战详情信息
      */
     private suspend fun ClanBattleEvent.addClanBattleInfo() = this.also {
-        val clanList = clanBattleRepository.getClanBattleList(id, 2)
+        val clanList = clanBattleRepository.getClanBattleList(clanBattleId = id, phase = 2)
         if (clanList.isNotEmpty()) {
             clanBattleInfo = clanList[0]
         }
@@ -221,14 +221,15 @@ class EventSectionViewModel @Inject constructor(
     private fun getCalendarEventList(type: EventType) {
         viewModelScope.launch {
             val today = getToday()
-            val data = eventRepository.getDropEvent(50).toMutableList()
-            data += eventRepository.getMissionEvent(1)
-            data += eventRepository.getLoginEvent(1)
-            data += eventRepository.getFortuneEvent(1)
-            data += eventRepository.getTowerEvent(1)
+            val data = eventRepository.getAbyssEvent(1).toMutableList()
+            data += eventRepository.getColosseumEvent(1)
             data += eventRepository.getSpDungeonEvent(1)
             data += eventRepository.getFaultEvent(1)
-            data += eventRepository.getColosseumEvent(1)
+            data += eventRepository.getTowerEvent(1)
+            data += eventRepository.getFortuneEvent(1)
+            data += eventRepository.getLoginEvent(1)
+            data += eventRepository.getMissionEvent(1)
+            data += eventRepository.getDropEvent(50)
 
             _uiState.update { state ->
                 if (type == EventType.IN_PROGRESS) {

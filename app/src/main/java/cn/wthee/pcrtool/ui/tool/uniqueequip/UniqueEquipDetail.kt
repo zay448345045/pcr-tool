@@ -1,7 +1,9 @@
 package cn.wthee.pcrtool.ui.tool.uniqueequip
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import cn.wthee.pcrtool.R
+import cn.wthee.pcrtool.data.db.view.Attr
 import cn.wthee.pcrtool.data.db.view.UniqueEquipmentMaxData
 import cn.wthee.pcrtool.data.db.view.getIndex
 import cn.wthee.pcrtool.data.enums.MainIconType
@@ -24,6 +27,7 @@ import cn.wthee.pcrtool.ui.components.LevelInputText
 import cn.wthee.pcrtool.ui.components.MainIcon
 import cn.wthee.pcrtool.ui.components.MainText
 import cn.wthee.pcrtool.ui.components.Subtitle2
+import cn.wthee.pcrtool.ui.shared.SharedElementKey
 import cn.wthee.pcrtool.ui.theme.CombinedPreviews
 import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.PreviewLayout
@@ -37,6 +41,7 @@ import cn.wthee.pcrtool.utils.deleteSpace
  * @param currentValue 当前属性
  * @param uniqueEquipLevelMax 等级
  * @param uniqueEquipmentMaxData 专武数值信息
+ * @param sp1Data 专用装备1sp数值信息
  */
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -46,10 +51,10 @@ fun SharedTransitionScope.UniqueEquipDetail(
     currentValue: CharacterProperty,
     uniqueEquipLevelMax: Int,
     uniqueEquipmentMaxData: UniqueEquipmentMaxData?,
+    sp1Data: UniqueEquipmentMaxData? = null,
     updateCurrentValue: ((CharacterProperty) -> Unit)
 ) {
     val context = LocalContext.current
-
 
     uniqueEquipmentMaxData?.let {
         Column(
@@ -58,8 +63,8 @@ fun SharedTransitionScope.UniqueEquipDetail(
                 .then(
                     if (MainActivity.animOnFlag) {
                         Modifier.sharedElement(
-                            state = rememberSharedContentState(
-                                key = "item-${it.equipmentId}"
+                            sharedContentState = rememberSharedContentState(
+                                key = "${SharedElementKey.UNIQUE_EQUIP}${it.equipmentId}"
                             ),
                             animatedVisibilityScope = animatedVisibilityScope,
                         )
@@ -130,26 +135,39 @@ fun SharedTransitionScope.UniqueEquipDetail(
             }
             //属性
             AttrList(attrs = it.attr.allNotZero(context))
+            //专用装备1 sp 额外属性
+            if (sp1Data != null){
+                Subtitle2(
+                    text = stringResource(R.string.sp_unique_equip1_attr)
+                )
+                AttrList(attrs = sp1Data.attr.allNotZero(context))
+            }
         }
     }
 
 }
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @CombinedPreviews
 @Composable
 private fun UniqueEquipPreview() {
     PreviewLayout {
-//        UniqueEquipDetail(
-//            1,
-//            currentValue = CharacterProperty(),
-//            uniqueEquipLevelMax = 100,
-//            uniqueEquipmentMaxData = UniqueEquipmentMaxData(
-//                equipmentName = stringResource(id = R.string.debug_short_text),
-//                description = stringResource(id = R.string.debug_long_text),
-//                attr = Attr().random()
-//            ),
-//            updateCurrentValue = {}
-//        )
+        SharedTransitionLayout {
+            AnimatedVisibility(visible = true) {
+                UniqueEquipDetail(
+                    animatedVisibilityScope = this,
+                    slot = 1,
+                    currentValue = CharacterProperty(),
+                    uniqueEquipLevelMax = 100,
+                    uniqueEquipmentMaxData = UniqueEquipmentMaxData(
+                        equipmentName = stringResource(id = R.string.debug_short_text),
+                        description = stringResource(id = R.string.debug_long_text),
+                        attr = Attr().random()
+                    ),
+                    updateCurrentValue = {}
+                )
+            }
+        }
     }
 }

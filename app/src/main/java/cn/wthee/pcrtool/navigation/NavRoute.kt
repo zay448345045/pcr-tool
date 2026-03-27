@@ -35,7 +35,6 @@ object NavRoute {
     const val TWEET = "tweet"
     const val COMIC = "comic"
     const val ALL_EQUIP = "allEquip"
-    const val ATTR_COE = "attrCoe"
     const val UNIT_ID = "unitId"
     const val EQUIP_ID = "equipId"
     const val EQUIP_NAME = "equipName"
@@ -95,7 +94,12 @@ object NavRoute {
     const val ORIGINAL_EVENT_ID = "originalEventId"
     const val TALENT_LIST = "talentList"
     const val TALENT_TYPE = "talentType"
-
+    const val ROLE_LIST = "roleList"
+    const val ROLE_TYPE = "roleType"
     //未知技能
     const val UNKNOWN_SKILL = "unknownSkill"
+
+    //深域关卡
+    const val TALENT_QUEST = "talentQuest"
+    const val TALENT_QUEST_REWARD = "talentQuestReward"
 }

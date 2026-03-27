@@ -14,7 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.GuildData
@@ -23,6 +23,7 @@ import cn.wthee.pcrtool.data.enums.CharacterLimitType
 import cn.wthee.pcrtool.data.enums.CharacterSortType
 import cn.wthee.pcrtool.data.enums.MainIconType
 import cn.wthee.pcrtool.data.enums.PositionType
+import cn.wthee.pcrtool.data.enums.RoleType
 import cn.wthee.pcrtool.data.enums.TalentType
 import cn.wthee.pcrtool.data.model.ChipData
 import cn.wthee.pcrtool.data.model.FilterCharacter
@@ -64,6 +65,7 @@ fun CharacterListFilterScreen(
                 raceList = uiState.raceList,
                 guildList = uiState.guildList,
                 hasTalent = uiState.hasTalent,
+                hasRole = uiState.hasRole,
                 updateFilter = characterListFilterViewModel::updateFilter
             )
         }
@@ -76,6 +78,7 @@ private fun CharacterListFilterContent(
     raceList: List<String>,
     guildList: List<GuildData>,
     hasTalent: Boolean,
+    hasRole: Boolean,
     updateFilter: (FilterCharacter) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -125,6 +128,12 @@ private fun CharacterListFilterContent(
     }
     filter.talentType = talentIndex.intValue
 
+    //职能类型
+    val roleIndex = remember {
+        mutableIntStateOf(filter.roleType)
+    }
+    filter.roleType = roleIndex.intValue
+
     //公会
     val guildIndex = remember {
         mutableIntStateOf(filter.guild)
@@ -154,7 +163,8 @@ private fun CharacterListFilterContent(
     LaunchedEffect(
         textState.value, sortTypeIndex.intValue, sortAscIndex.intValue, favoriteIndex.intValue,
         r6Index.intValue, positionIndex.intValue, atkIndex.intValue, guildIndex.intValue,
-        raceIndex.intValue, typeIndex.intValue, uniqueEquipTypeIndex.intValue, talentIndex.intValue
+        raceIndex.intValue, typeIndex.intValue, uniqueEquipTypeIndex.intValue, talentIndex.intValue,
+        roleIndex.intValue
     ) {
         updateFilter(filter)
     }
@@ -329,6 +339,32 @@ private fun CharacterListFilterContent(
             )
         }
 
+        //职能类型
+        if (hasRole) {
+            MainText(
+                text = stringResource(id = R.string.role_type),
+                modifier = Modifier.padding(top = Dimen.largePadding)
+            )
+            val roleChipData = arrayListOf(
+                ChipData(stringResource(id = R.string.all))
+            )
+            RoleType.entries.forEachIndexed { index, roleType ->
+                if (index != 0) {
+                    roleChipData.add(
+                        ChipData(
+                            text = stringResource(id = roleType.typeNameId),
+                            color = roleType.color
+                        )
+                    )
+                }
+            }
+            ChipGroup(
+                items = roleChipData,
+                selectIndex = roleIndex,
+                modifier = Modifier.padding(Dimen.smallPadding)
+            )
+        }
+
         //攻击类型
         MainText(
             text = stringResource(id = R.string.atk_type),
@@ -362,6 +398,9 @@ private fun CharacterListFilterContent(
             ),
             ChipData(
                 text = stringResource(id = R.string.tool_unique_equip) + 2
+            ),
+            ChipData(
+                text = stringResource(id = R.string.tool_unique_equip) + "1 SP"
             ),
             ChipData(
                 text = stringResource(id = R.string.other)
@@ -424,7 +463,8 @@ private fun CharacterListFilterContentPreview() {
             updateFilter = {},
             guildList = emptyList(),
             raceList = emptyList(),
-            hasTalent = true
+            hasTalent = true,
+            hasRole = true,
         )
     }
 }

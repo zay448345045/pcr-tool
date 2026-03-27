@@ -29,7 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.BuildConfig
 import cn.wthee.pcrtool.R
@@ -139,7 +139,8 @@ private fun SkillListContent(
         (if (isFilterSkill) {
             //过滤专用装备影响的技能
             uiState.normalSkillList.filter {
-                val skill1 = it.skillIndexType == SkillIndexType.MAIN_SKILL_1_PLUS
+                val skill1 = it.skillIndexType == SkillIndexType.MAIN_SKILL_1_PLUS_PLUS
+                        || it.skillIndexType == SkillIndexType.MAIN_SKILL_1_PLUS
                         || it.skillIndexType == SkillIndexType.MAIN_SKILL_1
                 val skill2 = it.skillIndexType == SkillIndexType.MAIN_SKILL_2_PLUS
                         || it.skillIndexType == SkillIndexType.MAIN_SKILL_2
@@ -173,7 +174,8 @@ private fun SkillListContent(
         (if (isFilterSkill) {
             //过滤专用装备影响的技能
             uiState.spSkillList.filter {
-                val skill1 = it.skillIndexType == SkillIndexType.SP_SKILL_1_PLUS
+                val skill1 = it.skillIndexType == SkillIndexType.SP_SKILL_1_PLUS_PLUS
+                        || it.skillIndexType == SkillIndexType.SP_SKILL_1_PLUS
                         || it.skillIndexType == SkillIndexType.SP_SKILL_1
                 val skill2 = it.skillIndexType == SkillIndexType.SP_SKILL_2_PLUS
                         || it.skillIndexType == SkillIndexType.SP_SKILL_2
@@ -282,6 +284,9 @@ fun SkillItemContent(
         SkillIndexType.MAIN_SKILL_2_PLUS -> {
             stringResource(id = R.string.skill_index, skillDetail.skillIndexType.index) + "+"
         }
+        SkillIndexType.MAIN_SKILL_1_PLUS_PLUS-> {
+            stringResource(id = R.string.skill_index, skillDetail.skillIndexType.index) + "++"
+        }
 
         SkillIndexType.EX_1,
         SkillIndexType.EX_2,
@@ -317,6 +322,9 @@ fun SkillItemContent(
         SkillIndexType.SP_SKILL_1_PLUS,
         SkillIndexType.SP_SKILL_2_PLUS -> {
             "SP" + stringResource(id = R.string.skill_index, skillDetail.skillIndexType.index) + "+"
+        }
+        SkillIndexType.SP_SKILL_1_PLUS_PLUS-> {
+            "SP" + stringResource(id = R.string.skill_index, skillDetail.skillIndexType.index) + "++"
         }
 
         else -> ""
@@ -457,49 +465,30 @@ fun SkillActionItem(
         mutableStateOf(false)
     }
 
-    //详细描述
-    val mark0 = arrayListOf<ColorTextIndex>()
-    val mark1 = arrayListOf<ColorTextIndex>()
-    val mark2 = arrayListOf<ColorTextIndex>()
-    val mark3 = arrayListOf<ColorTextIndex>()
-    val colors =
-        arrayListOf(
-            colorGreen,
-            if (isSystemInDarkTheme()) colorWhite else Color.Black,
-            colorPurple,
-            MaterialTheme.colorScheme.primary
-        )
+    //需替换的符合、颜色
+    val markDataList = arrayListOf(
+        MarkData('{', '}', colorPurple),
+        MarkData('⌈', '⌋', MaterialTheme.colorScheme.primary),
+        MarkData('<', '>', MaterialTheme.colorScheme.primary),
+        MarkData('[', ']', colorGreen),
+        MarkData('(', ')', if (isSystemInDarkTheme()) colorWhite else Color.Black),
+    )
+
+
+    //遍历设置符号颜色下标
     skillAction.actionDesc.forEachIndexed { index, c ->
-        if (c == '[') {
-            mark0.add(ColorTextIndex(start = index))
-        }
-        if (c == ']') {
-            mark0[mark0.size - 1].end = index
-        }
-        if (c == '(') {
-            mark1.add(ColorTextIndex(start = index))
-        }
-        if (c == ')') {
-            mark1[mark1.size - 1].end = index
-        }
-        if (c == '{') {
-            mark2.add(ColorTextIndex(start = index))
-        }
-        if (c == '}') {
-            mark2[mark2.size - 1].end = index
-        }
-        if (c == '<') {
-            mark3.add(ColorTextIndex(start = index))
-        }
-        if (c == '>') {
-            mark3[mark3.size - 1].end = index
+        markDataList.forEachIndexed { i, markData ->
+            val mark = markData.indexList
+            if (c == markData.startChar) {
+                mark.add(ColorTextIndex(start = index))
+                return@forEachIndexed
+            }
+            if (c == markData.endChar) {
+                mark[mark.size - 1].end = index
+                return@forEachIndexed
+            }
         }
     }
-    val map = hashMapOf<Int, ArrayList<ColorTextIndex>>()
-    map[0] = mark0
-    map[1] = mark1
-    map[2] = mark2
-    map[3] = mark3
 
 
     Column(
@@ -526,10 +515,10 @@ fun SkillActionItem(
             text = buildAnnotatedString {
                 skillAction.actionDesc.forEachIndexed { index, char ->
                     //替换括号及括号内字体颜色
-                    for (i in 0..3) {
-                        map[i]?.forEach {
+                    markDataList.forEach { mark ->
+                        mark.indexList.forEach {
                             if (index >= it.start && index <= it.end) {
-                                withStyle(style = SpanStyle(color = colors[i])) {
+                                withStyle(style = SpanStyle(color = mark.color)) {
                                     append(char)
                                 }
                                 return@forEachIndexed
@@ -615,9 +604,22 @@ fun getSkillColor(type: String): Color {
     }
 }
 
+/**
+ * 下标信息
+ */
 data class ColorTextIndex(
     var start: Int = 0,
     var end: Int = 0
+)
+
+/**
+ * 需替换的起始标记，及颜色数据
+ */
+private data class MarkData(
+    var startChar: Char,
+    var endChar: Char,
+    var color: Color,
+    var indexList: ArrayList<ColorTextIndex> = arrayListOf<ColorTextIndex>()
 )
 
 

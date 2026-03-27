@@ -1,7 +1,9 @@
 package cn.wthee.pcrtool.ui.tool.clan
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.ClanBattleEvent
+import cn.wthee.pcrtool.data.db.view.ClanBattleInfo
 import cn.wthee.pcrtool.ui.components.CaptionText
 import cn.wthee.pcrtool.ui.components.EventTitle
 import cn.wthee.pcrtool.ui.components.MainCard
@@ -25,7 +28,7 @@ import cn.wthee.pcrtool.ui.theme.CombinedPreviews
 import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.PreviewLayout
 import cn.wthee.pcrtool.ui.theme.colorOrange
-import cn.wthee.pcrtool.utils.fixJpTime
+import cn.wthee.pcrtool.utils.fixTimeZone
 import cn.wthee.pcrtool.utils.formatTime
 
 
@@ -95,7 +98,7 @@ private fun ClanBattleNoBossContent(clanBattleEvent: ClanBattleEvent) {
 
             //结束日期
             CaptionText(
-                text = clanBattleEvent.getFixedEndTime().fixJpTime,
+                text = clanBattleEvent.getFixedEndTime().fixTimeZone,
                 modifier = Modifier
                     .padding(end = Dimen.mediumPadding, bottom = Dimen.mediumPadding)
                     .fillMaxWidth()
@@ -105,19 +108,27 @@ private fun ClanBattleNoBossContent(clanBattleEvent: ClanBattleEvent) {
 }
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @CombinedPreviews
 @Composable
 private fun Preview() {
     PreviewLayout {
-//        ClanBattleOverviewItemContent(
-//            clanBattleEvent = ClanBattleEvent(
-//                clanBattleInfo = ClanBattleInfo(1)
-//            ),
-//            toClanBossInfo = {}
-//        )
-//        ClanBattleOverviewItemContent(
-//            clanBattleEvent = ClanBattleEvent(),
-//            toClanBossInfo = {}
-//        )
+        SharedTransitionLayout {
+            AnimatedVisibility(visible = true) {
+                ClanBattleOverviewItemContent(
+                    animatedVisibilityScope = this,
+                    clanBattleEvent = ClanBattleEvent(
+                        clanBattleInfo = ClanBattleInfo(1)
+                    ),
+                    toClanBossInfo = {}
+                )
+                ClanBattleOverviewItemContent(
+                    animatedVisibilityScope = this,
+                    clanBattleEvent = ClanBattleEvent(),
+                    toClanBossInfo = {}
+                )
+            }
+        }
+
     }
 }

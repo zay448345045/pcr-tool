@@ -1,7 +1,9 @@
 package cn.wthee.pcrtool.ui.tool.extratravel
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -18,7 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.ExtraEquipQuestData
@@ -37,6 +39,7 @@ import cn.wthee.pcrtool.ui.components.StateBox
 import cn.wthee.pcrtool.ui.components.Subtitle1
 import cn.wthee.pcrtool.ui.components.VerticalGridList
 import cn.wthee.pcrtool.ui.components.getItemWidth
+import cn.wthee.pcrtool.ui.shared.SharedElementKey
 import cn.wthee.pcrtool.ui.theme.CombinedPreviews
 import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.PreviewLayout
@@ -165,8 +168,8 @@ fun SharedTransitionScope.TravelQuestHeader(
             .then(
                 if (MainActivity.animOnFlag) {
                     Modifier.sharedElement(
-                        state = rememberSharedContentState(
-                            key = "item-${questData.travelQuestId}"
+                        sharedContentState = rememberSharedContentState(
+                            key = "${SharedElementKey.TRAVEL}${questData.travelQuestId}"
                         ),
                         animatedVisibilityScope = animatedVisibilityScope,
                     )
@@ -214,33 +217,42 @@ fun SharedTransitionScope.TravelQuestHeader(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @CombinedPreviews
 @Composable
 private fun TravelItemPreview() {
     PreviewLayout {
-//        val quest = ExtraEquipQuestData(
-//            1,
-//            1,
-//            stringResource(id = R.string.debug_short_text),
-//            10,
-//            1000,
-//            2000,
-//            1,
-//            1,
-//            1
-//        )
-//
-//        TravelItem(
-//            travelData = ExtraTravelData(
-//                travelAreaId = 1,
-//                travelAreaName = stringResource(id = R.string.debug_short_text),
-//                questCount = 1,
-//                questList = arrayListOf(
-//                    quest, quest, quest
-//                )
-//            ),
-//            toExtraEquipTravelAreaDetail = {}
-//        )
+        SharedTransitionLayout {
+            AnimatedVisibility(visible = true) {
+                val quest = ExtraEquipQuestData(
+                    travelQuestId = 1,
+                    travelAreaId = 1,
+                    travelQuestName = stringResource(id = R.string.debug_short_text),
+                    limitUnitNum = 10,
+                    travelTime = 1000,
+                    travelTimeDecreaseLimit = 2000,
+                    travelDecreaseFlag = 1,
+                    needPower = 1,
+                    iconId = 1
+                )
+
+                Column {
+                    TravelItem(
+                        animatedVisibilityScope = this@AnimatedVisibility,
+                        travelData = ExtraTravelData(
+                            travelAreaId = 1,
+                            travelAreaName = stringResource(id = R.string.debug_short_text),
+                            questCount = 1,
+                            questList = arrayListOf(
+                                quest, quest, quest
+                            )
+                        ),
+                        toExtraEquipTravelAreaDetail = {}
+                    )
+                }
+
+            }
+        }
     }
 }
 

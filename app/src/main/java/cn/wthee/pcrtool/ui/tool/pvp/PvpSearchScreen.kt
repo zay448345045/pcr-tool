@@ -48,7 +48,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.MyApplication
 import cn.wthee.pcrtool.R
@@ -113,7 +113,7 @@ fun PvpSearchScreen(
     val uiState by pvpViewModel.uiState.collectAsStateWithLifecycle()
 
     //显示类型
-    val showResult = navViewModel.showResult.observeAsState().value ?: false
+    val showResult = navViewModel.showResult.observeAsState().value == true
     //已选择的id
     val selectedIds = navViewModel.selectedPvpData.observeAsState().value ?: arrayListOf()
 

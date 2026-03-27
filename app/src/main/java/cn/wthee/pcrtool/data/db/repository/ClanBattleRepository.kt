@@ -4,6 +4,8 @@ import cn.wthee.pcrtool.data.db.dao.ClanBattleDao
 import cn.wthee.pcrtool.data.db.dao.EnemyDao
 import cn.wthee.pcrtool.data.db.view.ClanBattleBossData
 import cn.wthee.pcrtool.data.db.view.ClanBattleTargetCountData
+import cn.wthee.pcrtool.data.enums.RegionType
+import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.utils.LogReportUtil
 import cn.wthee.pcrtool.utils.intArrayList
 import javax.inject.Inject
@@ -18,15 +20,20 @@ class ClanBattleRepository @Inject constructor(
     private val enemyDao: EnemyDao
 ) {
 
+
     private suspend fun getAllClanBattleData(clanBattleId: Int) = try {
-        clanBattleDao.getAllClanBattleData(clanBattleId)
+        clanBattleDao.getAllClanBattleData(clanBattleId = clanBattleId)
     } catch (e: Exception) {
         LogReportUtil.upload(e, "getAllClanBattleData#clanBattleId:$clanBattleId")
         emptyList()
     }
 
     private suspend fun getAllClanBattleTargetCount(clanBattleId: Int, phase: Int) = try {
-        clanBattleDao.getAllClanBattleTargetCount(clanBattleId = clanBattleId, phase = phase)
+        clanBattleDao.getAllClanBattleTargetCount(
+            clanBattleId = clanBattleId,
+            phase = phase,
+            clanIdOffset = clanBattleId
+        )
     } catch (e: Exception) {
         LogReportUtil.upload(e, "getAllClanBattleData#clanBattleId:$clanBattleId,phase:$phase")
         emptyList()
@@ -36,8 +43,9 @@ class ClanBattleRepository @Inject constructor(
      * 获取公会战列表
      */
     suspend fun getClanBattleList(clanBattleId: Int, phase: Int) = try {
+
         val targetList = getAllClanBattleTargetCount(clanBattleId = clanBattleId, phase = phase)
-        val clanList = getAllClanBattleData(clanBattleId)
+        val clanList = getAllClanBattleData(clanBattleId = clanBattleId)
         val weaknessDataList = getAllEnemyTalentWeaknessList()
         //设置多目标数
         clanList.forEach { info ->
@@ -86,7 +94,8 @@ class ClanBattleRepository @Inject constructor(
 
     private suspend fun getAllEnemyTalentWeaknessList() = try {
         enemyDao.getAllEnemyTalentWeaknessList(0)
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        LogReportUtil.upload(e, "getAllEnemyTalentWeaknessList")
         emptyList()
     }
 }

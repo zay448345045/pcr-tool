@@ -1,6 +1,7 @@
 package cn.wthee.pcrtool.utils
 
 import android.content.Context
+import android.os.Build
 import cn.wthee.pcrtool.MyApplication
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.enums.RegionType
@@ -12,40 +13,76 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
+object DateUtil {
+    const val CN_TIME_ZONE = "Asia/Shanghai"
+    const val DEFAULT_DATE = "2000/01/01 00:00:00"
+}
 
-val df: DateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.CHINESE)
-val df1: DateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.CHINESE)
-val df2: DateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS", Locale.CHINESE)
+
+val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && MainActivity.autoTimeZone) {
+    Locale.getDefault(Locale.Category.DISPLAY)
+} else {
+    //默认中国时区
+    Locale.CHINESE
+}
+
+//根据应用设置，获取时区
+val autoTimeZone = if (MainActivity.autoTimeZone) {
+    TimeZone.getDefault()
+} else {
+    TimeZone.getTimeZone(DateUtil.CN_TIME_ZONE)
+}
+
+//中国时区
+val basicDf: DateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.CHINESE).also {
+    it.timeZone = TimeZone.getTimeZone(DateUtil.CN_TIME_ZONE)
+}
+
+val df: DateFormat = SimpleDateFormat("yyyy/MM/dd", locale).apply {
+    timeZone = autoTimeZone
+}
+val df1: DateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm:ss", locale).apply {
+    timeZone = autoTimeZone
+}
+val df2: DateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS", locale).apply {
+    timeZone = autoTimeZone
+}
 
 /**
  * 格式化时间 yyyy/MM/dd HH:mm:ss
  */
 val String.formatTime: String
     get() {
-        //分隔“年月日”和“时分秒”
-        val dateList = this.replace("  ", " ")
-            .replace("-", "/")
-            .split(" ")
-        //年月日
-        val ymsList = dateList[0].split("/")
-        //时分秒默认00
-        val hmsList = arrayListOf("00", "00", "00")
-        //重新填充时分秒
-        if (dateList.size > 1) {
-            val newHmsList = dateList[1].split(":")
-            if (newHmsList.isNotEmpty()) {
-                hmsList[0] = newHmsList[0]
+        try {
+            //分隔“年月日”和“时分秒”
+            val dateList = this.replace("  ", " ")
+                .replace("-", "/")
+                .split(" ")
+            //年月日
+            val ymsList = dateList[0].split("/")
+            //时分秒默认00
+            val hmsList = arrayListOf("00", "00", "00")
+            //重新填充时分秒
+            if (dateList.size > 1) {
+                val newHmsList = dateList[1].split(":")
+                if (newHmsList.isNotEmpty()) {
+                    hmsList[0] = newHmsList[0]
+                }
+                if (newHmsList.size > 1) {
+                    hmsList[1] = newHmsList[1]
+                }
+                if (newHmsList.size > 2) {
+                    hmsList[2] = newHmsList[2]
+                }
             }
-            if (newHmsList.size > 1) {
-                hmsList[1] = newHmsList[1]
-            }
-            if (newHmsList.size > 2) {
-                hmsList[2] = newHmsList[2]
-            }
+            val ymdStr = "${ymsList[0]}/${ymsList[1].fillZero()}/${ymsList[2].fillZero()}"
+            val hmsStr =
+                "${hmsList[0].fillZero()}:${hmsList[1].fillZero()}:${hmsList[2].fillZero()}"
+            return "$ymdStr $hmsStr"
+        } catch (e: Exception) {
+            LogReportUtil.upload(e, "formatTime error: $this")
+            return DateUtil.DEFAULT_DATE
         }
-        val ymdStr = "${ymsList[0]}/${ymsList[1].fillZero()}/${ymsList[2].fillZero()}"
-        val hmsStr = "${hmsList[0].fillZero()}:${hmsList[1].fillZero()}:${hmsList[2].fillZero()}"
-        return "$ymdStr $hmsStr"
     }
 
 /**
@@ -78,24 +115,34 @@ val Long.simpleDateFormatUTC: String
     }
 
 /**
- * 小时 - 1
+ * 修改时区
  */
-val String.fixJpTime: String
-    get() =
-        if (this != "") {
-            if (MainActivity.regionType == RegionType.JP) {
-                try {
-                    val d = df1.parse(this)!!.time - 60 * 60 * 1000
-                    df1.format(Date(d))
-                } catch (e: Exception) {
+val String.fixTimeZone: String
+    get() {
+        try {
+            val date = if (this != "") {
+                // 处理日服日期（+9 > +8）小时 - 1
+                if (MainActivity.regionType == RegionType.JP) {
+                    try {
+                        val d = basicDf.parse(this)!!.time - 60 * 60 * 1000
+                        basicDf.format(Date(d))
+                    } catch (e: Exception) {
+                        this
+                    }
+                } else {
                     this
                 }
             } else {
                 this
             }
-        } else {
-            this
+            //统一修改时区
+            return df1.format(Date(basicDf.parse(date)!!.time))
+        } catch (e: Exception) {
+            LogReportUtil.upload(e, "fixTimeZone error: $this")
+            return DateUtil.DEFAULT_DATE
         }
+    }
+
 
 /**
  * 获取当天时间
@@ -221,8 +268,8 @@ fun isInProgress(
     endTime: String,
     fixJpTime: Boolean = true
 ): Boolean {
-    val sd = if (fixJpTime) startTime.formatTime.fixJpTime else startTime.formatTime
-    val ed = if (fixJpTime) endTime.formatTime.fixJpTime else endTime.formatTime
+    val sd = if (fixJpTime) startTime.formatTime.fixTimeZone else startTime.formatTime
+    val ed = if (fixJpTime) endTime.formatTime.fixTimeZone else endTime.formatTime
     return today.second(sd) > 0 && ed.second(today) > 0 && ed.second(today) < 31536000
 }
 
@@ -230,7 +277,7 @@ fun isInProgress(
  * 预告判断
  */
 fun isComingSoon(today: String, startTime: String, fixJpTime: Boolean = true): Boolean {
-    val sd = if (fixJpTime) startTime.formatTime.fixJpTime else startTime.formatTime
+    val sd = if (fixJpTime) startTime.formatTime.fixTimeZone else startTime.formatTime
     return today.second(sd) < 0
 }
 

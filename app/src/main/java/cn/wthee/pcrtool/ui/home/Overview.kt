@@ -36,7 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.BuildConfig
 import cn.wthee.pcrtool.R
@@ -45,7 +45,7 @@ import cn.wthee.pcrtool.data.enums.OverviewType
 import cn.wthee.pcrtool.data.enums.RegionType
 import cn.wthee.pcrtool.data.enums.SettingSwitchType
 import cn.wthee.pcrtool.data.model.DatabaseVersion
-import cn.wthee.pcrtool.database.DatabaseUpdater
+import cn.wthee.pcrtool.database.AppBasicDatabaseUpdater
 import cn.wthee.pcrtool.navigation.NavActions
 import cn.wthee.pcrtool.ui.MainActivity
 import cn.wthee.pcrtool.ui.MainActivity.Companion.animOnFlag
@@ -345,7 +345,10 @@ private fun ChangeDbCompose(
             ),
             expanded = showChangeDb,
             onClick = {
-                if (downloadState == DbDownloadState.NORMAL.state || remoteDbSizeError) {
+                if (downloadState == DbDownloadState.NORMAL.state
+                    || downloadState == DbDownloadState.LOADING.state
+                    || remoteDbSizeError
+                ) {
                     onClick()
                 }
             },
@@ -432,7 +435,7 @@ private fun DbVersionSelectContent(
                 onClick = {
                     coroutineScope.launch {
                         //正常切换
-                        DatabaseUpdater.changeDatabase(regionType)
+                        AppBasicDatabaseUpdater.changeDatabase(regionType)
                     }
                 }
             )
@@ -469,19 +472,6 @@ private fun DbVersionOtherContent(
                 bottom = Dimen.fabMargin,
             )
     ) {
-
-        //数据更新内容
-        DbVersionContentItem(
-            title = stringResource(id = R.string.db_diff_content),
-            content = if (dbVersion == null || dbVersion.desc == "") {
-                stringResource(R.string.db_diff_content_none)
-            } else {
-                dbVersion.desc
-            },
-            color = color
-        )
-
-        Spacer(modifier = Modifier.height(Dimen.commonItemPadding * 2))
 
         Row(
             modifier = Modifier
@@ -529,7 +519,7 @@ private fun DbVersionOtherContent(
                     if (remoteDbSizeError) {
                         joinQQGroup(context)
                     } else {
-                        DatabaseUpdater.checkDBVersion(
+                        AppBasicDatabaseUpdater.checkDBVersion(
                             fixDb = true,
                             updateDbDownloadState = updateDbDownloadState,
                             updateDbVersion = updateDbVersion,
@@ -554,7 +544,7 @@ private fun DbVersionOtherContent(
                 ),
                 contentColor = color,
                 textStyle = MaterialTheme.typography.bodySmall,
-                maxLines = 2
+                maxLines = 4
             )
         }
     }

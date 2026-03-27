@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.ItemSnapshotList
 import androidx.paging.LoadState
@@ -225,7 +225,7 @@ private fun ComicTocList(
     changeDialog: (Boolean) -> Unit,
 ) {
     val tabs = arrayListOf<String>()
-    if (items.size > 0) {
+    if (items.isNotEmpty()) {
         for (i in 0 until items.size) {
             val title = if (items[i] == null) {
                 "${items.size - i}"

@@ -1,7 +1,9 @@
 package cn.wthee.pcrtool.ui.tool.uniqueequip
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -21,8 +24,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.wthee.pcrtool.R
 import cn.wthee.pcrtool.data.db.view.CharacterInfo
@@ -42,6 +46,7 @@ import cn.wthee.pcrtool.ui.components.StateBox
 import cn.wthee.pcrtool.ui.components.Subtitle2
 import cn.wthee.pcrtool.ui.components.TabData
 import cn.wthee.pcrtool.ui.components.getItemWidth
+import cn.wthee.pcrtool.ui.shared.SharedElementKey
 import cn.wthee.pcrtool.ui.theme.CombinedPreviews
 import cn.wthee.pcrtool.ui.theme.Dimen
 import cn.wthee.pcrtool.ui.theme.PreviewLayout
@@ -67,26 +72,32 @@ fun SharedTransitionScope.UniqueEquipListScreen(
     val uniqueEquips = uiState.uniqueEquipList
 
     //专用装备1
-    val uniqueEquips1 = uniqueEquips?.filter {
+    val uniqueEquipList1 = uniqueEquips.filter {
         it.equipSlot == 1
     }
     //专用装备2
-    val uniqueEquips2 = uniqueEquips?.filter {
+    val uniqueEquipList2 = uniqueEquips.filter {
         it.equipSlot == 2
+    }
+    //专用装备1 sp
+    val uniqueEquipSpList1 = uniqueEquips.filter {
+        it.equipSlot == 3
     }
 
     //列表状态
-    val gridState1 = rememberLazyGridState()
-    val gridState2 = rememberLazyGridState()
+    val gridStateList = arrayListOf<LazyGridState>()
+    if (uniqueEquipList1.isNotEmpty()) {
+        gridStateList.add(rememberLazyGridState())
+    }
+    if (uniqueEquipList2.isNotEmpty()) {
+        gridStateList.add(rememberLazyGridState())
+    }
+    if (uniqueEquipSpList1.isNotEmpty()) {
+        gridStateList.add(rememberLazyGridState())
+    }
 
     //计算页数
-    var pagerCount = 0
-    if (uniqueEquips1?.isNotEmpty() == true) {
-        pagerCount = 1
-    }
-    if (uniqueEquips2?.isNotEmpty() == true) {
-        pagerCount = 2
-    }
+    val pagerCount = gridStateList.size
 
     //页面状态
     val pagerState = rememberPagerState {
@@ -97,7 +108,7 @@ fun SharedTransitionScope.UniqueEquipListScreen(
     MainScaffold(
         fabWithCustomPadding = {
             //搜索栏
-            val count = uniqueEquips?.size ?: 0
+            val count = uniqueEquips.size
 
             BottomSearchBar(
                 labelStringId = R.string.search_unique_equip,
@@ -111,12 +122,7 @@ fun SharedTransitionScope.UniqueEquipListScreen(
                 fabText = count.toString(),
                 onTopClick = {
                     scope.launch {
-                        if (uniqueEquips1?.isNotEmpty() == true) {
-                            gridState1.scrollToItem(0)
-                        }
-                        if (uniqueEquips2?.isNotEmpty() == true) {
-                            gridState2.scrollToItem(0)
-                        }
+                        gridStateList[pagerState.currentPage].scrollToItem(0)
                     }
                 },
                 onResetClick = {
@@ -131,35 +137,38 @@ fun SharedTransitionScope.UniqueEquipListScreen(
     ) {
         StateBox(stateType = uiState.loadState) {
             Column {
-                if (pagerCount == 2) {
-                    MainTabRow(
-                        pagerState = pagerState,
-                        tabs = arrayListOf(
-                            TabData(tab = getIndex(1), count = uniqueEquips1!!.size),
-                            TabData(tab = getIndex(2), count = uniqueEquips2!!.size)
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth(RATIO_GOLDEN)
-                            .align(Alignment.CenterHorizontally)
-                    ) {
-                        if (it == 0) {
-                            gridState1.scrollToItem(0)
-                        } else {
-                            gridState2.scrollToItem(0)
-                        }
-                    }
+                val tabList = arrayListOf(
+                    TabData(tab = getIndex(1), count = uniqueEquipList1.size),
+                    TabData(tab = getIndex(2), count = uniqueEquipList2.size)
+                )
+                //专用装备1 sp
+                if (pagerCount == 3) {
+                    tabList.add(TabData(tab = getIndex(3), count = uniqueEquipSpList1.size))
+                }
+                MainTabRow(
+                    pagerState = pagerState,
+                    tabs = tabList,
+                    modifier = Modifier
+                        .fillMaxWidth(RATIO_GOLDEN)
+                        .align(Alignment.CenterHorizontally)
+                ) { index ->
+                   gridStateList[index].scrollToItem(0)
                 }
 
                 HorizontalPager(state = pagerState) { index ->
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(getItemWidth()),
                         modifier = Modifier.fillMaxHeight(),
-                        state = if (index == 0) gridState1 else gridState2
+                        state =  gridStateList[index]
                     ) {
                         items(
-                            if (index == 0) uniqueEquips1!! else uniqueEquips2!!,
+                            items = when (index) {
+                                0 -> uniqueEquipList1
+                                1 -> uniqueEquipList2
+                                else -> uniqueEquipSpList1
+                            },
                             key = {
-                                it.equipId
+                                "${it.equipSlot}-${it.equipId}"
                             }
                         ) { uniqueEquip ->
                             //获取角色名
@@ -168,14 +177,12 @@ fun SharedTransitionScope.UniqueEquipListScreen(
                             }
                             val characterInfo by flow.collectAsState(initial = CharacterInfo())
 
-                            characterInfo?.let {
-                                UniqueEquipItem(
-                                    animatedVisibilityScope = animatedVisibilityScope,
-                                    equip = uniqueEquip,
-                                    characterInfo = it,
-                                    toUniqueEquipDetail = toUniqueEquipDetail
-                                )
-                            }
+                            UniqueEquipItem(
+                                animatedVisibilityScope = animatedVisibilityScope,
+                                equip = uniqueEquip,
+                                characterInfo = characterInfo,
+                                toUniqueEquipDetail = toUniqueEquipDetail
+                            )
                         }
                         item {
                             CommonSpacer()
@@ -198,12 +205,13 @@ fun SharedTransitionScope.UniqueEquipListScreen(
 private fun SharedTransitionScope.UniqueEquipItem(
     animatedVisibilityScope: AnimatedVisibilityScope,
     equip: UniqueEquipBasicData,
-    characterInfo: CharacterInfo,
+    characterInfo: CharacterInfo?,
     toUniqueEquipDetail: (Int) -> Unit
 ) {
 
     Row(
         modifier = Modifier
+            .fillMaxWidth()
             .padding(
                 top = Dimen.largePadding,
                 start = Dimen.largePadding,
@@ -212,8 +220,8 @@ private fun SharedTransitionScope.UniqueEquipItem(
             .then(
                 if (MainActivity.animOnFlag) {
                     Modifier.sharedElement(
-                        state = rememberSharedContentState(
-                            key = "item-${equip.equipId}"
+                        sharedContentState = rememberSharedContentState(
+                            key = "${SharedElementKey.UNIQUE_EQUIP}${equip.equipId}"
                         ),
                         animatedVisibilityScope = animatedVisibilityScope,
                     )
@@ -259,11 +267,13 @@ private fun SharedTransitionScope.UniqueEquipItem(
                     selectable = true
                 )
 
-                UnitIconAndTag(
-                    characterInfo = characterInfo,
-                    showUniqueEquipType = false,
-                    animatedVisibilityScope = animatedVisibilityScope
-                )
+                characterInfo?.let {
+                    UnitIconAndTag(
+                        characterInfo = it,
+                        showUniqueEquipType = false,
+                        animatedVisibilityScope = animatedVisibilityScope
+                    )
+                }
 
             }
         }
@@ -291,8 +301,8 @@ fun SharedTransitionScope.UnitIconAndTag(
                 .then(
                     if (MainActivity.animOnFlag) {
                         Modifier.sharedElement(
-                            state = rememberSharedContentState(
-                                key = "UnitIconAndTag-${characterInfo.id}"
+                            sharedContentState = rememberSharedContentState(
+                                key = "${SharedElementKey.UNIT_ICON_TAG}${characterInfo.id}"
                             ),
                             animatedVisibilityScope = animatedVisibilityScope,
                         )
@@ -327,18 +337,24 @@ fun SharedTransitionScope.UnitIconAndTag(
 }
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @CombinedPreviews
 @Composable
 private fun UniqueEquipItemPreview() {
     PreviewLayout {
-//        UniqueEquipItem(
-//            UniqueEquipBasicData(
-//                equipName = stringResource(id = R.string.debug_short_text),
-//                description = stringResource(id = R.string.debug_long_text),
-//            ),
-//            CharacterInfo(
-//                name = stringResource(id = R.string.debug_short_text)
-//            )
-//        ) {}
+        SharedTransitionLayout {
+            AnimatedVisibility(visible = true) {
+                UniqueEquipItem(
+                    animatedVisibilityScope = this,
+                    UniqueEquipBasicData(
+                        equipName = stringResource(id = R.string.debug_short_text),
+                        description = stringResource(id = R.string.debug_long_text),
+                    ),
+                    CharacterInfo(
+                        name = stringResource(id = R.string.debug_short_text)
+                    )
+                ) {}
+            }
+        }
     }
 }
