@@ -21,7 +21,7 @@
 - [爱发电](https://ifdian.net/a/wthee)
 
 ## 其他
-
+[![Total Downloads](https://img.shields.io/github/downloads/wthee/pcr-tool/total?style=for-the-badge&color=2ea44f&logo=github)](https://github.com/wthee/pcr-tool/releases)
 - [使用的数据表](DATATABLE.md)
 - [更新记录](CHANGELOG.md)
 - [游戏数据](https://github.com/wthee/pcr-tool-sql-diff)
